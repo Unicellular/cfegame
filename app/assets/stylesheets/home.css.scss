@@ -1,0 +1,70 @@
+// Place all the styles related to the home controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+@import "bootstrap";
+
+$total-height: 660px;
+$player-height: 300px;
+#field {
+  height: $total-height;
+  background-color: $gray-lighter;
+}
+
+.primary {
+  @include make-md-column(10.5);
+}
+
+.secondary {
+  @include make-md-column(1.5);
+  text-align: center;
+  .card {
+    margin: 10px auto;
+    float: none;
+  }
+}
+
+.side {
+  height: 100%;
+  background-color: $gray-light;
+}
+
+.main {
+  height: 100%;
+  background-color: lighten(blue, 20%);
+}
+
+#oppoenet {
+  height: $player-height;
+}
+
+#common {
+  height: $total-height - $player-height * 2;
+}
+
+#player {
+  height: $player-height;
+}
+
+.card {
+  background-color: BurlyWood;
+  margin: 10px;
+  float: left;
+}
+
+.hand {
+  height: 180px;
+}
+
+.action {
+  height: 120px;
+}
+
+.card-lg {
+  width: 120px;
+  height: 160px;
+}
+
+.card-sm {
+  width: 75px;
+  height: 100px;
+}
