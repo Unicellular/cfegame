@@ -13,5 +13,21 @@ html
         .navbar-header
           .navbar-brand
             | CFE
+        .collapse.navbar-collapse
+          ul.nav.navbar-nav
+            - if user_signed_in?
+              li
+                p.navbar-text
+                  | Logged in as 
+                  = current_user.name
+              li
+                = link_to 'Logout', signout_path
+            - else
+              li
+                = link_to 'Login', signin_path
+          - flash.each do |name, msg|
+            - if msg.is_a?(String)
+              li.alert class=( bootstrap_class_for(name) ) id=("flash_#{name}")
+                = msg
     .container
       = yield

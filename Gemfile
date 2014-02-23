@@ -22,6 +22,11 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'slim-rails'
 
+# for log in 
+gem 'omniauth', '~> 1.1.4'
+gem 'omniauth-gplus', '~> 1.2.0'
+gem 'omniauth-facebook', '~> 1.5.1'
+
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
   gem 'sdoc', require: false
