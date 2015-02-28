@@ -1,7 +1,6 @@
 source 'https://rubygems.org'
-ruby '2.0.0'
 
-gem 'rails', '4.0.2'
+gem 'rails', '4.2.0'
 
 group :development, :test do
   gem 'sqlite3'
@@ -22,7 +21,7 @@ gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'slim-rails'
 
-# for log in 
+# for log in
 gem 'omniauth', '~> 1.1.4'
 gem 'omniauth-gplus', '~> 1.2.0'
 gem 'omniauth-facebook', '~> 1.5.1'
