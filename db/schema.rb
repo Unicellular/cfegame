@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20140221153010) do
+ActiveRecord::Schema.define(version: 20150425111324) do
 
   create_table "authorizations", force: :cascade do |t|
     t.string   "provider"
@@ -19,6 +19,56 @@ ActiveRecord::Schema.define(version: 20140221153010) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "cards", force: :cascade do |t|
+    t.integer  "element"
+    t.integer  "level"
+    t.integer  "position"
+    t.integer  "cardholder_id"
+    t.string   "cardholder_type"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
+
+  create_table "decks", force: :cascade do |t|
+    t.integer  "game_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "games", force: :cascade do |t|
+    t.string   "winner"
+    t.string   "field"
+    t.integer  "team_amount",  default: 2
+    t.integer  "member_limit", default: 1
+    t.boolean  "equal_member", default: true
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
+  create_table "players", force: :cascade do |t|
+    t.boolean  "metal_summoned", default: false
+    t.boolean  "wood_summoned",  default: false
+    t.boolean  "water_summoned", default: false
+    t.boolean  "fire_summoned",  default: false
+    t.boolean  "earth_summoned", default: false
+    t.integer  "shell",          default: 0
+    t.integer  "hand_limit",     default: 5
+    t.integer  "user_id"
+    t.integer  "team_id"
+    t.datetime "created_at",                     null: false
+    t.datetime "updated_at",                     null: false
+  end
+
+  create_table "teams", force: :cascade do |t|
+    t.integer  "life",       default: 200
+    t.integer  "life_limit", default: 200
+    t.string   "star"
+    t.integer  "maximum",    default: 1
+    t.integer  "game_id"
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   create_table "users", force: :cascade do |t|
