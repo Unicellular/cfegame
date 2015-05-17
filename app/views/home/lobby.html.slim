@@ -1,0 +1,9 @@
+h2 Welcome to Game Lobby!
+= link_to 'Open a Game', open_path, method: :post
+table
+  - @games.each do |game|
+    tr
+      td
+        = display_team(game.teams[0], game)
+      td
+        = display_team(game.teams[1], game)

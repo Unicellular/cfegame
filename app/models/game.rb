@@ -6,15 +6,15 @@ class Game < ActiveRecord::Base
   def self.open( user, game_options: {}, team_options: {} )
     game = self.create( game_options )
     team_amount ||= game.team_amount
+    teams = game.teams
     team_amount.times do
-      game.teams.create( team_options )
+      teams.create( team_options )
     end
     game.deck = Deck.create
-    game.join_with( user, 0 )
+    game.join_with( user, teams[0] )
   end
 
-  def join_with( user, teamno )
-    team = teams[teamno]
+  def join_with( user, team )
     if team.position_available?
       user.players << team.players.create
     end
