@@ -3,9 +3,17 @@ class Card < ActiveRecord::Base
 
   ELEMENTS = {
     metal: 1,
-    tree: 2,
-    water: 3,
+    water: 2,
+    tree: 3,
     fire: 4,
-    earth: 5,
+    earth: 5
   }
+
+  EMPOWER = [
+    :metal, :water, :tree, :fire, :earth
+  ]
+
+  SURPASS = [
+    :metal, :tree, :earth, :water, :fire
+  ]
 end
