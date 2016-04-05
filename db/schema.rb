@@ -22,13 +22,13 @@ ActiveRecord::Schema.define(version: 20150425111324) do
   end
 
   create_table "cards", force: :cascade do |t|
-    t.integer  "element"
+    t.integer  "element",         default: 0
     t.integer  "level"
     t.integer  "position"
     t.integer  "cardholder_id"
     t.string   "cardholder_type"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   create_table "decks", force: :cascade do |t|

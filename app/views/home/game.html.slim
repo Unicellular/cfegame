@@ -1,4 +1,4 @@
-#field.row
+#field.row data-game_id=@game.id
   .primary
     .row#oppoenet
       .col-md-2.side
@@ -17,7 +17,7 @@
           .card.card-sm
     .row#common
       | common
-    .row#player
+    .row#player data-player_id=@player.id
       .col-md-2.side
       .col-md-10.main
         .row.action

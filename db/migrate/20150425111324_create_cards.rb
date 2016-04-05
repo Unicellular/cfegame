@@ -1,7 +1,7 @@
 class CreateCards < ActiveRecord::Migration
   def change
     create_table :cards do |t|
-      t.integer :element
+      t.integer :element, default: 0
       t.integer :level
       t.integer :position
       t.belongs_to :cardholder

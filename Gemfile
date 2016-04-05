@@ -17,9 +17,11 @@ gem 'bootstrap-sass'
 gem 'uglifier', '>= 1.3.0'
 gem 'therubyracer'
 gem 'jquery-rails'
+gem 'jquery-turbolinks'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'slim-rails'
+gem 'thin'
 
 # for log in
 gem 'omniauth', '~> 1.1.4'

@@ -25,7 +25,7 @@ class Player < ActiveRecord::Base
     dishand
   end
 
-  def move( hands, spell )
-    return nil unless cards.include hands && hands.form spell
-  end
+  # def move( hands, spell )
+  #   return nil unless cards.include hands && hands.form spell
+  # end
 end

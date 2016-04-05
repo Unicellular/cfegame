@@ -4,6 +4,8 @@ table
   - @games.each do |game|
     tr
       td
+        = link_to 'Return', game_path(game)
+      td
         = display_team(game.teams[0], game)
       td
         = display_team(game.teams[1], game)

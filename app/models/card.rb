@@ -1,7 +1,6 @@
 class Card < ActiveRecord::Base
   belongs_to :cardholder,  polymorphic: true
-
-  ELEMENTS = {
+  enum element: {
     metal: 1,
     water: 2,
     tree: 3,
