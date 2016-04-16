@@ -38,4 +38,12 @@ module ApplicationHelper
         flash_type.to_s
     end
   end
+
+  def current_player( game )
+    game.players.where( user: current_user ).first
+  end
+
+  def current_player?( player, game )
+    return current_player(game) == player
+  end
 end

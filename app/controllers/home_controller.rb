@@ -25,6 +25,6 @@ class HomeController < ApplicationController
 
   def game
     @game = Game.find(params[:id])
-    @player = @game.current_player(current_user)[0]
+    @player = current_player(@game)
   end
 end

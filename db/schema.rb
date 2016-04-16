@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 20150425111324) do
   create_table "games", force: :cascade do |t|
     t.string   "winner"
     t.string   "field"
+    t.integer  "status",       default: 0
     t.integer  "team_amount",  default: 2
     t.integer  "member_limit", default: 1
     t.boolean  "equal_member", default: true

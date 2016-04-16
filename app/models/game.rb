@@ -4,6 +4,8 @@ class Game < ActiveRecord::Base
   has_many :cards, as: :cardholder
   has_one :deck
 
+  enum status: [ :prepare, :start, :over ]
+
   def self.open( user, game_options: {}, team_options: {} )
     game = self.create( game_options )
     team_amount ||= game.team_amount
@@ -12,7 +14,7 @@ class Game < ActiveRecord::Base
       teams.create( team_options )
     end
     game.deck = Deck.new
-    game.deck.shuffle
+    #game.deck.shuffle
     game.join_with( user, teams[0] )
   end
 
@@ -29,18 +31,28 @@ class Game < ActiveRecord::Base
     end
   end
 
-  def start( player )
-    player.cards << deck.cards.order(:position).first(player.hand_limit) if player.cards.count == 0
-    player.team.as_json( except: [ :created_at, :updated_at ] ).merge(
-      player.as_json({
-        except: [ :created_at, :updated_at ],
-        root: true,
-        include: :cards
-      })
-    )
+  def begin( player )
+    if prepare?
+      deal_cards
+      start!
+    end
+
+    Hash[teams.map { |team|
+      if team.players.include? player
+        [:current, team.info(player)]
+      else
+        [:opponent, team.info(player)]
+      end
+    }]
   end
 
-  def current_player( user )
-    players.where(user: user)
+  def deal_cards
+    players.each do |player|
+      player.cards << deck.cards.order(:position).first(player.hand_limit)
+    end
+  end
+
+  def opponent_team( player )
+    teams.where.not(id: player.team)
   end
 end

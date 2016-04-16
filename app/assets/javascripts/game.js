@@ -13,6 +13,14 @@ $(function(){
           if ( msg ) {
             console.log("opponent found!");
             console.log(msg)
+            $('#player .side').html(msg['current']['team'].life);
+            $('#opponent .side').html(msg['opponent']['team'].life);
+            $.each( msg['current']['members'][0].hands, function( index, value ){
+              $('#player .hand').append(create_card( value ));
+            });
+            for( var i = 0; i < msg['opponent']['members'][0].hands; i++ ){
+              $('#opponent .hand').append(create_card());
+            }
             clearInterval(interval);
           }
       });
@@ -21,3 +29,11 @@ $(function(){
     }
   }, 1000);
 });
+
+function create_card( value ){
+  card = $('<div>').addClass('card card-lg');
+  if( value ) {
+    card.html(value.element + ':' + value.level);
+  }
+  return card;
+}

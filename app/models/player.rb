@@ -25,6 +25,23 @@ class Player < ActiveRecord::Base
     dishand
   end
 
+  def info( is_public )
+    as_json({
+      except: [ :created_at, :updated_at ],
+      root: true
+    }).merge({
+      hands: hands( is_public ).as_json
+    })
+  end
+
+  def hands( is_public )
+    if is_public
+      return cards
+    else
+      return cards.count
+    end
+  end
+
   # def move( hands, spell )
   #   return nil unless cards.include hands && hands.form spell
   # end

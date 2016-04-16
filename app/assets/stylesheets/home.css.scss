@@ -33,15 +33,11 @@ $player-height: 300px;
   background-color: lighten(blue, 20%);
 }
 
-#oppoenet {
-  height: $player-height;
-}
-
 #common {
   height: $total-height - $player-height * 2;
 }
 
-#player {
+#player, #opponent {
   height: $player-height;
 }
 
