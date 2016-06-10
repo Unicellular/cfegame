@@ -18,9 +18,6 @@ class Player < ActiveRecord::Base
     drawed_cards = draw( amount )
     return nil unless drawed_cards.include? dishand
     drawed_cards.delete(dishand)
-    old_discard = game.cards.find_by(position: 90)
-    old_discard.update(position: dishand.position) unless old_discard.nil?
-    dishand.update(position: 90)
     game.cards << dishand
     drawed_cards.each do |card|
       cards << card
