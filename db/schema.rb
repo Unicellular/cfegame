@@ -43,6 +43,8 @@ ActiveRecord::Schema.define(version: 20150425111324) do
     t.integer  "status",       default: 0
     t.integer  "team_amount",  default: 2
     t.integer  "member_limit", default: 1
+    t.integer  "turn",         default: 0
+    t.integer  "first",        default: 0
     t.boolean  "equal_member", default: true
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
@@ -56,6 +58,7 @@ ActiveRecord::Schema.define(version: 20150425111324) do
     t.boolean  "earth_summoned", default: false
     t.integer  "shell",          default: 0
     t.integer  "hand_limit",     default: 5
+    t.integer  "sequence"
     t.integer  "user_id"
     t.integer  "team_id"
     t.datetime "created_at",                     null: false

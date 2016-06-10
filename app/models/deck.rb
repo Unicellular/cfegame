@@ -1,5 +1,5 @@
 class Deck < ActiveRecord::Base
-  has_many :cards, as: :cardholder
+  has_many :cards, -> { order(:position) }, as: :cardholder
   belongs_to :game
 
   after_create do |deck|

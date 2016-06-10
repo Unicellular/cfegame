@@ -1,6 +1,6 @@
 class Game < ActiveRecord::Base
   has_many :teams
-  has_many :players, through: :teams
+  has_many :players, -> { order(:sequence) }, through: :teams
   has_many :cards, as: :cardholder
   has_one :deck
 
@@ -20,7 +20,10 @@ class Game < ActiveRecord::Base
 
   def join_with( user, team )
     if team.position_available?
-      user.players << team.players.create
+      team_index = teams.find_index team
+      sequence = team_index + teams.count * team.players.count
+      player = team.players.create sequence: sequence
+      user.players << player
     end
     self
   end
@@ -48,11 +51,19 @@ class Game < ActiveRecord::Base
 
   def deal_cards
     players.each do |player|
-      player.cards << deck.cards.order(:position).first(player.hand_limit)
+      player.cards << deck.cards.first(player.hand_limit)
     end
   end
 
   def opponent_team( player )
     teams.where.not(id: player.team)
+  end
+
+  def turn_player
+    @turn_player || players[first+turn]
+  end
+
+  def turn_end
+    turn = turn + 1
   end
 end

@@ -8,6 +8,7 @@ class CreatePlayers < ActiveRecord::Migration
       t.boolean :earth_summoned, default: false
       t.integer :shell, default: 0
       t.integer :hand_limit, default: 5
+      t.integer :sequence
       t.belongs_to :user
       t.belongs_to :team
 

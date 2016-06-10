@@ -3,8 +3,12 @@ class Player < ActiveRecord::Base
   belongs_to :team
   has_many :cards, as: :cardholder
 
+  def game
+    @game || team.game
+  end
+
   def draw( amount )
-    deck = team.game.deck
+    deck = game.deck
     space = hand_limit-cards.count
     amount = space >= amount ? amount : space
     deck.cards.order(:position).first(amount+1)
@@ -13,7 +17,6 @@ class Player < ActiveRecord::Base
   def discard( amount, dishand )
     drawed_cards = draw( amount )
     return nil unless drawed_cards.include? dishand
-    game = team.game
     drawed_cards.delete(dishand)
     old_discard = game.cards.find_by(position: 90)
     old_discard.update(position: dishand.position) unless old_discard.nil?
@@ -42,6 +45,17 @@ class Player < ActiveRecord::Base
     end
   end
 
+  def using( card_ids )
+    cards_used = card_ids.map do |c_id|
+      Card.find(c_id)
+    end
+    return nil unless cards_used.all?{ |c| cards.include? c }
+    cards_used.each do |card|
+      cards.delete card
+      game.cards << card
+    end
+    cards_used
+  end
   # def move( hands, spell )
   #   return nil unless cards.include hands && hands.form spell
   # end

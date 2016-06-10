@@ -4,14 +4,28 @@
       .col-md-2.side
       .col-md-10.main
         .row.hand
-        .row.action
-          .card.card-sm
+        .row
+          .col-md-7
+            .row.action
+          .col-md-5
+            .row.used
     .row#common
-      | common
+      .col-md-2
+        | common
+      .col-md-2.use_cards
+        | Use Cards
+      .col-md-2.draw
+        | draw
+      .col-md-6
     .row#player data-player_id=@player.id
       .col-md-2.side
       .col-md-10.main
-        .row.action
+        .row
+          .col-md-7
+            .row.action
+          .col-md-5
+            .row.used
         .row.hand
   .secondary
-    .card.card-sm
+    .row.discard
+      .card.card-sm

@@ -1,3 +1,11 @@
+var emap = [
+  "metal",
+  "water",
+  "tree",
+  "fire",
+  "earth"
+];
+
 $(function(){
   var interval = setInterval(function(){
     var field = $('#field');
@@ -30,10 +38,19 @@ $(function(){
   }, 1000);
 });
 
-function create_card( value ){
+function create_card( value, is_draw, is_small ){
   card = $('<div>').addClass('card card-lg');
   if( value ) {
-    card.html(value.element + ':' + value.level);
+    card.html(emap[value.element-1] + '<br />' + value.level);
+    card.data('element', value.element);
+    card.data('level', value.level);
+    card.data('id', value.id);
+    if( is_draw ){
+      card.addClass("draw");
+    }
+    if( is_small ){
+      card.removeClass('card-lg').addClass('card-sm');
+    }
   }
   return card;
 }
