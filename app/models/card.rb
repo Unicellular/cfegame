@@ -1,5 +1,5 @@
 class Card < ActiveRecord::Base
-  belongs_to :cardholder,  polymorphic: true
+  belongs_to :cardholder,  polymorphic: true, touch: true
   # enum element: {
   #   metal: 1,
   #   water: 2,

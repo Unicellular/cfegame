@@ -1,8 +1,8 @@
 class Game < ActiveRecord::Base
-  has_many :teams
+  has_many :teams, dependent: :destroy
   has_many :players, -> { order(:sequence) }, through: :teams
-  has_many :cards, as: :cardholder
-  has_one :deck
+  has_many :cards, as: :cardholder, dependent: :destroy
+  has_one :deck, dependent: :destroy
 
   enum status: [ :prepare, :start, :over ]
 
@@ -14,7 +14,7 @@ class Game < ActiveRecord::Base
       teams.create( team_options )
     end
     game.deck = Deck.new
-    #game.deck.shuffle
+    game.deck.shuffle true
     game.join_with( user, teams[0] )
   end
 

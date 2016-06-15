@@ -1,7 +1,7 @@
 class Player < ActiveRecord::Base
   belongs_to :user
   belongs_to :team
-  has_many :cards, as: :cardholder
+  has_many :cards, as: :cardholder, dependent: :destroy
 
   def game
     @game || team.game
@@ -48,7 +48,7 @@ class Player < ActiveRecord::Base
     end
     return nil unless cards_used.all?{ |c| cards.include? c }
     cards_used.each do |card|
-      cards.delete card
+      #cards.delete card
       game.cards << card
     end
     cards_used
