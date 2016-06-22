@@ -1,7 +1,9 @@
 var hand;
 var action;
 var used;
+var game;
 $(function(){
+  game = $('#maincontainer');
   hand = $('#player .hand');
   action = $('#player .action');
   used = $('#player .used');
@@ -19,7 +21,7 @@ $(function(){
     console.log(card_ids);
     $.ajax({
       type: "GET",
-      url: "/use_cards/" + player.data('player_id'),
+      url: "/use_cards/" + game.data('game_id') + "/" + player.data('player_id'),
       data: {cards: card_ids}
     }).done(function(msg){
       console.log("card used!");
@@ -40,7 +42,7 @@ $(function(){
     hand.off( 'click', '.card', select_card );
     $.ajax({
       type: "GET",
-      url: "/draw/" + player.data('player_id')
+      url: "/draw/" + game.data('game_id') + "/" + player.data('player_id')
     }).done(function(msg){
       console.log("card drawed");
       console.log(msg);
@@ -71,7 +73,7 @@ function discard(e){
   var player = $('#player');
   $.ajax({
     type: "GET",
-    url: "/discard/" + player.data('player_id') + "/" + self.data("id")
+    url: "/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id")
   }).done(function(msg){
     console.log("Card discarded!");
     console.log(msg);

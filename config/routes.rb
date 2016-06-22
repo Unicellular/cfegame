@@ -9,7 +9,7 @@ Cfegame::Application.routes.draw do
   patch '/join/:id/:team_id' => 'home#join', as: :join
   get '/game/:id' => 'home#game', as: :game
   get '/find_opponent/:id/:player_id' => 'game#index'
-  get '/use_cards/:player_id' => 'players#use_cards'
-  get '/draw/:player_id' => 'players#draw'
-  get '/discard/:player_id/:card_id' => 'players#discard'
+  get '/use_cards/:gid/:pid' => 'players#use_cards'
+  get '/draw/:gid/:pid' => 'players#draw'
+  get '/discard/:gid/:pid/:card_id' => 'players#discard'
 end
