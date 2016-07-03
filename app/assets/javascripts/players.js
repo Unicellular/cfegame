@@ -22,7 +22,8 @@ function discard(e){
   //var player = $('#player');
   $.ajax({
     type: "GET",
-    url: "/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id")
+    url: "/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
+    data: { amount: $('.draw .number input').val() }
   }).done(function(msg){
     console.log("Card discarded!");
     console.log(msg);
@@ -69,7 +70,8 @@ function draw_cards(e){
   hand.off( 'click', '.card', select_card );
   $.ajax({
     type: "GET",
-    url: "/draw/" + game.data('game_id') + "/" + player.data('player_id')
+    url: "/draw/" + game.data('game_id') + "/" + player.data('player_id'),
+    data: { amount: $('.draw .number input').val() }
   }).done(function(msg){
     console.log("card drawed");
     console.log(msg);

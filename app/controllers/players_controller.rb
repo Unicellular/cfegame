@@ -16,13 +16,13 @@ class PlayersController < ApplicationController
 
   def draw
     #@player = Player.find(params[:pid])
-    render json: @player.draw(2)
+    render json: @player.draw(params[:amount].to_i)
   end
 
   def discard
     #@player = Player.find(params[:pid])
     @discard = Card.find(params[:card_id])
-    discard = @player.discard(2, @discard)
+    discard = @player.discard(params[:amount].to_i, @discard)
     render json: { hands: @player.hands(true), discard: discard }
   end
 
@@ -33,7 +33,7 @@ class PlayersController < ApplicationController
     @game = Game.find(params[:gid])
     @player = Player.find(params[:pid])
     unless @game.turn_player == @player
-      render status: :forbidden
+      render nothing: true, status: :forbidden
     end
   end
 end

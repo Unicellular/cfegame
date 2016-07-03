@@ -16,7 +16,10 @@
         | Use Cards
       .col-md-4
       .col-md-2.draw
-        | draw
+        .row.button
+          | draw
+        .row.number
+          input type="text" value="2"
       .col-md-2.turn_end
         | End turn
     .row#player data-player_id=@player.id
