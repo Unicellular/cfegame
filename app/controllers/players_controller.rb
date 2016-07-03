@@ -4,6 +4,7 @@ class PlayersController < ApplicationController
   def turn_end
     #@game = Game.find(params[:gid])
     @game.turn_end
+    render nothing: true
   end
 
   def use_cards

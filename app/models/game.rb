@@ -39,14 +39,20 @@ class Game < ActiveRecord::Base
       deal_cards
       start!
     end
+    status( player )
+  end
 
-    Hash[teams.map { |team|
+  def status( player )
+    game_status = {}
+    game_status[:myturn] = (turn_player == player)
+    teams.each { |team|
       if team.players.include? player
-        [:current, team.info(player)]
+        game_status[:current] = team.info(player)
       else
-        [:opponent, team.info(player)]
+        game_status[:opponent] = team.info(player)
       end
-    }]
+    }
+    game_status
   end
 
   def deal_cards
@@ -64,6 +70,8 @@ class Game < ActiveRecord::Base
   end
 
   def turn_end
-    turn = turn + 1
+    increment!(:turn)
+    #p turn.class
+    #turn += 1
   end
 end
