@@ -6,6 +6,7 @@ var player;
 var button_use;
 var button_draw;
 var button_end;
+var discard_area;
 
 function select_card(e){
   var self = $(this);
@@ -18,6 +19,7 @@ function unselect_card(e){
   hand.append(self);
 }
 function discard(e){
+  console.log("in the discard");
   var self = $(this);
   //var player = $('#player');
   $.ajax({
@@ -107,10 +109,23 @@ function request_status(){
     clearInterval(interval);
   }
 }
+function recycle(e){
+  self = $(this);
+  $.ajax({
+    type: "GET",
+    url: "/recycle/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
+    dataTyep: "json"
+  }).done(function(msg){
+    console.log("recycled");
+    console.log(msg);
+    discard_area.find('.card').remove();
+  });
+}
 function disable_activity(){
   hand.off( 'click' );
   action.off( 'click' );
   button_use.off( 'click' );
   button_draw.off( 'click' );
   button_end.off( 'click' );
+  discard_area.off('click');
 }

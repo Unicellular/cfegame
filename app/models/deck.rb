@@ -44,4 +44,14 @@ class Deck < ActiveRecord::Base
 
     self
   end
+
+  def recycle( card )
+    position = cards.minimum(:position) - 1
+
+    ActiveRecord::Base.transaction do
+      card.update(position: position)
+      cards << card
+    end
+  end
+
 end

@@ -35,6 +35,7 @@ function game_initialize(){
   button_use = $('#common .use_cards');
   button_draw = $('#common .draw');
   button_end = $('#common .turn_end');
+  discard_area = $('.discard');
 }
 
 function update_status( msg ){
@@ -59,6 +60,7 @@ function update_status( msg ){
       button_use.click(use_cards);
       button_draw.click(draw_cards);
       button_end.click(turn_end);
+      discard_area.on( 'click', '.card', recycle );
       clearInterval(interval);
     }
   }

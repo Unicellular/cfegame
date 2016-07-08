@@ -26,6 +26,13 @@ class PlayersController < ApplicationController
     render json: { hands: @player.hands(true), discard: discard }
   end
 
+  def recycle
+    @discard = Card.find(params[:card_id])
+    @deck = @game.deck
+    @deck.recycle( @discard )
+    render nothing: true
+  end
+
   private
 
   # player must be in his turn at that game.
