@@ -102,7 +102,7 @@ function request_status(){
   if( game.length ){
     $.ajax({
       type: "GET",
-      url: "/status/" + game.data('game_id') + "/" + player.data('player_id'),
+      url: "/info/" + game.data('game_id') + "/" + player.data('player_id'),
       dataType: "json"
     }).done( update_status );
   } else {

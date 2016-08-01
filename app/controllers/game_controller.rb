@@ -9,9 +9,9 @@ class GameController < ApplicationController
     end
   end
 
-  def status
+  def info
     game = Game.find(params[:gid])
     player = Player.find(params[:pid])
-    render json: game.status(player)
+    render json: game.info(player)
   end
 end

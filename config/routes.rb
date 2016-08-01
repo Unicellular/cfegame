@@ -13,6 +13,6 @@ Cfegame::Application.routes.draw do
   get '/draw/:gid/:pid' => 'players#draw'
   get '/discard/:gid/:pid/:card_id' => 'players#discard'
   get '/turn_end/:gid/:pid/' => 'players#turn_end'
-  get '/status/:gid/:pid/' => 'game#status'
+  get '/info/:gid/:pid/' => 'game#info'
   get '/recycle/:gid/:pid/:card_id' => 'players#recycle'
 end

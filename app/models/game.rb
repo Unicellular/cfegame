@@ -2,6 +2,7 @@ class Game < ActiveRecord::Base
   has_many :teams, dependent: :destroy
   has_many :players, -> { order(:sequence) }, through: :teams
   has_many :cards, as: :cardholder, dependent: :destroy
+  has_many :turns, dependent: :destroy
   has_one :deck, dependent: :destroy
 
   enum status: [ :prepare, :start, :over ]
@@ -38,20 +39,22 @@ class Game < ActiveRecord::Base
     if prepare?
       deal_cards
       start!
+      generate_turn
     end
-    status( player )
+
+    info( player )
   end
 
-  def status( player )
+  def info( player )
     game_status = {}
     game_status[:myturn] = (turn_player == player)
-    teams.each { |team|
+    teams.each do |team|
       if team.players.include? player
         game_status[:current] = team.info(player)
       else
         game_status[:opponent] = team.info(player)
       end
-    }
+    end
     game_status
   end
 
@@ -71,7 +74,10 @@ class Game < ActiveRecord::Base
 
   def turn_end
     increment!(:turn)
-    #p turn.class
-    #turn += 1
+    generate_turn
+  end
+
+  def generate_turn
+    turns.create number: turn
   end
 end
