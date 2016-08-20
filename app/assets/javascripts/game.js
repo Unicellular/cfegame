@@ -69,7 +69,7 @@ function update_status( msg ){
 function create_card( value, is_draw, is_small ){
   card = $('<div>').addClass('card card-lg');
   if( value ) {
-    card.html(emap[value.element-1] + '<br />' + value.level);
+    card.html(value.element + '<br />' + value.level);
     card.data('element', value.element);
     card.data('level', value.level);
     card.data('id', value.id);

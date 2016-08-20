@@ -5,7 +5,7 @@ class Deck < ActiveRecord::Base
   after_create do |deck|
     position = 0
     ActiveRecord::Base.transaction do
-      (1..5).each do |value|
+      Rule::EMPOWER.each do |value|
         (1..5).each do |level|
           copy = (1..3).include?(level) ? 4 : 3
           copy.times do
