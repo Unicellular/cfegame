@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160726140350) do
+ActiveRecord::Schema.define(version: 20160808144737) do
 
   create_table "authorizations", force: :cascade do |t|
     t.string   "provider"
@@ -86,6 +86,21 @@ ActiveRecord::Schema.define(version: 20160726140350) do
     t.integer  "team_id"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
+  end
+
+  create_table "rules", force: :cascade do |t|
+    t.string   "name"
+    t.string   "description"
+    t.integer  "series"
+    t.string   "condition"
+    t.integer  "form"
+    t.integer  "subform"
+    t.string   "material"
+    t.string   "formula"
+    t.string   "effect"
+    t.integer  "rule_id"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
   create_table "teams", force: :cascade do |t|
