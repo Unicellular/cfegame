@@ -5,7 +5,19 @@
 #
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
+def reset_pk_sequence(table_name)
+  case ActiveRecord::Base.connection.adapter_name
+  when 'SQLite'
+    update_seq_sql = "update sqlite_sequence set seq = 0 where name = '#{table_name}';"
+    ActiveRecord::Base.connection.execute(update_seq_sql)
+  when 'PostgreSQL'
+    ActiveRecord::Base.connection.reset_pk_sequence!(table_name)
+  else
+    raise "Task not implemented for this DB adapter"
+  end
+end
 Rule.delete_all
+reset_pk_sequence("rules")
 Rule.create(
   [
     { name: "金擊術", description: "／金／金行攻擊，點數＝等級＋４", series: 0, condition: {},
