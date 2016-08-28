@@ -22,6 +22,6 @@ Rule.create(
   [
     { name: "金擊術", description: "／金／金行攻擊，點數＝等級＋４", series: 0, condition: {},
       form: 0, subform: 0, material: { metal: 1, count: 1 }, formula: "sum + 4",
-      effect: { target: :last, attack: :point } }
+      effect: { target: -1, attack: :point } }
   ]
 )

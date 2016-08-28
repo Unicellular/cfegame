@@ -19,4 +19,20 @@ class Team < ActiveRecord::Base
       members: players.map { |pl| pl.info( pl == player ) }
     })
   end
+
+  def attacked( point )
+    if life > point
+      update( life: life - point )
+    else
+      update( life: 0 )
+    end
+  end
+
+  def healed( point )
+    if life_limit > life + point
+      update( life: life + point )
+    else
+      update( life: life_limit )
+    end
+  end
 end

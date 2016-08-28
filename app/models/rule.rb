@@ -15,7 +15,7 @@ class Rule < ActiveRecord::Base
 
   def test( cards )
     material.all? do |key, value|
-      puts key, value, count( cards, key )
+      #puts key, value, count( cards, key )
       if EMPOWER.include? key
         count( cards, key ) == value
       elsif key == "count"
@@ -71,5 +71,21 @@ class Rule < ActiveRecord::Base
       postfix.push(stack.pop)
     end
     write_attribute(:formula, postfix)
+  end
+
+  def performed( player, cards_used, game )
+    if test(cards_used)
+      seq = player.sequence
+      point = calculate( cards_used )
+      target = game.players[seq + effect["target"]]
+      effect.each do |key, value|
+        case key
+        when "attack"
+          target.attacked( point )
+        when "heal"
+          target.healed( point )
+        end
+      end
+    end
   end
 end

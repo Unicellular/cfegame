@@ -25,6 +25,30 @@ class Player < ActiveRecord::Base
     dishand
   end
 
+  def perform( rule, cards_used )
+    rule.performed( self, cards_used, game )
+  end
+
+  def attacked( point )
+    team.attacked( point )
+  end
+
+  def healed( point )
+    team.healed( point )
+  end
+
+  def using( card_ids )
+    cards_used = card_ids.map do |c_id|
+      Card.find(c_id)
+    end
+    return nil unless cards_used.all?{ |c| cards.include? c }
+    cards_used.each do |card|
+      #cards.delete card
+      game.cards << card
+    end
+    cards_used
+  end
+
   def info( is_public )
     as_json({
       except: [ :created_at, :updated_at ],
@@ -41,19 +65,4 @@ class Player < ActiveRecord::Base
       return cards.count
     end
   end
-
-  def using( card_ids )
-    cards_used = card_ids.map do |c_id|
-      Card.find(c_id)
-    end
-    return nil unless cards_used.all?{ |c| cards.include? c }
-    cards_used.each do |card|
-      #cards.delete card
-      game.cards << card
-    end
-    cards_used
-  end
-  # def move( hands, spell )
-  #   return nil unless cards.include hands && hands.form spell
-  # end
 end
