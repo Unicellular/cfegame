@@ -6,7 +6,7 @@ describe HomeController do
     it "returns http success" do
       @game = Game.create
       get :game, id: @game.id
-      response.should be_success
+      expect(response).to have_http_status(:success)
     end
   end
 
