@@ -21,6 +21,11 @@ ActiveRecord::Schema.define(version: 20160808144737) do
     t.datetime "updated_at"
   end
 
+  create_table "card_event_links", force: :cascade do |t|
+    t.integer "card_id"
+    t.integer "event_id"
+  end
+
   create_table "cards", force: :cascade do |t|
     t.integer  "element",         default: 0
     t.integer  "level"
@@ -31,18 +36,15 @@ ActiveRecord::Schema.define(version: 20160808144737) do
     t.datetime "updated_at",                  null: false
   end
 
-  create_table "cards_events", id: false, force: :cascade do |t|
-    t.integer "card_id",  null: false
-    t.integer "event_id", null: false
-  end
-
-  add_index "cards_events", ["card_id", "event_id"], name: "index_cards_events_on_card_id_and_event_id"
-  add_index "cards_events", ["event_id", "card_id"], name: "index_cards_events_on_event_id_and_card_id"
-
   create_table "decks", force: :cascade do |t|
     t.integer  "game_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "event_player_links", force: :cascade do |t|
+    t.integer "event_id"
+    t.integer "player_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -51,14 +53,6 @@ ActiveRecord::Schema.define(version: 20160808144737) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
-
-  create_table "events_players", id: false, force: :cascade do |t|
-    t.integer "player_id", null: false
-    t.integer "event_id",  null: false
-  end
-
-  add_index "events_players", ["event_id", "player_id"], name: "index_events_players_on_event_id_and_player_id"
-  add_index "events_players", ["player_id", "event_id"], name: "index_events_players_on_player_id_and_event_id"
 
   create_table "games", force: :cascade do |t|
     t.string   "winner"

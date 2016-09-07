@@ -20,8 +20,8 @@ Rule.delete_all
 reset_pk_sequence("rules")
 Rule.create(
   [
-    { name: "金擊術", description: "／金／金行攻擊，點數＝等級＋４", series: 0, condition: {},
-      form: 0, subform: 0, material: { metal: 1, count: 1 }, formula: "sum + 4",
+    { name: "金擊術", description: "／金／金行攻擊，點數＝等級＋４", series: :base, condition: {},
+      form: :attack, subform: :metal, material: { metal: 1, count: 1 }, formula: "sum + 4",
       effect: { target: -1, attack: :point } }
   ]
 )

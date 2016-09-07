@@ -1,8 +1,8 @@
 class CreateEventPlayerJoinTable < ActiveRecord::Migration
   def change
-    create_join_table :players, :events do |t|
-      t.index [:player_id, :event_id]
-      t.index [:event_id, :player_id]
+    create_table :event_player_links do |t|
+      t.belongs_to :event
+      t.belongs_to :player
     end
   end
 end

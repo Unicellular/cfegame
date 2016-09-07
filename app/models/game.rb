@@ -80,4 +80,8 @@ class Game < ActiveRecord::Base
   def generate_turn
     turns.create number: turn
   end
+
+  def current_turn
+    @turn || turns[turn]
+  end
 end

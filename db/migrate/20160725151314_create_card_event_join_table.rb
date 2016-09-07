@@ -1,8 +1,8 @@
 class CreateCardEventJoinTable < ActiveRecord::Migration
   def change
-    create_join_table :cards, :events do |t|
-      t.index [:card_id, :event_id]
-      t.index [:event_id, :card_id]
+    create_table :card_event_links do |t|
+      t.belongs_to :card
+      t.belongs_to :event
     end
   end
 end

@@ -75,9 +75,12 @@ class Rule < ActiveRecord::Base
 
   def performed( player, cards_used, game )
     if test(cards_used)
-      seq = player.sequence
+      target = get_target( player, game )
       point = calculate( cards_used )
-      target = game.players[seq + effect["target"]]
+      log = {
+        target: target.id,
+        content: {}
+      }
       effect.each do |key, value|
         case key
         when "attack"
@@ -85,7 +88,14 @@ class Rule < ActiveRecord::Base
         when "heal"
           target.healed( point )
         end
+        log[:content][key] = [ subform, point ] unless key == "target"
       end
+      turn = game.current_turn
+      turn.events.create player: player, cards: cards_used, effect: log
     end
+  end
+
+  def get_target( player, game )
+    game.players[player.sequence + effect["target"]]
   end
 end
