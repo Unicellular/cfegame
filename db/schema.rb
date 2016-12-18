@@ -68,18 +68,15 @@ ActiveRecord::Schema.define(version: 20160808144737) do
   end
 
   create_table "players", force: :cascade do |t|
-    t.boolean  "metal_summoned", default: false
-    t.boolean  "wood_summoned",  default: false
-    t.boolean  "water_summoned", default: false
-    t.boolean  "fire_summoned",  default: false
-    t.boolean  "earth_summoned", default: false
-    t.integer  "shell",          default: 0
-    t.integer  "hand_limit",     default: 5
+    t.string   "star_history"
+    t.string   "sustained"
+    t.integer  "shell",        default: 0
+    t.integer  "hand_limit",   default: 5
     t.integer  "sequence"
     t.integer  "user_id"
     t.integer  "team_id"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.datetime "created_at",               null: false
+    t.datetime "updated_at",               null: false
   end
 
   create_table "rules", force: :cascade do |t|

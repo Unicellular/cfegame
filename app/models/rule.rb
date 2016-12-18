@@ -1,6 +1,6 @@
 class Rule < ActiveRecord::Base
   enum form: [ :attack, :spell ]
-  enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, phyiscal: 5, special: 6,
+  enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
                   active: 0, passive: 1, lasting: 2 }
   enum series: [ :base, :star, :field, :hero ]
   serialize :condition, JSON
@@ -76,26 +76,38 @@ class Rule < ActiveRecord::Base
   def performed( player, cards_used, game )
     if test(cards_used)
       target = get_target( player, game )
-      point = calculate( cards_used )
+      target_id = target.id unless target.nil?
+      point = calculate( cards_used ) unless formula.nil?
+      last_player = game.players[player.sequence-1]
       log = {
-        target: target.id,
+        target: target_id,
         content: {}
       }
       effect.each do |key, value|
+        value = point if value == "point"
         case key
         when "attack"
-          target.attacked( point )
+          if last_player.sustained["counter"] == "attack"
+            target.attacked( 0 )
+          elsif last_player.sustained["counter"] == "split"
+            target.attacked( value / 2 )
+            player.attacked( value / 2 )
+          else
+            target.attacked( value )
+          end
         when "heal"
-          target.healed( point )
+          target.healed( value )
+        when "counter"
+          player.attached( counter: value )
         end
         log[:content][key] = [ subform, point ] unless key == "target"
-      end
+      end unless last_player.sustained["counter"] == "spell" && form == :spell
       turn = game.current_turn
       turn.events.create player: player, cards: cards_used, effect: log
     end
   end
 
   def get_target( player, game )
-    game.players[player.sequence + effect["target"]]
+    game.players[player.sequence + effect["target"]] if effect["target"].is_a? Integer
   end
 end

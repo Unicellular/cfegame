@@ -2,6 +2,8 @@ class Player < ActiveRecord::Base
   belongs_to :user
   belongs_to :team
   has_many :cards, as: :cardholder, dependent: :destroy
+  serialize :star_history, Array
+  serialize :sustained, Hash
 
   def game
     @game || team.game
@@ -35,6 +37,12 @@ class Player < ActiveRecord::Base
 
   def healed( point )
     team.healed( point )
+  end
+
+  def attached( effect )
+    effect.each do |key, value|
+      sustained[key] = value
+    end
   end
 
   def using( card_ids )
