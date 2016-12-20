@@ -81,6 +81,7 @@ ActiveRecord::Schema.define(version: 20160808144737) do
 
   create_table "rules", force: :cascade do |t|
     t.string   "name"
+    t.string   "chinese_name"
     t.string   "description"
     t.integer  "series"
     t.string   "condition"
@@ -90,8 +91,8 @@ ActiveRecord::Schema.define(version: 20160808144737) do
     t.string   "formula"
     t.string   "effect"
     t.integer  "rule_id"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "teams", force: :cascade do |t|

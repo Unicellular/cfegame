@@ -9,14 +9,13 @@ class Rule < ActiveRecord::Base
   serialize :effect, JSON
   has_one :rule
 
-  EMPOWER = %w( metal water tree fire earth )
-
-  SURPASS = %w( metal tree earth water fire )
+  GENERATE = %w( metal water tree fire earth )
+  OVERCOME = %w( metal tree earth water fire )
 
   def test( cards )
     material.all? do |key, value|
       #puts key, value, count( cards, key )
-      if EMPOWER.include? key
+      if GENERATE.include? key
         count( cards, key ) == value
       elsif key == "count"
         cards.count == value

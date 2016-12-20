@@ -4,8 +4,8 @@ RSpec.describe Rule, type: :model do
   before( :each ) do
     @onemetal = [ Card.create!( element: :metal, level: 3 ) ]
     @twotrees = [ Card.create!( element: :tree, level: 2), Card.create!( element: :tree, level: 2) ]
-    @gattack = Rule.find_by_name( "金擊術" )
-    @defense = Rule.find_by_name( "防禦" )
+    @gattack = Rule.find_by_name( "metal attack" )
+    @defense = Rule.find_by_name( "defense" )
     @game = Game.open( User.new )
     @game.join_with( User.new, @game.teams[1] )
     @game.begin( @game.players[0] )
@@ -45,8 +45,8 @@ RSpec.describe Rule, type: :model do
     expect( effects ).to include( test_effect )
   end
 
-  context "when player perform passive spell" do
-    it "should counter opponent's move at next turn" do
+  context "when player perform defense" do
+    it "should counter opponent's attack at next turn" do
       p1 = @game.players[0]
       p2 = @game.players[1]
       p1.perform( @defense, @twotrees )
