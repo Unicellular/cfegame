@@ -1,8 +1,7 @@
 class Event < ActiveRecord::Base
   belongs_to :turn
-  has_one :event_player_link
-  has_many :card_event_links
-  has_one :player, through: :event_player_link
-  has_many :cards, through: :card_event_links
+  belongs_to :player
+  belongs_to :target, class_name: "Player"
+  serialize :cards_used, Array
   serialize :effect, JSON
 end

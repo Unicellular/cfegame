@@ -78,31 +78,28 @@ class Rule < ActiveRecord::Base
       target_id = target.id unless target.nil?
       point = calculate( cards_used ) unless formula.nil?
       last_player = game.players[player.sequence-1]
-      log = {
-        target: target_id,
-        content: {}
-      }
+      log = []
       effect.each do |key, value|
         value = point if value == "point"
         case key
         when "attack"
           if last_player.sustained["counter"] == "attack"
-            target.attacked( 0 )
+            log.push( target.attacked( subform, 0 ) )
           elsif last_player.sustained["counter"] == "split"
-            target.attacked( value / 2 )
-            player.attacked( value / 2 )
+            log.push( target.attacked( subform, value / 2 ) )
+            log.push( player.attacked( subform, value / 2 ) )
           else
-            target.attacked( value )
+            log.push( target.attacked( subform, value ) )
           end
         when "heal"
-          target.healed( value )
+          log.push( target.healed( value ) )
         when "counter"
-          player.attached( counter: value )
+          log.push( player.attached( counter: value ) )
         end
-        log[:content][key] = [ subform, point ] unless key == "target"
+        #log[:content][key] = [ subform, point ] unless key == "target"
       end unless last_player.sustained["counter"] == "spell" && form == :spell
       turn = game.current_turn
-      turn.events.create player: player, cards: cards_used, effect: log
+      turn.events.create player: player, cards_used: cards_used, target: target, effect: log
     end
   end
 

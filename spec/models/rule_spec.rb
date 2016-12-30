@@ -32,17 +32,17 @@ RSpec.describe Rule, type: :model do
     turn = @game.current_turn
     target = @gattack.get_target( p1, @game )
     test_feature = {
-      players: { id: p1 },
-      cards: { id: @onemetal }
+      player: p1,
+      target: target
     }
-    test_effect = {
-      "target" => target.id,
+    test_effect = [ {
+      "to" => target.id,
       "content" => { "attack" => [ "metal", 7 ] }
-    }
-    effects = turn.events.joins( :player, :cards ).where( test_feature ).map do |e|
-      e.effect
-    end
-    expect( effects ).to include( test_effect )
+    } ]
+    cards_used = @onemetal.map { |c| c.to_hash }
+    event = turn.events.where( test_feature ).take
+    expect( event.cards_used.map { |c| c.to_hash } ).to eq( cards_used )
+    expect( event.effect ).to eq( test_effect )
   end
 
   context "when player perform defense" do

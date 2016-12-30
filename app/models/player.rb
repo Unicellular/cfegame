@@ -31,18 +31,21 @@ class Player < ActiveRecord::Base
     rule.performed( self, cards_used, game )
   end
 
-  def attacked( point )
+  def attacked( kind, point )
     team.attacked( point )
+    { to: id, content: { attack: [ kind, point ] } }
   end
 
   def healed( point )
     team.healed( point )
+    { to: id, content: { heal: [ nil, point ] } }
   end
 
   def attached( effect )
     effect.each do |key, value|
       sustained[key] = value
     end
+    #{ to: nil, content: { secret: }}
   end
 
   def using( card_ids )

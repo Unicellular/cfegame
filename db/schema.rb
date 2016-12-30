@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160808144737) do
+ActiveRecord::Schema.define(version: 20160726140350) do
 
   create_table "authorizations", force: :cascade do |t|
     t.string   "provider"
@@ -19,11 +19,6 @@ ActiveRecord::Schema.define(version: 20160808144737) do
     t.integer  "user_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-  end
-
-  create_table "card_event_links", force: :cascade do |t|
-    t.integer "card_id"
-    t.integer "event_id"
   end
 
   create_table "cards", force: :cascade do |t|
@@ -42,13 +37,11 @@ ActiveRecord::Schema.define(version: 20160808144737) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "event_player_links", force: :cascade do |t|
-    t.integer "event_id"
-    t.integer "player_id"
-  end
-
   create_table "events", force: :cascade do |t|
+    t.string   "cards_used"
     t.string   "effect"
+    t.integer  "player_id"
+    t.integer  "target_id"
     t.integer  "turn_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
