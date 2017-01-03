@@ -92,7 +92,7 @@ class Rule < ActiveRecord::Base
             log.push( target.attacked( subform, value ) )
           end
         when "heal"
-          log.push( target.healed( value ) )
+          log.push( target.healed( nil, value ) )
         when "counter"
           log.push( player.attached( counter: value ) )
         end

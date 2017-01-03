@@ -36,9 +36,9 @@ class Player < ActiveRecord::Base
     { to: id, content: { attack: [ kind, point ] } }
   end
 
-  def healed( point )
+  def healed( kind, point )
     team.healed( point )
-    { to: id, content: { heal: [ nil, point ] } }
+    { to: id, content: { heal: [ kind, point ] } }
   end
 
   def attached( effect )
