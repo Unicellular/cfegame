@@ -12,11 +12,13 @@ function select_card(e){
   var self = $(this);
   self.removeClass('card-lg').addClass('card-sm');
   action.append(self);
+  possible_moves(e);
 }
 function unselect_card(e){
   var self = $(this);
   self.removeClass('card-sm').addClass('card-lg');
   hand.append(self);
+  possible_moves(e);
 }
 function discard(e){
   console.log("in the discard");
@@ -67,6 +69,29 @@ function use_cards(e){
     });
   });
 }
+
+function possible_moves(e){
+  var card_ids = [];
+  action.find('.card').each(function(){
+    var self = $(this);
+    card_ids.push( self.data('id') );
+  });
+  console.log(card_ids);
+  $.ajax({
+    type: "GET",
+    url: "/possible_moves/" + game.data('game_id') + "/" + player.data('player_id'),
+    data: {cards: card_ids}
+  }).done(function(msg){
+    console.log("possible_moves:");
+    console.log(msg);
+    rules_area = $('#common .moves .row');
+    rules_area.empty();
+    $.each( msg, function(i, c){
+      rules_area.append($("<div/>").addClass("col-md-4").text(c.name));
+    });
+  });
+}
+
 function draw_cards(e){
   //var player = $('#player');
   hand.off( 'click', '.card', select_card );

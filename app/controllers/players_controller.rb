@@ -33,6 +33,14 @@ class PlayersController < ApplicationController
     render nothing: true
   end
 
+  def possible_moves
+    cards = Card.find(params[:cards] || [])
+    rules = Rule.all.select do |rule|
+      rule.test( cards )
+    end
+    render json: rules.map { |rule| { id: rule.id, name: rule.chinese_name } }
+  end
+
   private
 
   # player must be in his turn at that game.

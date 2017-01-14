@@ -1,12 +1,15 @@
 // Place all the styles related to the home controller here.
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
-@import "bootstrap";
 
 $total-height: 660px;
 $player-height: 300px;
+$icon-font-path: 'bootstrap/';
 #field {
-  height: $total-height;
+  height: 100%;
+}
+
+#maincontainer {
   background-color: $gray-lighter;
 }
 
@@ -35,6 +38,9 @@ $player-height: 300px;
 
 #common {
   height: $total-height - $player-height * 2;
+  >div {
+    height: inherit;
+  }
 }
 
 #player, #opponent {

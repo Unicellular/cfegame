@@ -15,4 +15,5 @@ Cfegame::Application.routes.draw do
   get '/turn_end/:gid/:pid/' => 'players#turn_end'
   get '/info/:gid/:pid/' => 'game#info'
   get '/recycle/:gid/:pid/:card_id' => 'players#recycle'
+  get '/possible_moves/:gid/:pid' => 'players#possible_moves'
 end
