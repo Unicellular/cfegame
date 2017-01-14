@@ -36,6 +36,7 @@ function game_initialize(){
   button_draw = $('#common .draw');
   button_end = $('#common .turn_end');
   discard_area = $('.discard');
+  moves = $('.moves');
 }
 
 function update_status( msg ){
@@ -46,6 +47,8 @@ function update_status( msg ){
     $('#opponent .side').empty();
     $('#player .hand').empty();
     $('#opponent .hand').empty();
+    $('#player .action').empty();
+    $('#opponent .action').empty();
     $('#player .side').html(msg['current']['team'].life);
     $('#opponent .side').html(msg['opponent']['team'].life);
     $.each( msg['current']['members'][0].hands, function( index, value ){
@@ -61,6 +64,7 @@ function update_status( msg ){
       button_draw.click(draw_cards);
       button_end.click(turn_end);
       discard_area.on( 'click', '.card', recycle );
+      moves.on( 'click', '.rule', perform );
       clearInterval(interval);
     }
   }

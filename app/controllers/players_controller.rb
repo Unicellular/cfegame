@@ -41,6 +41,13 @@ class PlayersController < ApplicationController
     render json: rules.map { |rule| { id: rule.id, name: rule.chinese_name } }
   end
 
+  def perform
+    cards = Card.find(params[:cards] || [])
+    rule = Rule.find(params[:rule_id])
+    @player.perform( rule, cards )
+    render json: @game.info(@player)
+  end
+
   private
 
   # player must be in his turn at that game.

@@ -28,6 +28,10 @@ class Player < ActiveRecord::Base
   end
 
   def perform( rule, cards_used )
+    return nil unless cards_used.all?{ |c| cards.include? c }
+    cards_used.each do |card|
+      game.cards << card
+    end
     rule.performed( self, cards_used, game )
   end
 

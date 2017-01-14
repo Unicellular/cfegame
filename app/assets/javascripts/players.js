@@ -7,6 +7,7 @@ var button_use;
 var button_draw;
 var button_end;
 var discard_area;
+var moves;
 
 function select_card(e){
   var self = $(this);
@@ -26,7 +27,7 @@ function discard(e){
   //var player = $('#player');
   $.ajax({
     type: "GET",
-    url: "/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
+    url: ["discard", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"), //"/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
     data: { amount: $('.draw .number input').val() }
   }).done(function(msg){
     console.log("Card discarded!");
@@ -53,7 +54,7 @@ function use_cards(e){
   console.log(card_ids);
   $.ajax({
     type: "GET",
-    url: "/use_cards/" + game.data('game_id') + "/" + player.data('player_id'),
+    url: ["/use_cards", game.data('game_id'), player.data('player_id')].join("/"), //"/use_cards/" + game.data('game_id') + "/" + player.data('player_id'),
     data: {cards: card_ids}
   }).done(function(msg){
     console.log("card used!");
@@ -70,34 +71,12 @@ function use_cards(e){
   });
 }
 
-function possible_moves(e){
-  var card_ids = [];
-  action.find('.card').each(function(){
-    var self = $(this);
-    card_ids.push( self.data('id') );
-  });
-  console.log(card_ids);
-  $.ajax({
-    type: "GET",
-    url: "/possible_moves/" + game.data('game_id') + "/" + player.data('player_id'),
-    data: {cards: card_ids}
-  }).done(function(msg){
-    console.log("possible_moves:");
-    console.log(msg);
-    rules_area = $('#common .moves .row');
-    rules_area.empty();
-    $.each( msg, function(i, c){
-      rules_area.append($("<div/>").addClass("col-md-4").text(c.name));
-    });
-  });
-}
-
 function draw_cards(e){
   //var player = $('#player');
   hand.off( 'click', '.card', select_card );
   $.ajax({
     type: "GET",
-    url: "/draw/" + game.data('game_id') + "/" + player.data('player_id'),
+    url: ["/draw", game.data('game_id'), player.data('player_id')].join("/"), //"/draw/" + game.data('game_id') + "/" + player.data('player_id'),
     data: { amount: $('.draw .number input').val() }
   }).done(function(msg){
     console.log("card drawed");
@@ -112,7 +91,7 @@ function turn_end(e){
   //var player = $('#player');
   $.ajax({
     type: "GET",
-    url: "/turn_end/" + game.data('game_id') + "/" + player.data('player_id')
+    url: ["/turn_end", game.data('game_id'), player.data('player_id')].join("/"), //"/turn_end/" + game.data('game_id') + "/" + player.data('player_id')
   }).done(function(msg){
     console.log("turn ended");
     console.log(msg);
@@ -127,7 +106,7 @@ function request_status(){
   if( game.length ){
     $.ajax({
       type: "GET",
-      url: "/info/" + game.data('game_id') + "/" + player.data('player_id'),
+      url: ["/info", game.data('game_id'), player.data('player_id')].join("/"), //"/info/" + game.data('game_id') + "/" + player.data('player_id'),
       dataType: "json"
     }).done( update_status );
   } else {
@@ -138,14 +117,56 @@ function recycle(e){
   self = $(this);
   $.ajax({
     type: "GET",
-    url: "/recycle/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
-    dataTyep: "json"
+    url: ["/recycle", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"), //"/recycle/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
+    dataType: "json"
   }).done(function(msg){
     console.log("recycled");
     console.log(msg);
     discard_area.find('.card').remove();
   });
 }
+
+function possible_moves(e){
+  var card_ids = [];
+  action.find('.card').each(function(){
+    var self = $(this);
+    card_ids.push( self.data('id') );
+  });
+  console.log(card_ids);
+  $.ajax({
+    type: "GET",
+    url: ["/possible_moves", game.data('game_id'), player.data('player_id')].join("/"), //"/possible_moves/" + game.data('game_id') + "/" + player.data('player_id'),
+    data: { cards: card_ids }
+  }).done(function(msg){
+    console.log("possible_moves:");
+    console.log(msg);
+    rules_area = $('#common .moves .row');
+    rules_area.empty();
+    $.each( msg, function(i, c){
+      rules_area.append($("<div/>").addClass("col-md-4 rule").data("id", c.id).text(c.name));
+    });
+  });
+}
+
+function perform(e){
+  var card_ids = [];
+  action.find('.card').each(function(){
+    var self = $(this);
+    card_ids.push( self.data('id') );
+  });
+  self = $(this);
+  $.ajax({
+    type: "GET",
+    url: ["/perform", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"),
+    data: { cards: card_ids },
+    dataType: "json"
+  }).done(function(msg){
+    console.log("rule performed");
+    console.log(msg);
+    update_status(msg);
+  });
+}
+
 function disable_activity(){
   hand.off( 'click' );
   action.off( 'click' );

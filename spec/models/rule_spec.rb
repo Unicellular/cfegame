@@ -41,7 +41,7 @@ RSpec.describe Rule, type: :model do
     } ]
     cards_used = @onemetal.map { |c| c.to_hash }
     event = turn.events.where( test_feature ).take
-    expect( event.cards_used.map { |c| c.to_hash } ).to eq( cards_used )
+    expect( event.cards_used ).to eq( cards_used )
     expect( event.effect ).to eq( test_effect )
   end
 

@@ -99,7 +99,7 @@ class Rule < ActiveRecord::Base
         #log[:content][key] = [ subform, point ] unless key == "target"
       end unless last_player.sustained["counter"] == "spell" && form == :spell
       turn = game.current_turn
-      turn.events.create player: player, cards_used: cards_used, target: target, effect: log
+      turn.events.create player: player, cards_used: cards_used.map { |c| c.to_hash }, target: target, effect: log
     end
   end
 
