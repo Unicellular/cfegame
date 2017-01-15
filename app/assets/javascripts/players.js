@@ -27,8 +27,8 @@ function discard(e){
   //var player = $('#player');
   $.ajax({
     type: "GET",
-    url: ["discard", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"), //"/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
-    data: { amount: $('.draw .number input').val() }
+    url: ["/discard", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"), //"/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
+    dataType: "json"
   }).done(function(msg){
     console.log("Card discarded!");
     console.log(msg);
@@ -55,7 +55,8 @@ function use_cards(e){
   $.ajax({
     type: "GET",
     url: ["/use_cards", game.data('game_id'), player.data('player_id')].join("/"), //"/use_cards/" + game.data('game_id') + "/" + player.data('player_id'),
-    data: {cards: card_ids}
+    data: { cards: card_ids },
+    dataType: "json"
   }).done(function(msg){
     console.log("card used!");
     console.log(msg);
@@ -77,7 +78,7 @@ function draw_cards(e){
   $.ajax({
     type: "GET",
     url: ["/draw", game.data('game_id'), player.data('player_id')].join("/"), //"/draw/" + game.data('game_id') + "/" + player.data('player_id'),
-    data: { amount: $('.draw .number input').val() }
+    dataType: "json"
   }).done(function(msg){
     console.log("card drawed");
     console.log(msg);
@@ -92,6 +93,7 @@ function turn_end(e){
   $.ajax({
     type: "GET",
     url: ["/turn_end", game.data('game_id'), player.data('player_id')].join("/"), //"/turn_end/" + game.data('game_id') + "/" + player.data('player_id')
+    dataType: "json"
   }).done(function(msg){
     console.log("turn ended");
     console.log(msg);

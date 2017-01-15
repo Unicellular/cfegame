@@ -54,6 +54,7 @@ function update_status( msg ){
     $.each( msg['current']['members'][0].hands, function( index, value ){
       $('#player .hand').append(create_card( value ));
     });
+    disable_activity();
     for( var i = 0; i < msg['opponent']['members'][0].hands; i++ ){
       $('#opponent .hand').append(create_card());
     }
