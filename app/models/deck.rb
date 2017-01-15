@@ -54,4 +54,7 @@ class Deck < ActiveRecord::Base
     end
   end
 
+  def find_card( element, level )
+    cards.where( element: Card.elements[element], level: level )
+  end
 end
