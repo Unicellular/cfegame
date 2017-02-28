@@ -33,7 +33,7 @@ class Player < ActiveRecord::Base
     cards_used.each do |card|
       game.cards << card
     end
-    rule.performed( self, cards_used, game ) if rule.test( cards_used )
+    rule.performed( self, cards_used, game, game.turn ) if rule.test( cards_used )
   end
 
   def attacked( point, kind=nil )

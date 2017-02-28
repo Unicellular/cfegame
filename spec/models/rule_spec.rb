@@ -8,14 +8,16 @@ RSpec.describe Rule, type: :model do
     @game = Game.open( User.new )
     @game.join_with( User.new, @game.teams[1] )
     @game.begin( @game.players[0] )
+    @player1 = @game.players[0]
+    @player2 = @game.players[1]
+    @game.deck.cards << @player1.cards << @player2.cards
     @one_metal = [ @game.deck.find_card( :metal, 3 ).first ]
     @another_metal = [ @game.deck.find_card( :metal, 4 ).first ]
     @one_tree = [ @game.deck.find_card( :tree, 1 ).first ]
     @two_trees = @game.deck.find_card( :tree, 2 ).first(2)
     @two_earthes = @game.deck.find_card( :earth, 4 ).first(2)
-    @player1 = @game.players[0]
-    @player2 = @game.players[1]
-    @player1.cards << @one_metal << @two_trees
+    @other_two_earthes = @game.deck.find_card( :earth, 3 ).first(2)
+    @player1.cards << @one_metal << @two_trees << @other_two_earthes
     @player2.cards << @two_earthes << @another_metal << @one_tree
   end
 
@@ -52,13 +54,26 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when player perform copy" do
-    it "should copy what last player do" do
+    before( :each ) do
       @player1.perform( @gattack, @one_metal )
       @game.turn_end
       @player2.perform( @imitate, @two_earthes )
+      @player1.reload
+      @player2.reload
+    end
+
+    it "should copy what last player do" do
       expect( @player2.team.life ).to eq( 193 )
-      expect( @player1.reload.team.life ).to eq( 194 )
+      expect( @player1.team.life ).to eq( 194 )
+      expect( @player2.sustained[:element] ).to eq( "metal" )
+    end
+
+    it "should copy the original player do when it copy imitate" do
+      @game.turn_end
+      log, target = @player1.perform( @imitate, @other_two_earthes )
       expect( @player2.reload.sustained[:element] ).to eq( "metal" )
+      expect( @player2.reload.team.life ).to eq( 188 )
+      expect( @player1.reload.sustained[:element] ).to eq( "metal" )
     end
   end
 

@@ -82,11 +82,11 @@ class Game < ActiveRecord::Base
   end
 
   def current_turn
-    @turn || turns[turn]
+    turns[turn]
   end
 
   def last_turn
-    @last_turn || turns[turn-1]
+    turns[turn-1]
   end
 
   def draw_amount

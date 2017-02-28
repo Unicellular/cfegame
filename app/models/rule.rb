@@ -110,7 +110,7 @@ class Rule < ActiveRecord::Base
     write_attribute(:formula, postfix)
   end
 
-  def executed( player, cards_used, game )
+  def executed( player, cards_used, game, turn_num )
     target = get_target( player, game )
     target_id = target.id unless target.nil?
     target_hand = target.cards.count unless target.nil?
@@ -136,8 +136,8 @@ class Rule < ActiveRecord::Base
       when "counter"
         log.push( player.attached( counter: value ) )
       when "copy"
-        last_act = Rule.joins( :event ).where( form: [ "attack", "spell" ], series: value, events: { turn_id: game.last_turn.id } ).first
-        log, target = last_act.executed( player, cards_used, game )
+        last_act = Rule.joins( :event ).where( form: [ Rule.forms[:attack], Rule.forms[:spell] ], series: Rule.series[value], events: { turn_id: game.turns[turn_num-1].id } ).first
+        log, target = last_act.executed( player, cards_used, game, turn_num - 1 )
       when "shield"
         log.push( target.shielded( value ) )
       when "deshield"
@@ -157,8 +157,8 @@ class Rule < ActiveRecord::Base
     return log, target
   end
 
-  def performed( player, cards_used, game )
-    log, target = executed( player, cards_used, game )
+  def performed( player, cards_used, game, turn_num )
+    log, target = executed( player, cards_used, game, turn_num )
     turn = game.current_turn
     turn.events.create player: player, target: target, rule: self, effect: log, cards_used: cards_used.map { |c| c.to_hash }
   end
