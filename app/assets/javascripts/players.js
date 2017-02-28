@@ -8,6 +8,8 @@ var button_draw;
 var button_end;
 var discard_area;
 var moves;
+var opponent_hand;
+var opponent;
 
 function select_card(e){
   var self = $(this);
@@ -169,11 +171,30 @@ function perform(e){
   });
 }
 
+function select_card_from_opponent(e){
+  var card_ids = opponent_hand.find('.card.selected').map(function(i, e){
+    return $(this).data('id');
+  }).get();
+  console.log("selected cards:");
+  console.log(card_ids);
+  $.ajax({
+    type: "GET",
+    url: ["/select", game.data('game_id'), player.data('player_id'), opponent.data('opponent_id')].join("/"),
+    data: { cards: card_ids },
+    dataType: "json"
+  }).done(function(msg){
+    console.log("cards selected");
+    console.log(msg);
+    update_status(msg);
+  });
+}
+
 function disable_activity(){
   hand.off( 'click' );
   action.off( 'click' );
   button_use.off( 'click' );
   button_draw.off( 'click' );
   button_end.off( 'click' );
-  discard_area.off('click');
+  discard_area.off( 'click' );
+  moves.off( 'click' )
 }

@@ -8,40 +8,78 @@ class Rule < ActiveRecord::Base
   serialize :formula, JSON
   serialize :effect, JSON
   has_one :rule
+  has_many :event
 
   GENERATE = %w( metal water tree fire earth )
   OVERCOME = %w( metal tree earth water fire )
 
   def test( cards )
+    sts = stats( cards )
     material.all? do |key, value|
-      #puts key, value, count( cards, key )
-      if GENERATE.include? key
-        count( cards, key ) == value
-      elsif key == "count"
+      case key
+      when "element", "level"
+        value.all? do |k, v|
+          if k == "same"
+            sts[key].any?{ |k1, v1| v1 == v }
+          else
+            sts[key][k] == v
+          end
+        end
+      when "count"
         cards.count == value
       end
     end
   end
 
-  def count( cards, element )
+  def stats( cards )
+    rs = {
+      "element" => Hash.new(0),
+      "level" => Hash.new(0)
+    }
+    GENERATE.each do |elem|
+      rs["element"][elem] = cards.count{ |card| card.element == elem }
+    end
+    (1..5).each do |level|
+      rs["level"][level.to_s] = cards.count{ |card| card.level == level }
+    end
+    rs["element"]["different"] = cards.uniq{ |card| card.element }.count
+    rs["level"]["different"] = cards.uniq{ |card| card.level }.count
+    rs["level"]["sum"] = cards.inject(0){ |sum, card| sum + card.level }
+    rs
+  end
+
+  def count( cards, cond )
     cards.count do |card|
-      card.element.to_s == element
+      cond.all? do |key, value|
+        case key
+        when :element
+          card.element == value.to_sym
+        when :level
+          card.level == value.to_i
+        end
+      end
     end
   end
 
-  def calculate( cards )
+  def calculate( cards, option = {} )
     sum = cards.inject(0) { |s, c| s + c.level }
     cal = formula.dup
     stack = []
     ops = %w( + - * / )
     until cal.empty?
       item = cal.shift
-      item = sum if item == "sum"
-      if ops.include? item
+      case item
+      when Integer
+        unit = item
+      when "sum"
+        unit = sum
+      when *ops
         temp = stack.pop(2)
-        item = temp[0].send(item, temp[1])
+        unit = temp[0].send(item, temp[1])
+      else
+        unit = option[item.to_sym]
       end
-      stack.push(item)
+      stack.push(unit)
     end
     stack.pop
   end
@@ -72,38 +110,75 @@ class Rule < ActiveRecord::Base
     write_attribute(:formula, postfix)
   end
 
-  def performed( player, cards_used, game )
-    if test(cards_used)
-      target = get_target( player, game )
-      target_id = target.id unless target.nil?
-      point = calculate( cards_used ) unless formula.nil?
-      last_player = game.players[player.sequence-1]
-      log = []
-      effect.each do |key, value|
-        value = point if value == "point"
-        case key
-        when "attack"
-          if last_player.sustained["counter"] == "attack"
-            log.push( target.attacked( subform, 0 ) )
-          elsif last_player.sustained["counter"] == "split"
-            log.push( target.attacked( subform, value / 2 ) )
-            log.push( player.attacked( subform, value / 2 ) )
-          else
-            log.push( target.attacked( subform, value ) )
-          end
-        when "heal"
-          log.push( target.healed( nil, value ) )
-        when "counter"
-          log.push( player.attached( counter: value ) )
+  def executed( player, cards_used, game )
+    target = get_target( player, game )
+    target_id = target.id unless target.nil?
+    target_hand = target.cards.count unless target.nil?
+    last_player = game.players[player.sequence-1]
+    point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
+    log = []
+    player.attached( element: nil )
+    effect.each do |key, value|
+      value = point if value == "point"
+      case key
+      when "attack"
+        if last_player.sustained["counter"] == "attack"
+          log.push( target.attacked( 0, subform ) )
+        elsif last_player.sustained["counter"] == "split"
+          log.push( target.attacked( value.fdiv(2).ceil, subform ) )
+          log.push( player.attacked( value.fdiv(2).ceil, subform ) )
+        else
+          log.push( target.attacked( value, subform ) )
         end
-        #log[:content][key] = [ subform, point ] unless key == "target"
-      end unless last_player.sustained["counter"] == "spell" && form == :spell
-      turn = game.current_turn
-      turn.events.create player: player, cards_used: cards_used.map { |c| c.to_hash }, target: target, effect: log
-    end
+        player.attached( element: subform ) if GENERATE.include? subform
+      when "heal"
+        log.push( target.healed( value ) )
+      when "counter"
+        log.push( player.attached( counter: value ) )
+      when "copy"
+        last_act = Rule.joins( :event ).where( form: [ "attack", "spell" ], series: value, events: { turn_id: game.last_turn.id } ).first
+        log, target = last_act.executed( player, cards_used, game )
+      when "shield"
+        log.push( target.shielded( value ) )
+      when "deshield"
+        log.push( target.deshielded( value ) )
+      when "freeze"
+        log.push( target.attached( freeze: value ) )
+      when "remove"
+        log.push( target.attached( remove: value ) )
+      when "exchange"
+        log.push( exchange( value ) )
+      when "draw_extra"
+        log.push( player.attached( draw_extra: value ) )
+      when "showhand"
+        log.push( target.attached( showhand: value ))
+      end
+    end unless last_player.sustained["counter"] == "spell" && form == "spell"
+    return log, target
+  end
+
+  def performed( player, cards_used, game )
+    log, target = executed( player, cards_used, game )
+    turn = game.current_turn
+    turn.events.create player: player, target: target, rule: self, effect: log, cards_used: cards_used.map { |c| c.to_hash }
   end
 
   def get_target( player, game )
-    game.players[player.sequence + effect["target"]] if effect["target"].is_a? Integer
+    game.players[ ( player.sequence + effect["target"] ) % game.players.count ] if effect["target"].is_a? Integer
+  end
+
+  def self.interact( element1, element2 )
+    generate_index = GENERATE.index( element1 )
+    overcome_index = OVERCOME.index( element1 )
+    case true
+    when !generate_index.nil? && element2 == GENERATE[ ( generate_index + 1 ) % 5 ]
+      :generate
+    when !overcome_index.nil? && element2 == OVERCOME[ ( overcome_index + 1 ) % 5 ]
+      :overcome
+    when !generate_index.nil? && !overcome_index.nil? && element2 == element1
+      :cancel
+    else
+      nil
+    end
   end
 end

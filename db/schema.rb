@@ -43,6 +43,7 @@ ActiveRecord::Schema.define(version: 20160726140350) do
     t.integer  "player_id"
     t.integer  "target_id"
     t.integer  "turn_id"
+    t.integer  "rule_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -63,7 +64,7 @@ ActiveRecord::Schema.define(version: 20160726140350) do
   create_table "players", force: :cascade do |t|
     t.string   "star_history"
     t.string   "sustained"
-    t.integer  "shell",        default: 0
+    t.integer  "shield",       default: 0
     t.integer  "hand_limit",   default: 5
     t.integer  "sequence"
     t.integer  "user_id"

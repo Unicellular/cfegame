@@ -81,6 +81,6 @@ $icon-font-path: 'bootstrap/';
   margin: 10px -10px;
 }
 
-.card.draw {
+.card.draw, .card.selected {
   border: 1px solid yellow;
 }

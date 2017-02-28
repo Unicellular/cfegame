@@ -44,6 +44,15 @@ class PlayersController < ApplicationController
     render json: @game.info(@player)
   end
 
+  def select_card_from_target
+    target = Player.find(params[:target_id])
+    if target.sustained.has_key?(:remove)
+      cards = Card.find(params[:cards] || [])
+      target.removed( cards.first(target.sustained[:remove]) )
+    end
+    render json: @game.info(@player)
+  end
+
   private
 
   # player must be in his turn at that game.

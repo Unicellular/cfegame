@@ -6,6 +6,7 @@ class CreateEvents < ActiveRecord::Migration
       t.belongs_to :player
       t.belongs_to :target
       t.belongs_to :turn
+      t.belongs_to :rule
 
       t.timestamps null: false
     end

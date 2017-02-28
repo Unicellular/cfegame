@@ -26,5 +26,6 @@ class HomeController < ApplicationController
   def game
     @game = Game.find(params[:id])
     @player = current_player(@game)
+    @opponent = @game.players[@player.sequence+1]
   end
 end

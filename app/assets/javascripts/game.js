@@ -37,6 +37,8 @@ function game_initialize(){
   button_end = $('#common .turn_end');
   discard_area = $('.discard');
   moves = $('.moves');
+  opponent_hand = $('#opponent .hand');
+  opponent = $('#opponent');
 }
 
 function update_status( msg ){
@@ -45,24 +47,39 @@ function update_status( msg ){
     console.log(msg)
     $('#player .side').empty();
     $('#opponent .side').empty();
-    $('#player .hand').empty();
-    $('#opponent .hand').empty();
-    $('#player .action').empty();
+    hand.empty();
+    opponent_hand.empty();
+    action.empty();
     $('#opponent .action').empty();
     $('#player .side').html(msg['current']['team'].life);
     $('#opponent .side').html(msg['opponent']['team'].life);
     $.each( msg['current']['members'][0].hands, function( index, value ){
-      $('#player .hand').append(create_card( value ));
+      hand.append(create_card( value ));
     });
     disable_activity();
-    for( var i = 0; i < msg['opponent']['members'][0].hands; i++ ){
-      $('#opponent .hand').append(create_card());
+    if ( msg['opponent']['members'][0]['sustained']['showhand'] ){
+      $.each( msg['opponent']['members'][0].hands, function( index, value ){
+        opponent_hand.append(create_card( value ));
+      });
+    } else {
+      for( var i = 0; i < msg['opponent']['members'][0].hands; i++ ){
+        opponent_hand.append(create_card());
+      }
     }
     if ( msg['myturn'] ) {
       hand.on( 'click', '.card', select_card );
       action.on( 'click', '.card', unselect_card );
       button_use.click(use_cards);
-      button_draw.click(draw_cards);
+      if ( msg['opponent']['members'][0]['sustained']['showhand'] ) {
+        button_draw.text("Confirm");
+        button_draw.click(select_card_from_opponent);
+        $('#opponent .hand').on( 'click', '.card', function(){
+          $(this).toggleClass('selected');
+        });
+      } else {
+        button_draw.text("Draw");
+        button_draw.click(draw_cards);
+      }
       button_end.click(turn_end);
       discard_area.on( 'click', '.card', recycle );
       moves.on( 'click', '.rule', perform );

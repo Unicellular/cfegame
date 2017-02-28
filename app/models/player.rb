@@ -2,6 +2,7 @@ class Player < ActiveRecord::Base
   belongs_to :user
   belongs_to :team
   has_many :cards, as: :cardholder, dependent: :destroy
+  has_many :event
   serialize :star_history, Array
   serialize :sustained, Hash
 
@@ -32,24 +33,63 @@ class Player < ActiveRecord::Base
     cards_used.each do |card|
       game.cards << card
     end
-    rule.performed( self, cards_used, game )
+    rule.performed( self, cards_used, game ) if rule.test( cards_used )
   end
 
-  def attacked( kind, point )
-    team.attacked( point )
-    { to: id, content: { attack: [ kind, point ] } }
+  def attacked( point, kind=nil )
+    if shield == 0
+      case Rule.interact( kind, sustained[:element] )
+      when :generate
+        team.healed( point, kind )
+      when :overcome
+        team.attacked( point * 2, kind )
+      when :cancel
+        team.attacked( point.fdiv(2).ceil, kind )
+      else
+        team.attacked( point, kind )
+      end
+    elsif kind == "physical"
+      deshield( point * 2 )
+    else
+      deshield( point )
+    end
   end
 
-  def healed( kind, point )
-    team.healed( point )
-    { to: id, content: { heal: [ kind, point ] } }
+  def healed( point, kind )
+    team.healed( point, kind )
   end
 
   def attached( effect )
     effect.each do |key, value|
       sustained[key] = value
     end
+    save
     #{ to: nil, content: { secret: }}
+  end
+
+  def shielded( value )
+    update( shield: value )
+  end
+
+  def deshielded( value )
+    if shield > value
+      update( shield: shield - value )
+    else
+      update( shield: 0 )
+    end
+  end
+
+  def removed( cards_selected )
+    return nil unless cards_selected.all?{ |c| cards.include? c }
+    deck = game.deck
+    decktop = deck.cards.minimum( :position )
+    cards_selected.each_with_index do |c, i|
+      c.update( position: decktop - 1 - i )
+    end
+    deck.cards << cards_selected
+    sustained.delete( :remove )
+    sustained.delete( :showhand )
+    save
   end
 
   def using( card_ids )
@@ -66,15 +106,14 @@ class Player < ActiveRecord::Base
 
   def info( is_public )
     as_json({
-      except: [ :created_at, :updated_at ],
-      root: true
+      except: [ :created_at, :updated_at ]
     }).merge({
       hands: hands( is_public ).as_json
     })
   end
 
   def hands( is_public )
-    if is_public
+    if is_public || sustained[:showhand]
       return cards
     else
       return cards.count

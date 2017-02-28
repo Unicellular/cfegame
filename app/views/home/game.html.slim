@@ -1,6 +1,6 @@
 #maincontainer.row data-game_id=@game.id
   .primary
-    .row#opponent
+    .row#opponent data-opponent_id=opponent_id
       .col-md-2.side
       .col-md-10.main
         .row.hand
@@ -19,8 +19,7 @@
       .col-md-1
         span.glyphicon.glyphicon-chevron-right aria-hidden="true"
       .col-md-2.draw
-        .row.button
-          | draw
+        | draw
       .col-md-2.turn_end
         | End turn
     .row#player data-player_id=@player.id

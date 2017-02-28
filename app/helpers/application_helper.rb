@@ -46,4 +46,8 @@ module ApplicationHelper
   def current_player?( player, game )
     return current_player(game) == player
   end
+
+  def opponent_id
+    @opponent.id unless @opponent.nil?
+  end
 end
