@@ -92,4 +92,8 @@ class Game < ActiveRecord::Base
   def draw_amount
     2
   end
+
+  def exchange
+    teams[0].life, teams[1].life = teams[1].life, teams[0].life
+  end
 end

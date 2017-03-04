@@ -13,6 +13,7 @@ class Player < ActiveRecord::Base
   def draw( amount )
     deck = game.deck
     space = hand_limit-cards.count
+    amount = amount + sustained[:draw_extra] unless sustained[:draw_extra].nil?
     amount = space >= amount ? amount : space
     deck.cards.order(:position).first(amount+1)
   end
@@ -25,11 +26,13 @@ class Player < ActiveRecord::Base
     drawed_cards.each do |card|
       cards << card
     end
+    sustained.delete( :draw_extra )
     dishand
   end
 
   def perform( rule, cards_used )
     return nil unless cards_used.all?{ |c| cards.include? c }
+    return nil unless sustained[:freeze].nil?
     cards_used.each do |card|
       game.cards << card
     end
@@ -118,5 +121,11 @@ class Player < ActiveRecord::Base
     else
       return cards.count
     end
+  end
+
+  def turn_end
+    sustained[:freeze] -= 1
+    sustained.delete( :freeze ) if sustained[:freeze] == 0
+    @game.turn_end
   end
 end

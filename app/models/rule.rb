@@ -166,7 +166,7 @@ class Rule < ActiveRecord::Base
       when "remove"
         log.push( target.attached( remove: value ) )
       when "exchange"
-        log.push( exchange( value ) )
+        log.push( game.exchange( value ) )
       when "draw_extra"
         log.push( player.attached( draw_extra: value ) )
       when "showhand"

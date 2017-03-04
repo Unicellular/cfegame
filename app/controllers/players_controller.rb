@@ -2,7 +2,7 @@ class PlayersController < ApplicationController
   before_action :must_be_my_turn
 
   def turn_end
-    @game.turn_end
+    @player.turn_end
     render nothing: true
   end
 
