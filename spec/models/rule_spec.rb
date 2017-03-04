@@ -5,6 +5,8 @@ RSpec.describe Rule, type: :model do
     @gattack = Rule.find_by_name( "metal attack" )
     @defense = Rule.find_by_name( "defense" )
     @imitate = Rule.find_by_name( "imitate" )
+    @generate = Rule.find_by_name( "generating formation")
+    @overcome = Rule.find_by_name( "overcoming formation" )
     @game = Game.open( User.new )
     @game.join_with( User.new, @game.teams[1] )
     @game.begin( @game.players[0] )
@@ -27,6 +29,13 @@ RSpec.describe Rule, type: :model do
 
   it "should pass the test" do
     expect( @gattack.test( @one_metal ) ).to eq( true )
+  end
+
+  it "should pass the advanced test" do
+    cards_tested = [ Card.new( element: :metal, level: 1 ), Card.new( element: :water, level: 5 ), Card.new( element: :tree, level: 2 ) ]
+    expect( @generate.test( cards_tested ) ).to eq( true )
+    cards_tested = [ Card.new( element: :earth, level: 2 ), Card.new( element: :water, level: 1 ), Card.new( element: :fire, level: 4 ) ]
+    expect( @overcome.test( cards_tested ) ).to eq( true )
   end
 
   it "should attack right target with right amount of damage" do

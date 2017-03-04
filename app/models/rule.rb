@@ -19,14 +19,33 @@ class Rule < ActiveRecord::Base
       case key
       when "element", "level"
         value.all? do |k, v|
-          if k == "same"
+          case k
+          when "same"
             sts[key].any?{ |k1, v1| v1 == v }
+          when "generate", "overcome"
+            special_test( key, k, v, sts )
           else
             sts[key][k] == v
           end
         end
       when "count"
         cards.count == value
+      end
+    end
+  end
+
+  # 4/5 generate or overcome elements are the same to 4/5 different elements
+  def special_test( outer, inner, value, sts )
+    elements_sorted = case inner
+    when "generate"
+      GENERATE
+    when "overcome"
+      OVERCOME
+    end
+    circle_end = value == 5 ? 0 : value - 1
+    (elements_sorted + elements_sorted[0,circle_end]).each_cons(value).any? do |elem_list|
+      elem_list.all? do |elem|
+        sts[outer][elem] == 1
       end
     end
   end
