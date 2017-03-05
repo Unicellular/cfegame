@@ -107,6 +107,7 @@ function turn_end(e){
   });
 }
 function request_status(){
+  console.log( "requesting status" );
   if( game.length ){
     $.ajax({
       type: "GET",

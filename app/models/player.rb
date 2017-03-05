@@ -124,8 +124,13 @@ class Player < ActiveRecord::Base
   end
 
   def turn_end
-    sustained[:freeze] -= 1
-    sustained.delete( :freeze ) if sustained[:freeze] == 0
-    @game.turn_end
+    if sustained.has_key?( :freeze )
+      sustained[:freeze] -= 1
+      if sustained[:freeze] == 0
+        sustained.delete( :freeze )
+      end
+    end
+    save
+    game.turn_end
   end
 end

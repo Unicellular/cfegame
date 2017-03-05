@@ -3,7 +3,7 @@ class PlayersController < ApplicationController
 
   def turn_end
     @player.turn_end
-    render nothing: true
+    render json: @game.info(@player)
   end
 
   def use_cards

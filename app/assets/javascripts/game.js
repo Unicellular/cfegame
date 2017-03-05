@@ -9,7 +9,7 @@ var interval;
 
 $(function(){
   game_initialize();
-  interval = setInterval(find_opponent, 1000);
+  interval = setInterval( request_status, 1000 );
 });
 
 function find_opponent(){
@@ -42,7 +42,8 @@ function game_initialize(){
 }
 
 function update_status( msg ){
-  if ( msg ) {
+  var message_field = $('#field');
+  if ( msg && msg['status'] == "start" ) {
     console.log("status updated");
     console.log(msg)
     //$('#player .side').empty();
@@ -85,8 +86,14 @@ function update_status( msg ){
       button_end.click(turn_end);
       discard_area.on( 'click', '.card', recycle );
       moves.on( 'click', '.rule', perform );
+      message_field.text("Your Turn");
       clearInterval(interval);
+    } else {
+      message_field.text("Opponent's Turn");
     }
+  } else {
+    clearInterval(interval);
+    interval = setInterval( find_opponent, 1000 );
   }
 }
 

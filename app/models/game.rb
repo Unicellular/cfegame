@@ -46,7 +46,9 @@ class Game < ActiveRecord::Base
   end
 
   def info( player )
-    game_status = {}
+    game_status = as_json({
+      except: [ :created_at, :updated_at ]
+    })
     game_status[:myturn] = (turn_player == player)
     teams.each do |team|
       if team.players.include? player
