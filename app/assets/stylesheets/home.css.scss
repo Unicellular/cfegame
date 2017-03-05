@@ -5,6 +5,15 @@
 $total-height: 660px;
 $player-height: 300px;
 $icon-font-path: 'bootstrap/';
+th, td {
+  border: 1px solid #aaa;
+  padding: 5px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
 #field {
   height: 100%;
 }
@@ -83,4 +92,16 @@ $icon-font-path: 'bootstrap/';
 
 .card.draw, .card.selected {
   border: 1px solid yellow;
+}
+
+.life {
+  font-size: 5em;
+  color: red;
+  text-align: center;
+}
+
+.shield {
+  font-size: 48px;
+  color: blue;
+  text-align: center;
 }

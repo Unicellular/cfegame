@@ -1,10 +1,17 @@
 h2 Welcome to Game Lobby!
 = link_to 'Open a Game', open_path, method: :post
 table
+  tr 
+    th
+    th Game No
+    th team 1
+    th team 2
   - @games.each do |game|
     tr
       td
         = link_to 'Return', game_path(game)
+      td
+        = game.id
       td
         = display_team(game.teams[0], game)
       td

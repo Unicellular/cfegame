@@ -45,14 +45,16 @@ function update_status( msg ){
   if ( msg ) {
     console.log("status updated");
     console.log(msg)
-    $('#player .side').empty();
-    $('#opponent .side').empty();
+    //$('#player .side').empty();
+    //$('#opponent .side').empty();
     hand.empty();
     opponent_hand.empty();
     action.empty();
     $('#opponent .action').empty();
-    $('#player .side').html(msg['current']['team'].life);
-    $('#opponent .side').html(msg['opponent']['team'].life);
+    $('#player .life').html(msg['current']['team'].life);
+    $('#opponent .life').html(msg['opponent']['team'].life);
+    $('#player .shield').html(msg['current']['members'][0].shield);
+    $('#opponent .shield').html(msg['opponent']['members'][0].shield);
     $.each( msg['current']['members'][0].hands, function( index, value ){
       hand.append(create_card( value ));
     });
