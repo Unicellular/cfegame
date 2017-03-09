@@ -52,14 +52,9 @@ RSpec.describe Rule, type: :model do
       target: target,
       rule: @gattack
     }
-    test_effect = [ {
-      "to" => target.id,
-      "content" => { "attack" => [ "metal", 7 ] }
-    } ]
     cards_used = @one_metal.map { |c| c.to_hash }
-    event = turn.events.where( test_feature ).take
+    event = turn.events.where( test_feature ).first
     expect( event.cards_used ).to eq( cards_used )
-    expect( event.effect ).to eq( test_effect )
   end
 
   context "when player perform copy" do

@@ -1,14 +1,12 @@
-require 'spec_helper'
+require 'rails_helper'
 
-describe HomeController do
-
+RSpec.describe GamesController, type: :controller do
   describe "GET 'game'" do
     it "returns http success" do
       @user = User.create
       @game = Game.open(@user)
-      get :game, { id: @game.id }, { user_id: @user.id }
+      get :show, { id: @game.id }, { user_id: @user.id }
       expect(response).to have_http_status(:success)
     end
   end
-
 end
