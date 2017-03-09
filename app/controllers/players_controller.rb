@@ -1,5 +1,22 @@
 class PlayersController < ApplicationController
   before_action :must_be_my_turn
+  skip_before_action :must_be_my_turn, only: [ :find_opponent, :info ]
+
+  def find_opponent
+    game = Game.find(params[:game_id])
+    player = Player.find(params[:id])
+    if game.ready?
+      render json: game.begin(player)
+    else
+      render json: false
+    end
+  end
+
+  def info
+    game = Game.find(params[:game_id])
+    player = Player.find(params[:id])
+    render json: game.info(player)
+  end
 
   def turn_end
     @player.turn_end
@@ -17,13 +34,13 @@ class PlayersController < ApplicationController
   end
 
   def discard
-    @discard = Card.find(params[:card_id])
+    @discard = Card.find(params[:cards] || [])
     discard = @player.discard( @game.draw_amount, @discard )
     render json: { hands: @player.hands(true), discard: discard }
   end
 
   def recycle
-    @discard = Card.find(params[:card_id])
+    @discard = Card.find(params[:cards] || [])
     @deck = @game.deck
     @deck.recycle( @discard )
     render nothing: true
@@ -39,13 +56,13 @@ class PlayersController < ApplicationController
 
   def perform
     cards = Card.find(params[:cards] || [])
-    rule = Rule.find(params[:rule_id])
+    rule = Rule.find(params[:rule])
     @player.perform( rule, cards )
     render json: @game.info(@player)
   end
 
-  def select_card_from_target
-    target = Player.find(params[:target_id])
+  def select
+    target = Player.find(params[:opponent])
     if target.sustained.has_key?(:remove)
       cards = Card.find(params[:cards] || [])
       target.removed( cards.first(target.sustained[:remove]) )
@@ -57,8 +74,8 @@ class PlayersController < ApplicationController
 
   # player must be in his turn at that game.
   def must_be_my_turn
-    @game = Game.find(params[:gid])
-    @player = Player.find(params[:pid])
+    @game = Game.find(params[:game_id])
+    @player = Player.find(params[:id])
     unless @game.turn_player == @player
       render nothing: true, status: :forbidden
     end

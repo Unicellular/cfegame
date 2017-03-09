@@ -29,7 +29,8 @@ function discard(e){
   //var player = $('#player');
   $.ajax({
     type: "GET",
-    url: ["/discard", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"), //"/discard/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
+    url: [game.data('game_id'), "players", player.data('player_id'), "discard"].join("/"),
+    data: { cards: self.data('id') },
     dataType: "json"
   }).done(function(msg){
     console.log("Card discarded!");
@@ -56,7 +57,7 @@ function use_cards(e){
   console.log(card_ids);
   $.ajax({
     type: "GET",
-    url: ["/use_cards", game.data('game_id'), player.data('player_id')].join("/"), //"/use_cards/" + game.data('game_id') + "/" + player.data('player_id'),
+    url: [game.data('game_id'), "players", player.data('player_id'), "use_cards"].join("/"),
     data: { cards: card_ids },
     dataType: "json"
   }).done(function(msg){
@@ -79,7 +80,7 @@ function draw_cards(e){
   hand.off( 'click', '.card', select_card );
   $.ajax({
     type: "GET",
-    url: ["/draw", game.data('game_id'), player.data('player_id')].join("/"), //"/draw/" + game.data('game_id') + "/" + player.data('player_id'),
+    url: [game.data('game_id'), "players", player.data('player_id'), "draw"].join("/"),
     dataType: "json"
   }).done(function(msg){
     console.log("card drawed");
@@ -94,7 +95,7 @@ function turn_end(e){
   //var player = $('#player');
   $.ajax({
     type: "GET",
-    url: ["/turn_end", game.data('game_id'), player.data('player_id')].join("/"), //"/turn_end/" + game.data('game_id') + "/" + player.data('player_id')
+    url: [game.data('game_id'), "players", player.data('player_id'), "turn_end"].join("/"),
     dataType: "json"
   }).done(function(msg){
     console.log("turn ended");
@@ -111,10 +112,11 @@ function request_status(){
   if( game.length ){
     $.ajax({
       type: "GET",
-      url: ["/info", game.data('game_id'), player.data('player_id')].join("/"), //"/info/" + game.data('game_id') + "/" + player.data('player_id'),
+      url: [game.data('game_id'), "players", player.data('player_id'), "info"].join("/"),
       dataType: "json"
     }).done( update_status );
   } else {
+    console.log( "clear interval = " + interval );
     clearInterval(interval);
   }
 }
@@ -122,7 +124,8 @@ function recycle(e){
   self = $(this);
   $.ajax({
     type: "GET",
-    url: ["/recycle", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"), //"/recycle/" + game.data('game_id') + "/" + player.data('player_id') + "/" + self.data("id"),
+    url: [game.data('game_id'), "players", player.data('player_id'), "recycle"].join("/"),
+    data: { cards: self.data("id") },
     dataType: "json"
   }).done(function(msg){
     console.log("recycled");
@@ -140,7 +143,7 @@ function possible_moves(e){
   console.log(card_ids);
   $.ajax({
     type: "GET",
-    url: ["/possible_moves", game.data('game_id'), player.data('player_id')].join("/"), //"/possible_moves/" + game.data('game_id') + "/" + player.data('player_id'),
+    url: [game.data('game_id'), "players", player.data('player_id'), "possible_moves"].join("/"),
     data: { cards: card_ids }
   }).done(function(msg){
     console.log("possible_moves:");
@@ -162,8 +165,8 @@ function perform(e){
   self = $(this);
   $.ajax({
     type: "GET",
-    url: ["/perform", game.data('game_id'), player.data('player_id'), self.data("id")].join("/"),
-    data: { cards: card_ids },
+    url: [game.data('game_id'), "players", player.data('player_id'), "perform"].join("/"),
+    data: { cards: card_ids, rule: self.data("id") },
     dataType: "json"
   }).done(function(msg){
     console.log("rule performed");
@@ -180,8 +183,8 @@ function select_card_from_opponent(e){
   console.log(card_ids);
   $.ajax({
     type: "GET",
-    url: ["/select", game.data('game_id'), player.data('player_id'), opponent.data('opponent_id')].join("/"),
-    data: { cards: card_ids },
+    url: [game.data('game_id'), "players", player.data('player_id'), "select"].join("/"),
+    data: { cards: card_ids, opponent: opponent.data('opponent_id') },
     dataType: "json"
   }).done(function(msg){
     console.log("cards selected");

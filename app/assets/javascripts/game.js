@@ -7,9 +7,15 @@ var emap = [
 ];
 var interval;
 
-$(function(){
-  game_initialize();
-  interval = setInterval( request_status, 1000 );
+$(document).on('turbolinks:load', function(){
+  if ( $('#maincontainer').length ) {
+    game_initialize();
+    interval = setInterval( request_status, 1000 );
+    console.log( "set interval = " + interval );
+  } else {
+    console.log( "clear an interval = " + interval );
+    clearInterval(interval);
+  }
 });
 
 function find_opponent(){
@@ -18,7 +24,7 @@ function find_opponent(){
     game_id = game.data('game_id');
     player_id = player.data('player_id');
     $.ajax({
-      url: "/find_opponent/" + game_id + "/" + player_id,
+      url: [game.data('game_id'), "players", player_id, "find_opponent"].join("/"),
       dataType: "json"
     }).done( update_status );
   } else {
