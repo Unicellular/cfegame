@@ -141,9 +141,9 @@ class Rule < ActiveRecord::Base
       value = point if value == "point"
       case key
       when "attack"
-        if last_player.sustained["counter"] == "attack"
+        if last_player.sustained[:counter] == "attack"
           log.push( target.attacked( 0, subform ) )
-        elsif last_player.sustained["counter"] == "split"
+        elsif last_player.sustained[:counter] == "split"
           log.push( target.attacked( value.fdiv(2).ceil, subform ) )
           log.push( player.attacked( value.fdiv(2).ceil, subform ) )
         else
@@ -172,7 +172,9 @@ class Rule < ActiveRecord::Base
       when "showhand"
         log.push( target.attached( showhand: value ))
       end
-    end unless last_player.sustained["counter"] == "spell" && form == "spell"
+    end unless last_player.sustained[:counter] == "spell" && form == "spell"
+    last_player.sustained.delete( :counter )
+    last_player.save
     return log, target
   end
 

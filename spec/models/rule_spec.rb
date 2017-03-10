@@ -2,7 +2,8 @@ require 'rails_helper'
 
 RSpec.describe Rule, type: :model do
   before( :each ) do
-    @gattack = Rule.find_by_name( "metal attack" )
+    @metal_attack = Rule.find_by_name( "metal attack" )
+    @tree_attack = Rule.find_by_name( "tree attack" )
     @defense = Rule.find_by_name( "defense" )
     @imitate = Rule.find_by_name( "imitate" )
     @generate = Rule.find_by_name( "generating formation")
@@ -24,11 +25,11 @@ RSpec.describe Rule, type: :model do
   end
 
   it "calculates right point" do
-    expect( @gattack.calculate( @one_metal ) ).to eq( 7 )
+    expect( @metal_attack.calculate( @one_metal ) ).to eq( 7 )
   end
 
   it "should pass the test" do
-    expect( @gattack.test( @one_metal ) ).to eq( true )
+    expect( @metal_attack.test( @one_metal ) ).to eq( true )
   end
 
   it "should pass the advanced test" do
@@ -39,18 +40,18 @@ RSpec.describe Rule, type: :model do
   end
 
   it "should attack right target with right amount of damage" do
-    @player1.perform( @gattack, @one_metal )
+    @player1.perform( @metal_attack, @one_metal )
     expect( @player2.team.life ).to eq( 193 )
   end
 
   it "should write what the performer did in current turn" do
-    @player1.perform( @gattack, @one_metal )
+    @player1.perform( @metal_attack, @one_metal )
     turn = @game.current_turn
-    target = @gattack.get_target( @player1, @game )
+    target = @metal_attack.get_target( @player1, @game )
     test_feature = {
       player: @player1,
       target: target,
-      rule: @gattack
+      rule: @metal_attack
     }
     cards_used = @one_metal.map { |c| c.to_hash }
     event = turn.events.where( test_feature ).first
@@ -59,7 +60,7 @@ RSpec.describe Rule, type: :model do
 
   context "when player perform copy" do
     before( :each ) do
-      @player1.perform( @gattack, @one_metal )
+      @player1.perform( @metal_attack, @one_metal )
       @game.turn_end
       @player2.perform( @imitate, @two_earthes )
       @player1.reload
@@ -74,7 +75,7 @@ RSpec.describe Rule, type: :model do
 
     it "should copy the original player do when it copy imitate" do
       @game.turn_end
-      log, target = @player1.perform( @imitate, @other_two_earthes )
+      @player1.perform( @imitate, @other_two_earthes )
       expect( @player2.reload.sustained[:element] ).to eq( "metal" )
       expect( @player2.reload.team.life ).to eq( 188 )
       expect( @player1.reload.sustained[:element] ).to eq( "metal" )
@@ -82,11 +83,26 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when player perform defense" do
-    it "should counter opponent's attack at next turn" do
+    before( :each ) do
       @player1.perform( @defense, @two_trees )
       @game.turn_end
-      @player2.perform( @gattack, @one_metal )
+      @player2.perform( @metal_attack, @another_metal )
+      @player1.reload
+      @player2.reload
+    end
+
+    it "should counter opponent's attack at next turn" do
       expect( @player1.team.life ).to eq( @player1.team.life_limit )
+    end
+
+    it "should not counter opponenet's attack atfer next turn" do
+      expect( @player1.sustained.has_key?( :counter ) ).to be false
+      @game.turn_end
+      @game.turn_end
+      @player2.perform( @tree_attack, @one_tree )
+      @player1.reload
+      @player2.reload
+      expect( @player1.team.life ).to eq( 195 )
     end
   end
 end
