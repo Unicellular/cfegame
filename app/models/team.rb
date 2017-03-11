@@ -26,7 +26,6 @@ class Team < ActiveRecord::Base
     else
       update( life: 0 )
     end
-    { to: id, content: { attack: [ kind, point ] } }
   end
 
   def healed( point, kind=nil )
@@ -35,6 +34,5 @@ class Team < ActiveRecord::Base
     else
       update( life: life_limit )
     end
-    { to: id, content: { heal: [ kind, point ] } }
   end
 end

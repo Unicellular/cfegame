@@ -135,53 +135,52 @@ class Rule < ActiveRecord::Base
     target_hand = target.cards.count unless target.nil?
     last_player = game.players[player.sequence-1]
     point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
-    log = []
     player.attached( element: nil )
     effect.each do |key, value|
       value = point if value == "point"
       case key
       when "attack"
         if last_player.sustained[:counter] == "attack"
-          log.push( target.attacked( 0, subform ) )
+          target.attacked( 0, subform ) 
         elsif last_player.sustained[:counter] == "split"
-          log.push( target.attacked( value.fdiv(2).ceil, subform ) )
-          log.push( player.attacked( value.fdiv(2).ceil, subform ) )
+          target.attacked( value.fdiv(2).ceil, subform )
+          player.attacked( value.fdiv(2).ceil, subform )
         else
-          log.push( target.attacked( value, subform ) )
+          target.attacked( value, subform )
         end
         player.attached( element: subform ) if GENERATE.include? subform
       when "heal"
-        log.push( target.healed( value ) )
+        target.healed( value )
       when "counter"
-        log.push( player.attached( counter: value ) )
+        player.attached( counter: value )
       when "copy"
         last_act = Rule.joins( :event ).where( form: [ Rule.forms[:attack], Rule.forms[:spell] ], series: Rule.series[value], events: { turn_id: game.turns[turn_num-1].id } ).first
-        log, target = last_act.executed( player, cards_used, game, turn_num - 1 )
+        target = last_act.executed( player, cards_used, game, turn_num - 1 )
       when "shield"
-        log.push( target.shielded( value ) )
+        target.shielded( value )
       when "deshield"
-        log.push( target.deshielded( value ) )
+        target.deshielded( value )
       when "freeze"
-        log.push( target.attached( freeze: value ) )
+        target.attached( freeze: value )
       when "remove"
-        log.push( target.attached( remove: value ) )
+        target.attached( remove: value )
       when "exchange"
-        log.push( game.exchange( value ) )
+        game.exchange( value )
       when "draw_extra"
-        log.push( player.attached( draw_extra: value ) )
+        player.attached( draw_extra: value )
       when "showhand"
-        log.push( target.attached( showhand: value ))
+        target.attached( showhand: value )
       end
     end unless last_player.sustained[:counter] == "spell" && form == "spell"
     last_player.sustained.delete( :counter )
     last_player.save
-    return log, target
+    return target
   end
 
   def performed( player, cards_used, game, turn_num )
-    log, target = executed( player, cards_used, game, turn_num )
+    target = executed( player, cards_used, game, turn_num )
     turn = game.current_turn
-    turn.events.create player: player, target: target, rule: self, effect: log, cards_used: cards_used.map { |c| c.to_hash }
+    turn.events.create player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }
   end
 
   def get_target( player, game )

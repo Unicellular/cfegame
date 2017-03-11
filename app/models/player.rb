@@ -67,7 +67,6 @@ class Player < ActiveRecord::Base
       sustained[key] = value
     end
     save
-    #{ to: nil, content: { secret: }}
   end
 
   def shielded( value )
