@@ -52,13 +52,13 @@ class Player < ActiveRecord::Base
         team.attacked( point, kind )
       end
     elsif kind == "physical"
-      deshield( point * 2 )
+      deshielded( point * 2 )
     else
-      deshield( point )
+      deshielded( point )
     end
   end
 
-  def healed( point, kind )
+  def healed( point, kind=nil )
     team.healed( point, kind )
   end
 
@@ -107,10 +107,18 @@ class Player < ActiveRecord::Base
   end
 
   def info( is_public )
+    last_events = Event.joins( :turn ).where( player: self, rule: Rule.action, turn: game.turns ).order( Turn.arel_table[:number].desc ).first(2)
     as_json({
       except: [ :created_at, :updated_at ]
     }).merge({
-      hands: hands( is_public ).as_json
+      hands: hands( is_public ).as_json,
+      last_acts: last_events.map do |event|
+        event.as_json({
+          only: :cards_used
+        }).merge({
+          rule_name: event.rule.chinese_name
+        })
+      end
     })
   end
 

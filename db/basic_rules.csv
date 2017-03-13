@@ -7,7 +7,7 @@ earth attack,土擊術,／土／土行攻擊，點數＝等級＋４,base,{},att
 weapon,武器,／金金／物理攻擊，點數＝等級總和×２,base,{},attack,physical,"{ ""element"": { ""metal"": 2 }, ""count"": 2 }",sum * 2,"{ ""target"": -1, ""attack"": ""point"" }"
 defense,防禦,／木木／被動術式，反制：下家下回合攻擊之傷害無效,base,{},spell,passive,"{ ""element"": { ""tree"": 2 }, ""count"": 2 }",,"{ ""target"": null, ""hidden"": true, ""counter"": ""attack"" }"
 seal,封印,／水水／被動術式，反制：下家下回合術式無效,base,{},spell,passive,"{ ""element"": { ""water"": 2 }, ""count"": 2 }",,"{ ""target"": null, ""hidden"": true, ""counter"": ""spell"" }"
-backfire,反震,／火火／被動術式，反制：下家下回合攻擊之傷害由目標與施展者平分,base,{},spell,passive,"{ ""element"": { ""fire"": 2 }, ""count"": 2 }",,"{ ""target"": null, ""hidden"": true, ""counter"": ""spell"" }"
+backfire,反震,／火火／被動術式，反制：下家下回合攻擊之傷害由目標與施展者平分,base,{},spell,passive,"{ ""element"": { ""fire"": 2 }, ""count"": 2 }",,"{ ""target"": null, ""hidden"": true, ""counter"": ""split"" }"
 imitate,幻化,／土土／主動術式，複製上家上回合施展之基礎規則陣法之類別與效果,base,{},spell,active,"{ ""element"": { ""earth"": 2 }, ""count"": 2 }",,"{ ""target"": null, ""copy"": ""base"" }"
 empty city,空城,／兩張不同屬性牌／被動術式，無效果,base,{},spell,passive,"{ ""element"": { ""different"": 2 }, ""count"": 2 }",,"{ ""target"": null, ""hidden"": true }"
 metal formation,鍠金,／金金金／金行攻擊，點數＝等級總和×３,base,{},attack,metal,"{ ""element"": { ""metal"": 3 }, ""count"": 3 }",sum * 3,"{ ""target"": -1, ""attack"": ""point"" }"

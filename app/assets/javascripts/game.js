@@ -38,13 +38,15 @@ function game_initialize(){
   action = $('#player .action');
   used = $('#player .used');
   player = $('#player');
-  button_use = $('#common .use_cards');
   button_draw = $('#common .draw');
   button_end = $('#common .turn_end');
   discard_area = $('.discard');
   moves = $('.moves');
   opponent_hand = $('#opponent .hand');
   opponent = $('#opponent');
+  player_used = $('#player .used');
+  opponent_used = $('#opponent .used');
+  opponent_action = $('#opponent .action');
 }
 
 function update_status( msg ){
@@ -57,7 +59,9 @@ function update_status( msg ){
     hand.empty();
     opponent_hand.empty();
     action.empty();
-    $('#opponent .action').empty();
+    player_used.empty();
+    opponent_action.empty();
+    opponent_used.empty();
     $('#player .life').html(msg['current']['team'].life);
     $('#opponent .life').html(msg['opponent']['team'].life);
     $('#player .shield').html(msg['current']['members'][0].shield);
@@ -75,10 +79,24 @@ function update_status( msg ){
         opponent_hand.append(create_card());
       }
     }
+    if ( msg['opponent']['members'][0]['last_acts'].length > 0 ) {
+      $.each( msg['opponent']['members'][0]['last_acts'][0]['cards_used'], function( index, value ){
+        opponent_action.append(create_card( value, false, true ));
+      });
+    }
+    if ( msg['opponent']['members'][0]['last_acts'].length > 1 ) {
+      $.each( msg['opponent']['members'][0]['last_acts'][1]['cards_used'], function( index, value ){
+        opponent_used.append(create_card( value, false, true ));
+      });
+    }
+    if ( msg['current']['members'][0]['last_acts'].length > 0 ) {
+      $.each( msg['current']['members'][0]['last_acts'][0]['cards_used'], function( index, value ){
+        player_used.append(create_card( value, false, true ));
+      });
+    }
     if ( msg['myturn'] ) {
       hand.on( 'click', '.card', select_card );
       action.on( 'click', '.card', unselect_card );
-      button_use.click(use_cards);
       if ( msg['opponent']['members'][0]['sustained']['showhand'] ) {
         button_draw.text("Confirm");
         button_draw.click(select_card_from_opponent);

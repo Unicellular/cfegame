@@ -3,13 +3,15 @@ var action;
 var used;
 var game;
 var player;
-var button_use;
 var button_draw;
 var button_end;
 var discard_area;
 var moves;
 var opponent_hand;
 var opponent;
+var player_used;
+var opponent_used;
+var opponent_action;
 
 function select_card(e){
   var self = $(this);
@@ -196,7 +198,6 @@ function select_card_from_opponent(e){
 function disable_activity(){
   hand.off( 'click' );
   action.off( 'click' );
-  button_use.off( 'click' );
   button_draw.off( 'click' );
   button_end.off( 'click' );
   discard_area.off( 'click' );

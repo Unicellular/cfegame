@@ -9,6 +9,7 @@ class Rule < ActiveRecord::Base
   serialize :effect, JSON
   has_one :rule
   has_many :event
+  scope :action, -> { where( form: [ forms[:attack], forms[:spell] ] ) }
 
   GENERATE = %w( metal water tree fire earth )
   OVERCOME = %w( metal tree earth water fire )
@@ -141,7 +142,7 @@ class Rule < ActiveRecord::Base
       case key
       when "attack"
         if last_player.sustained[:counter] == "attack"
-          target.attacked( 0, subform ) 
+          target.attacked( 0, subform )
         elsif last_player.sustained[:counter] == "split"
           target.attacked( value.fdiv(2).ceil, subform )
           player.attacked( value.fdiv(2).ceil, subform )
@@ -154,7 +155,7 @@ class Rule < ActiveRecord::Base
       when "counter"
         player.attached( counter: value )
       when "copy"
-        last_act = Rule.joins( :event ).where( form: [ Rule.forms[:attack], Rule.forms[:spell] ], series: Rule.series[value], events: { turn_id: game.turns[turn_num-1].id } ).first
+        last_act = Rule.action.joins( :event ).where( series: Rule.series[value], events: { turn_id: game.turns[turn_num-1].id } ).first
         target = last_act.executed( player, cards_used, game, turn_num - 1 )
       when "shield"
         target.shielded( value )
