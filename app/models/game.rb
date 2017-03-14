@@ -96,6 +96,8 @@ class Game < ActiveRecord::Base
   end
 
   def exchange
-    teams[0].life, teams[1].life = teams[1].life, teams[0].life
+    temp = teams[0].life
+    teams[0].update( life: teams[1].life )
+    teams[1].update( life: temp )
   end
 end
