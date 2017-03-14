@@ -1,7 +1,7 @@
 class Rule < ActiveRecord::Base
   enum form: [ :attack, :spell ]
   enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
-                  active: 0, passive: 1, lasting: 2 }
+                  active: 7, passive: 8, lasting: 9 }
   enum series: [ :base, :star, :field, :hero ]
   serialize :condition, JSON
   serialize :material, JSON
@@ -171,6 +171,8 @@ class Rule < ActiveRecord::Base
         player.attached( draw_extra: value )
       when "showhand"
         target.attached( showhand: value )
+      when "hidden"
+        player.attached( hidden: :counter )
       end
     end unless last_player.sustained[:counter] == "spell" && form == "spell"
     last_player.sustained.delete( :counter )

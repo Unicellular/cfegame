@@ -6,7 +6,7 @@ class GamesController < ApplicationController
   def show
     @game = Game.find(params[:id])
     @player = current_player(@game)
-    @opponent = @game.players[@player.sequence+1]
+    @opponent = @game.players[ ( @player.sequence + 1 ) % @game.players.count]
   end
 
   def create

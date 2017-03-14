@@ -80,9 +80,15 @@ function update_status( msg ){
       }
     }
     if ( msg['opponent']['members'][0]['last_acts'].length > 0 ) {
-      $.each( msg['opponent']['members'][0]['last_acts'][0]['cards_used'], function( index, value ){
-        opponent_action.append(create_card( value, false, true ));
-      });
+      if ( msg['opponent']['members'][0]['last_acts'][0]['cards_used'] ) {
+        $.each( msg['opponent']['members'][0]['last_acts'][0]['cards_used'], function( index, value ){
+          opponent_action.append(create_card( value, false, true ));
+        });
+      } else {
+        for( var i = 0; i < msg['opponent']['members'][0]['last_acts'][0]['cards_count']; i++ ){
+          opponent_action.append(create_card( null, false, true ));
+        }
+      }
     }
     if ( msg['opponent']['members'][0]['last_acts'].length > 1 ) {
       $.each( msg['opponent']['members'][0]['last_acts'][1]['cards_used'], function( index, value ){
@@ -131,9 +137,9 @@ function create_card( value, is_draw, is_small ){
     if( is_draw ){
       card.addClass("draw");
     }
-    if( is_small ){
-      card.removeClass('card-lg').addClass('card-sm');
-    }
+  }
+  if( is_small ){
+    card.removeClass('card-lg').addClass('card-sm');
   }
   return card;
 }
