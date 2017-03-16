@@ -8,6 +8,7 @@ RSpec.describe Rule, type: :model do
     @imitate = Rule.find_by_name( "imitate" )
     @generate = Rule.find_by_name( "generating formation")
     @overcome = Rule.find_by_name( "overcoming formation" )
+    @feao = Rule.find_by_name( "five element as one" )
     @game = Game.open( User.new )
     @game.join_with( User.new, @game.teams[1] )
     @game.begin( @game.players[0] )
@@ -37,6 +38,17 @@ RSpec.describe Rule, type: :model do
     expect( @generate.test( cards_tested ) ).to eq( true )
     cards_tested = [ Card.new( element: :earth, level: 2 ), Card.new( element: :water, level: 1 ), Card.new( element: :fire, level: 4 ) ]
     expect( @overcome.test( cards_tested ) ).to eq( true )
+  end
+
+  it "should pass the feao test for the right cards" do
+    cards_tested = [
+      Card.new( element: :metal, level: 3 ),
+      Card.new( element: :tree, level: 3 ),
+      Card.new( element: :fire, level: 3 ),
+      Card.new( element: :water, level: 3 ),
+      Card.new( element: :earth, level: 3 )
+    ]
+    expect( @feao.test( cards_tested ) ).to eq( true )
   end
 
   it "should attack right target with right amount of damage" do
