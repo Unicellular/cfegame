@@ -19,10 +19,10 @@
         .row
       .col-md-1
         span.glyphicon.glyphicon-chevron-right aria-hidden="true"
-      .col-md-2.draw
-        | draw
+      .col-md-2
+        button.confirm.btn.btn-default disabled="disabled"
+          | Confirm
       .col-md-2.turn_end
-        | End turn
     .row#player data-player_id=@player.id
       .col-md-2.side
         .row.life

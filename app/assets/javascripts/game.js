@@ -38,8 +38,8 @@ function game_initialize(){
   action = $('#player .action');
   used = $('#player .used');
   player = $('#player');
-  button_draw = $('#common .draw');
-  button_end = $('#common .turn_end');
+  button_confirm = $('#common .confirm');
+  //button_end = $('#common .turn_end');
   discard_area = $('.discard');
   moves = $('.moves');
   opponent_hand = $('#opponent .hand');
@@ -104,16 +104,17 @@ function update_status( msg ){
       hand.on( 'click', '.card', select_card );
       action.on( 'click', '.card', unselect_card );
       if ( msg['opponent']['members'][0]['sustained']['showhand'] ) {
-        button_draw.text("Confirm");
-        button_draw.click(select_card_from_opponent);
+        button_confirm.text("Confirm");
+        button_confirm.attr("disabled", false);
+        button_confirm.click(select_card_from_opponent);
         $('#opponent .hand').on( 'click', '.card', function(){
           $(this).toggleClass('selected');
         });
       } else {
-        button_draw.text("Draw");
-        button_draw.click(draw_cards);
+        button_confirm.attr("disabled", true);
+        button_confirm.off('click');
       }
-      button_end.click(turn_end);
+      //button_end.click(turn_end);
       discard_area.on( 'click', '.card', recycle );
       moves.on( 'click', '.rule', perform );
       message_field.text("Your Turn");

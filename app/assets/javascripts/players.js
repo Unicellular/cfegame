@@ -3,8 +3,8 @@ var action;
 var used;
 var game;
 var player;
-var button_draw;
-var button_end;
+var button_confirm;
+//var button_end;
 var discard_area;
 var moves;
 var opponent_hand;
@@ -45,10 +45,10 @@ function discard(e){
     $('.secondary .discard').append(create_card(msg['discard'],false,true));
     hand.off( 'click', '.draw.card', discard );
     hand.on( 'click', '.card', select_card );
+    turn_end();
   });
 }
 function use_cards(e){
-  //var player = $('#player');
   var card_ids = [];
   action.find('.card').each(function(){
     var self = $(this);
@@ -78,7 +78,6 @@ function use_cards(e){
 }
 
 function draw_cards(e){
-  //var player = $('#player');
   hand.off( 'click', '.card', select_card );
   $.ajax({
     type: "GET",
@@ -94,7 +93,6 @@ function draw_cards(e){
   });
 }
 function turn_end(e){
-  //var player = $('#player');
   $.ajax({
     type: "GET",
     url: [game.data('game_id'), "players", player.data('player_id'), "turn_end"].join("/"),
@@ -174,6 +172,9 @@ function perform(e){
     console.log("rule performed");
     console.log(msg);
     update_status(msg);
+    if ( !msg['opponent']['members'][0]['sustained']['showhand'] ) {
+      draw_cards();
+    }
   });
 }
 
@@ -192,14 +193,15 @@ function select_card_from_opponent(e){
     console.log("cards selected");
     console.log(msg);
     update_status(msg);
+    draw_cards();
   });
 }
 
 function disable_activity(){
   hand.off( 'click' );
   action.off( 'click' );
-  button_draw.off( 'click' );
-  button_end.off( 'click' );
+  button_confirm.off( 'click' );
+  //button_end.off( 'click' );
   discard_area.off( 'click' );
   moves.off( 'click' )
 }
