@@ -184,6 +184,7 @@ class Rule < ActiveRecord::Base
     target = executed( player, cards_used, game, turn_num )
     turn = game.current_turn
     turn.events.create player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }
+    target
   end
 
   def get_target( player, game )

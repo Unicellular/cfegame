@@ -41,8 +41,7 @@ class PlayersController < ApplicationController
 
   def recycle
     @discard = Card.find(params[:cards] || [])
-    @deck = @game.deck
-    @deck.recycle( @discard )
+    @player.recycle( @discard )
     render nothing: true
   end
 
@@ -63,10 +62,8 @@ class PlayersController < ApplicationController
 
   def select
     target = Player.find(params[:opponent])
-    if target.sustained.has_key?(:remove)
-      cards = Card.find(params[:cards] || [])
-      target.removed( cards.first(target.sustained[:remove]) )
-    end
+    cards = Card.find(params[:cards] || [])
+    @player.select( target, cards )
     render json: @game.info(@player)
   end
 

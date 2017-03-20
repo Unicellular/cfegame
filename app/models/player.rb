@@ -6,11 +6,8 @@ class Player < ActiveRecord::Base
   serialize :star_history, Array
   serialize :sustained, Hash
 
-  def game
-    @game || team.game
-  end
-
   def draw( amount )
+    return nil unless is_phase?( :draw )
     deck = game.deck
     space = hand_limit-cards.count
     amount = amount + sustained[:draw_extra] unless sustained[:draw_extra].nil?
@@ -27,18 +24,64 @@ class Player < ActiveRecord::Base
       cards << card
     end
     sustained.delete( :draw_extra )
+    set_phase( :end )
     dishand
   end
 
+  def recycle( card )
+    return nil unless is_phase?( :start )
+    game.deck.recycle( card )
+  end
+
   def perform( rule, cards_used )
-    return nil unless cards_used.all?{ |c| cards.include? c }
+    return nil unless is_phase?( :start )
     return nil unless sustained[:freeze].nil?
+    return nil unless cards_used.all?{ |c| cards.include? c }
+    set_phase( :action )
     cards_used.each do |card|
       game.cards << card
     end
-    rule.performed( self, cards_used, game, game.turn ) if rule.test( cards_used )
+    target = rule.performed( self, cards_used, game, game.turn ) if rule.test( cards_used )
+    set_phase( :draw ) unless target && target.sustained[:showhand]
   end
 
+  def select( target, cards_selected )
+    return nil unless is_phase?( :action )
+    if target.sustained.has_key?( :remove )
+      target.removed( cards_selected.first( target.sustained[:remove] ) )
+    end
+    set_phase( :draw )
+  end
+
+  def using( card_ids )
+    cards_used = card_ids.map do |c_id|
+      Card.find(c_id)
+    end
+    return nil unless cards_used.all?{ |c| cards.include? c }
+    cards_used.each do |card|
+      #cards.delete card
+      game.cards << card
+    end
+    cards_used
+  end
+
+  def turn_end
+    return nil unless is_phase?( :end )
+    if sustained.has_key?( :freeze )
+      sustained[:freeze] -= 1
+      if sustained[:freeze] == 0
+        sustained.delete( :freeze )
+      end
+    end
+    save
+    game.turn_end
+  end
+
+  def set_phase( phase )
+    game.current_turn.update( phase: phase )
+  end
+
+# happens in opponent's turn
   def attacked( point, kind=nil )
     if shield == 0
       case Rule.interact( kind, sustained[:element] )
@@ -94,18 +137,7 @@ class Player < ActiveRecord::Base
     save
   end
 
-  def using( card_ids )
-    cards_used = card_ids.map do |c_id|
-      Card.find(c_id)
-    end
-    return nil unless cards_used.all?{ |c| cards.include? c }
-    cards_used.each do |card|
-      #cards.delete card
-      game.cards << card
-    end
-    cards_used
-  end
-
+# request information, not updated anything
   def info( is_public )
     last_events = Event.joins( :turn ).where( player: self, rule: Rule.action, turn: game.turns ).order( Turn.arel_table[:number].desc ).first(2)
     as_json({
@@ -137,14 +169,13 @@ class Player < ActiveRecord::Base
     end
   end
 
-  def turn_end
-    if sustained.has_key?( :freeze )
-      sustained[:freeze] -= 1
-      if sustained[:freeze] == 0
-        sustained.delete( :freeze )
-      end
-    end
-    save
-    game.turn_end
+  def game
+    @game || team.game
+  end
+
+  def is_phase?( phase )
+    return false unless game.turn_player == self
+    check_method = (phase.to_s + "?").to_sym
+    game.current_turn.send( check_method )
   end
 end
