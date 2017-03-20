@@ -46,10 +46,18 @@ class Player < ActiveRecord::Base
   end
 
   def select( target, cards_selected )
+    puts "begining"
     return nil unless is_phase?( :action )
+    puts "1st check"
+    return nil if ( target.sustained[:remove] && target.sustained[:remove] > cards_selected.count )
+    puts "2nd check"
     if target.sustained.has_key?( :remove )
+      puts "in the if"
       target.removed( cards_selected.first( target.sustained[:remove] ) )
     end
+    target.sustained.delete( :remove )
+    target.sustained.delete( :showhand )
+    target.save
     set_phase( :draw )
   end
 
@@ -66,7 +74,7 @@ class Player < ActiveRecord::Base
   end
 
   def turn_end
-    return nil unless is_phase?( :end )
+    return nil unless is_phase?( :end ) || ( sustained[:freeze] && is_phase?( :start ) )
     if sustained.has_key?( :freeze )
       sustained[:freeze] -= 1
       if sustained[:freeze] == 0
@@ -132,9 +140,6 @@ class Player < ActiveRecord::Base
       c.update( position: decktop - 1 - i )
     end
     deck.cards << cards_selected
-    sustained.delete( :remove )
-    sustained.delete( :showhand )
-    save
   end
 
 # request information, not updated anything

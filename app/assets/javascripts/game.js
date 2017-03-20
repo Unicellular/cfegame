@@ -101,23 +101,26 @@ function update_status( msg ){
       });
     }
     if ( msg['myturn'] ) {
-      hand.on( 'click', '.card', select_card );
-      action.on( 'click', '.card', unselect_card );
-      if ( msg['opponent']['members'][0]['sustained']['showhand'] ) {
-        button_confirm.text("Confirm");
-        button_confirm.attr("disabled", false);
-        button_confirm.click(select_card_from_opponent);
-        $('#opponent .hand').on( 'click', '.card', function(){
-          $(this).toggleClass('selected');
-        });
+      if ( msg['current']['members'][0]['sustained']['freeze'] ) {
+        turn_end();
       } else {
-        button_confirm.attr("disabled", true);
-        button_confirm.off('click');
+        hand.on( 'click', '.card', select_card );
+        action.on( 'click', '.card', unselect_card );
+        if ( msg['opponent']['members'][0]['sustained']['showhand'] ) {
+          button_confirm.text("Confirm");
+          button_confirm.attr("disabled", false);
+          button_confirm.click(select_card_from_opponent);
+          $('#opponent .hand').on( 'click', '.card', function(){
+            $(this).toggleClass('selected');
+          });
+        } else {
+          button_confirm.attr("disabled", true);
+          button_confirm.off('click');
+        }
+        discard_area.on( 'click', '.card', recycle );
+        moves.on( 'click', '.rule', perform );
+        message_field.text("Your Turn");
       }
-      //button_end.click(turn_end);
-      discard_area.on( 'click', '.card', recycle );
-      moves.on( 'click', '.rule', perform );
-      message_field.text("Your Turn");
       clearInterval(interval);
     } else {
       message_field.text("Opponent's Turn");
