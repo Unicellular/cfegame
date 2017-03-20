@@ -134,7 +134,7 @@ class Rule < ActiveRecord::Base
     target = get_target( player, game )
     target_id = target.id unless target.nil?
     target_hand = target.cards.count unless target.nil?
-    last_player = game.players[player.sequence-1]
+    last_player = game.last_player
     point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
     player.attached( element: nil )
     effect.each do |key, value|
@@ -176,6 +176,7 @@ class Rule < ActiveRecord::Base
       end
     end unless last_player.sustained[:counter] == "spell" && form == "spell"
     last_player.sustained.delete( :counter )
+    last_player.sustained.delete( :hidden )
     last_player.save
     return target
   end

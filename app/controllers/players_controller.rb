@@ -57,7 +57,7 @@ class PlayersController < ApplicationController
     cards = Card.find(params[:cards] || [])
     rule = Rule.find(params[:rule])
     @player.perform( rule, cards )
-    render json: @game.info(@player)
+    render json: @game.reload.info(@player)
   end
 
   def select

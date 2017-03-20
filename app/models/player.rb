@@ -140,12 +140,14 @@ class Player < ActiveRecord::Base
 # request information, not updated anything
   def info( is_public )
     last_events = Event.joins( :turn ).where( player: self, rule: Rule.action, turn: game.turns ).order( Turn.arel_table[:number].desc ).first(2)
+    last_player = game.last_player
     as_json({
       except: [ :created_at, :updated_at, :sustained ]
     }).merge({
       hands: hands( is_public ).as_json,
       last_acts: last_events.map do |event|
-        if event.rule.subform == "passive" && !is_public && ( event.turn == game.last_turn || event.turn == game.current_turn )
+        # ( event.turn == game.last_turn || ( event.turn == current_turn && ( current_turn.start? || current_turn.action? ) ) )
+        if event.rule.passive? && !is_public && ( event.turn == game.current_turn || ( event.turn == game.last_turn && last_player.sustained[:hidden] == :counter ) )
           { cards_count: event.cards_used.count }
         else
           event.as_json({

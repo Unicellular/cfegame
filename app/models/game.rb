@@ -74,6 +74,10 @@ class Game < ActiveRecord::Base
     @turn_player || players[ ( first + turn ) % players.count ]
   end
 
+  def last_player
+    @last_player || players[ ( first + turn - 1 ) % players.count ]
+  end
+
   def turn_end
     increment!(:turn)
     generate_turn

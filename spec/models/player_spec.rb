@@ -14,7 +14,10 @@ RSpec.describe Player, type: :model do
     @defense = Rule.find_by_name( "defense" )
     @metal_attack = Rule.find_by_name( "metal attack" )
     @player1.perform( @defense, @two_trees )
+    @game.current_turn.end!
+    @player1.reload
     @player1.turn_end
+    @game.reload
     @info_form_p1 = @player1.info( true )
     @info_form_p2 = @player1.info( false )
   end
@@ -29,7 +32,7 @@ RSpec.describe Player, type: :model do
 
   it "info should reveal what player1 do after player2's action" do
     @player2.perform( @metal_attack, @another_metal )
-    @info_form_p2 = @player1.info( false )
+    @info_form_p2 = @player1.reload.info( false )
     expect( @info_form_p2[:last_acts][0][:rule_name] ).to eq( "防禦" )
   end
 end
