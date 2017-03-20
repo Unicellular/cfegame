@@ -145,7 +145,7 @@ class Player < ActiveRecord::Base
     }).merge({
       hands: hands( is_public ).as_json,
       last_acts: last_events.map do |event|
-        if event.rule.subform == "passive" && game.turn_player != self && ( event.turn == game.last_turn || event.turn == game.current_turn )
+        if event.rule.subform == "passive" && !is_public && ( event.turn == game.last_turn || event.turn == game.current_turn )
           { cards_count: event.cards_used.count }
         else
           event.as_json({
