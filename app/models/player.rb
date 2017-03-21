@@ -47,13 +47,9 @@ class Player < ActiveRecord::Base
   end
 
   def select( target, cards_selected )
-    puts "begining"
     return nil unless is_phase?( :action )
-    puts "1st check"
     return nil if ( target.sustained[:remove] && target.sustained[:remove] > cards_selected.count )
-    puts "2nd check"
     if target.sustained.has_key?( :remove )
-      puts "in the if"
       target.removed( cards_selected.first( target.sustained[:remove] ) )
     end
     target.sustained.delete( :remove )
