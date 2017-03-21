@@ -35,4 +35,16 @@ RSpec.describe Player, type: :model do
     @info_form_p2 = @player1.reload.info( false )
     expect( @info_form_p2[:last_acts][0][:rule_name] ).to eq( "防禦" )
   end
+
+  it "should not have draw_extra effect after discard" do
+    @game.deck.cards << @player2.cards
+    @game.current_turn.draw!
+    @player2.sustained[:draw_extra] = 2
+    @player2.save
+    drawed_cards = @player2.draw(2)
+    dishand = @player2.discard( 2, drawed_cards[0] )
+    @player2.reload
+    expect( @player2.cards.count ).to eq( 4 )
+    expect( @player2.sustained[:draw_extra] ).to be_nil
+  end
 end

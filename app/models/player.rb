@@ -25,6 +25,7 @@ class Player < ActiveRecord::Base
     end
     sustained.delete( :draw_extra )
     set_phase( :end )
+    save
     dishand
   end
 
