@@ -62,14 +62,16 @@ function update_status( msg ){
     player_used.empty();
     opponent_action.empty();
     opponent_used.empty();
+    discard_area.empty();
+    disable_activity();
     $('#player .life').html(msg['current']['team'].life);
     $('#opponent .life').html(msg['opponent']['team'].life);
     $('#player .shield').html(msg['current']['members'][0].shield);
     $('#opponent .shield').html(msg['opponent']['members'][0].shield);
+    discard_area.append( create_card( msg['discard'], false, true ) );
     $.each( msg['current']['members'][0].hands, function( index, value ){
       hand.append(create_card( value ));
     });
-    disable_activity();
     if ( msg['opponent']['members'][0]['sustained']['showhand'] ){
       $.each( msg['opponent']['members'][0].hands, function( index, value ){
         opponent_hand.append(create_card( value ));

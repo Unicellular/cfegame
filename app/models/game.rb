@@ -50,6 +50,7 @@ class Game < ActiveRecord::Base
       except: [ :created_at, :updated_at ]
     })
     game_status[:myturn] = (turn_player == player)
+    game_status[:discard] = cards.where( position: -1 ).first
     teams.each do |team|
       if team.players.include? player
         game_status[:current] = team.info(player)
@@ -103,5 +104,14 @@ class Game < ActiveRecord::Base
     temp = teams[0].life
     teams[0].update( life: teams[1].life )
     teams[1].update( life: temp )
+  end
+
+  def discarded( card )
+    ActiveRecord::Base.transaction do
+      last_discard = cards.where( position: -1 ).first
+      last_discard.update( position: card.position ) unless last_discard.nil?
+      card.update( position: -1 )
+      cards << card
+    end
   end
 end

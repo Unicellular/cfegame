@@ -41,8 +41,8 @@ class PlayersController < ApplicationController
 
   def recycle
     @discard = Card.find(params[:cards] || [])
-    @player.recycle( @discard )
-    render nothing: true
+    result = @player.recycle( @discard )
+    render json: result
   end
 
   def possible_moves

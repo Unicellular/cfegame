@@ -18,8 +18,8 @@ class Player < ActiveRecord::Base
   def discard( amount, dishand )
     drawed_cards = draw( amount )
     return nil unless drawed_cards.include? dishand
-    drawed_cards.delete(dishand)
-    game.cards << dishand
+    drawed_cards.delete( dishand )
+    game.discarded( dishand )
     drawed_cards.each do |card|
       cards << card
     end
