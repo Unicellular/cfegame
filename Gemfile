@@ -26,9 +26,9 @@ gem 'slim-rails'
 #gem 'thin'
 
 # for log in
-gem 'omniauth', '~> 1.1.4'
-gem 'omniauth-gplus', '~> 1.2.0'
-gem 'omniauth-facebook', '~> 1.5.1'
+gem 'omniauth', '~> 1.2.0'
+gem 'omniauth-google-oauth2', '~> 0.4.0'
+gem 'omniauth-facebook', '~> 4.0.0'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
