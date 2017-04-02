@@ -50,8 +50,8 @@ function game_initialize(){
 }
 
 function update_status( msg ){
-  var message_field = $('#field');
-  if ( msg && msg['status'] == "start" ) {
+  var message_field = $('#message_field');
+  if ( msg && ( msg['status'] == "start" || msg['status'] == "over" ) ) {
     console.log("status updated");
     console.log(msg)
     //$('#player .side').empty();
@@ -102,7 +102,14 @@ function update_status( msg ){
         player_used.append(create_card( value, false, true ));
       });
     }
-    if ( msg['myturn'] ) {
+    if ( msg['status'] == "over"  ) {
+      clearInterval(interval);
+      if ( msg['winning'] ) {
+        message_field.text("You Win!");
+      } else {
+        message_field.text("You Lose!");
+      }
+    } else if ( msg['myturn'] ) {
       if ( msg['current']['members'][0]['sustained']['freeze'] ) {
         turn_end();
       } else {

@@ -1,6 +1,8 @@
 class PlayersController < ApplicationController
   before_action :must_be_my_turn
+  after_action :if_game_end
   skip_before_action :must_be_my_turn, only: [ :find_opponent, :info ]
+  skip_after_action :if_game_end, only: [ :find_opponent, :info, :possible_moves ]
 
   def find_opponent
     game = Game.find(params[:game_id])
@@ -75,6 +77,16 @@ class PlayersController < ApplicationController
     @player = Player.find(params[:id])
     unless @game.turn_player == @player
       render nothing: true, status: :forbidden
+    end
+  end
+
+  def if_game_end
+    winners = @game.teams.select do |team|
+      team.life > 0
+    end
+    if winners.count <= 1
+      @game.winner = winners.first
+      @game.over!
     end
   end
 end

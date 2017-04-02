@@ -49,7 +49,7 @@ ActiveRecord::Schema.define(version: 20160726140350) do
   end
 
   create_table "games", force: :cascade do |t|
-    t.string   "winner"
+    t.integer  "winner_id"
     t.string   "field"
     t.integer  "status",       default: 0
     t.integer  "team_amount",  default: 2

@@ -1,7 +1,7 @@
 class CreateGames < ActiveRecord::Migration
   def change
     create_table :games do |t|
-      t.string :winner
+      t.belongs_to :winner
       t.string :field
       t.integer :status, default: 0
       t.integer :team_amount, default: 2

@@ -4,6 +4,7 @@ class Game < ActiveRecord::Base
   has_many :cards, as: :cardholder, dependent: :destroy
   has_many :turns, dependent: :destroy
   has_one :deck, dependent: :destroy
+  belongs_to :winner, class_name: "Team"
 
   enum status: [ :prepare, :start, :over ]
 
@@ -49,8 +50,9 @@ class Game < ActiveRecord::Base
     game_status = as_json({
       except: [ :created_at, :updated_at ]
     })
-    game_status[:myturn] = (turn_player == player)
+    game_status[:myturn] = ( turn_player == player )
     game_status[:discard] = cards.where( position: -1 ).first
+    game_status[:winning] = ( player.team == winner )
     teams.each do |team|
       if team.players.include? player
         game_status[:current] = team.info(player)
