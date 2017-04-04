@@ -68,6 +68,7 @@ function update_status( msg ){
     $('#opponent .life').html(msg['opponent']['team'].life);
     $('#player .shield').html(msg['current']['members'][0].shield);
     $('#opponent .shield').html(msg['opponent']['members'][0].shield);
+    opponent.data('id', msg['opponent']['members'][0]['id']);
     discard_area.append( create_card( msg['discard'], false, true ) );
     $.each( msg['current']['members'][0].hands, function( index, value ){
       hand.append(create_card( value ));

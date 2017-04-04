@@ -31,7 +31,7 @@ function discard(e){
   //var player = $('#player');
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "discard"].join("/"),
+    url: [game.data('game_id'), "players", player.data('id'), "discard"].join("/"),
     data: { cards: self.data('id') },
     dataType: "json"
   }).done(function(msg){
@@ -59,7 +59,7 @@ function use_cards(e){
   console.log(card_ids);
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "use_cards"].join("/"),
+    url: [game.data('game_id'), "players", player.data('id'), "use_cards"].join("/"),
     data: { cards: card_ids },
     dataType: "json"
   }).done(function(msg){
@@ -81,7 +81,7 @@ function draw_cards(e){
   hand.off( 'click', '.card', select_card );
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "draw"].join("/"),
+    url: [game.data('game_id'), "players", player.data('id'), "draw"].join("/"),
     dataType: "json"
   }).done(function(msg){
     console.log("card drawed");
@@ -95,7 +95,7 @@ function draw_cards(e){
 function turn_end(e){
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "turn_end"].join("/"),
+    url: [game.data('game_id'), "players", player.data('id'), "turn_end"].join("/"),
     dataType: "json"
   }).done(function(msg){
     console.log("turn ended");
@@ -112,7 +112,7 @@ function request_status(){
   if( game.length ){
     $.ajax({
       type: "GET",
-      url: [game.data('game_id'), "players", player.data('player_id'), "info"].join("/"),
+      url: [game.data('game_id'), "players", player.data('id'), "info"].join("/"),
       dataType: "json"
     }).done( update_status );
   } else {
@@ -124,7 +124,7 @@ function recycle(e){
   self = $(this);
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "recycle"].join("/"),
+    url: [game.data('game_id'), "players", player.data('id'), "recycle"].join("/"),
     data: { cards: self.data("id") },
     dataType: "json"
   }).done(function(msg){
@@ -143,7 +143,7 @@ function possible_moves(e){
   console.log(card_ids);
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "possible_moves"].join("/"),
+    url: [game.data('game_id'), "players", player.data('id'), "possible_moves"].join("/"),
     data: { cards: card_ids }
   }).done(function(msg){
     console.log("possible_moves:");
@@ -165,7 +165,7 @@ function perform(e){
   self = $(this);
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "perform"].join("/"),
+    url: [game.data('game_id'), "players", player.data('id'), "perform"].join("/"),
     data: { cards: card_ids, rule: self.data("id") },
     dataType: "json"
   }).done(function(msg){
@@ -186,8 +186,8 @@ function select_card_from_opponent(e){
   console.log(card_ids);
   $.ajax({
     type: "GET",
-    url: [game.data('game_id'), "players", player.data('player_id'), "select"].join("/"),
-    data: { cards: card_ids, opponent: opponent.data('opponent_id') },
+    url: [game.data('game_id'), "players", player.data('id'), "select"].join("/"),
+    data: { cards: card_ids, opponent: opponent.data('id') },
     dataType: "json"
   }).done(function(msg){
     console.log("cards selected");

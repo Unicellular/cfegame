@@ -1,6 +1,6 @@
 #maincontainer.row data-game_id=@game.id
   .primary
-    .row#opponent data-opponent_id=opponent_id
+    .row#opponent
       .col-md-2.side
         .row.life
         .row.shield
@@ -23,7 +23,7 @@
         button.confirm.btn.btn-default disabled="disabled"
           | Confirm
       .col-md-2#message_field
-    .row#player data-player_id=@player.id
+    .row#player data-id=@player.id
       .col-md-2.side
         .row.life
         .row.shield
