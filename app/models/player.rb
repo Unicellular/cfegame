@@ -12,6 +12,9 @@ class Player < ActiveRecord::Base
     space = hand_limit-cards.count
     amount = amount + sustained[:draw_extra] unless sustained[:draw_extra].nil?
     amount = space >= amount ? amount : space
+    if deck.cards.count < amount + 1
+      deck.shuffle
+    end
     deck.cards.order(:position).first(amount+1)
   end
 
