@@ -18,20 +18,6 @@ $(document).on('turbolinks:load', function(){
   }
 });
 
-function find_opponent(){
-  var game_id;
-  if( game.length ){
-    game_id = game.data('game_id');
-    player_id = player.data('player_id');
-    $.ajax({
-      url: [game.data('game_id'), "players", player_id, "find_opponent"].join("/"),
-      dataType: "json"
-    }).done( update_status );
-  } else {
-    clearInterval(interval);
-  }
-}
-
 function game_initialize(){
   game = $('#maincontainer');
   hand = $('#player .hand');
@@ -64,10 +50,10 @@ function update_status( msg ){
     opponent_used.empty();
     discard_area.empty();
     disable_activity();
-    $('#player .life').html(msg['current']['team'].life);
-    $('#opponent .life').html(msg['opponent']['team'].life);
-    $('#player .shield').html(msg['current']['members'][0].shield);
-    $('#opponent .shield').html(msg['opponent']['members'][0].shield);
+    $('#player .life').html(msg['current']['life']);
+    $('#opponent .life').html(msg['opponent']['life']);
+    $('#player .shield').html(msg['current']['members'][0]['shield']);
+    $('#opponent .shield').html(msg['opponent']['members'][0]['shield']);
     opponent.data('id', msg['opponent']['members'][0]['id']);
     discard_area.append( create_card( msg['discard'], false, true ) );
     $.each( msg['current']['members'][0].hands, function( index, value ){

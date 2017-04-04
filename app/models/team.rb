@@ -13,8 +13,7 @@ class Team < ActiveRecord::Base
 
   def info( player )
     as_json({
-      except: [ :created_at, :updated_at ],
-      root: true
+      except: [ :created_at, :updated_at ]
     }).merge({
       members: players.map { |pl| pl.info( pl == player ) }
     })

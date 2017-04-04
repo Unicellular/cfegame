@@ -197,6 +197,17 @@ function select_card_from_opponent(e){
   });
 }
 
+function find_opponent(){
+  if( game.length ){
+    $.ajax({
+      url: [game.data('game_id'), "players", player.data('id'), "find_opponent"].join("/"),
+      dataType: "json"
+    }).done( update_status );
+  } else {
+    clearInterval(interval);
+  }
+}
+
 function disable_activity(){
   hand.off( 'click' );
   action.off( 'click' );
