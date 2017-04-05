@@ -2,7 +2,7 @@ class Game < ActiveRecord::Base
   has_many :teams, dependent: :destroy
   has_many :players, -> { order(:sequence) }, through: :teams
   has_many :cards, as: :cardholder, dependent: :destroy
-  has_many :turns, dependent: :destroy
+  has_many :turns, -> { order(:number) }, dependent: :destroy
   has_one :deck, dependent: :destroy
   belongs_to :winner, class_name: "Team"
 
