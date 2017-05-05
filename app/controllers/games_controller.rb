@@ -6,6 +6,7 @@ class GamesController < ApplicationController
   def show
     @game = Game.find(params[:id])
     @player = current_player(@game)
+    render component: 'GameField', props: @game.info( @player ).merge({ possible_moves: [], choices: [] })
   end
 
   def create

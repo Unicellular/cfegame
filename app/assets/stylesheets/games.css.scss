@@ -20,6 +20,7 @@ table {
 
 #maincontainer {
   background-color: $gray-lighter;
+  position: relative;
 }
 
 .primary {
@@ -104,4 +105,8 @@ table {
   font-size: 48px;
   color: blue;
   text-align: center;
+}
+
+.modal, .modal-backdrop {
+  position: absolute !important;
 }

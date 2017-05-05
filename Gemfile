@@ -23,6 +23,7 @@ gem 'jquery-turbolinks'
 gem 'turbolinks'
 gem 'jbuilder', '~> 1.2'
 gem 'slim-rails'
+gem 'react-rails'
 #gem 'thin'
 
 # for log in
