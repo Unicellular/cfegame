@@ -22,7 +22,7 @@ class PlayersController < ApplicationController
 
   def turn_end
     @player.turn_end
-    render json: @game.info(@player)
+    render json: @game.reload.info(@player)
   end
 
   def use_cards
@@ -66,7 +66,7 @@ class PlayersController < ApplicationController
     target = Player.find(params[:opponent])
     cards = Card.find(params[:cards] || [])
     @player.select( target, cards )
-    render json: @game.info(@player)
+    render json: @game.reload.info(@player)
   end
 
   private

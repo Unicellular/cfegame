@@ -10,9 +10,7 @@ class Action extends React.Component {
     console.log( "action change?" );
     console.log( this.state );
     console.log( nextProps );
-    if ( this.state['action'].length != nextProps['action'].length ){
-      this.setState( nextProps );
-    }
+    this.setState( nextProps );
   }
 
   componentDidUpdate( prevProps, prevState ){}
@@ -23,9 +21,11 @@ class Action extends React.Component {
       last_acts[0] = this.state['action'].map(( card, index ) =>
         <Card key={index} info={card} is_small={true} in_hand={false} />
       );
-      last_acts[1] = this.state['last_acts'][0]['cards_used'].map(( card, index ) =>
-        <Card key={index} info={card} is_small={true} />
-      );
+      if ( this.state['last_acts'][0] ){
+        last_acts[1] = this.state['last_acts'][0]['cards_used'].map(( card, index ) =>
+          <Card key={index} info={card} is_small={true} />
+        );
+      }
     } else {
       for (var i = 0; i < this.state['last_acts'].length; i++) {
         if ( this.state['last_acts'][i]['cards_used'] ){
@@ -34,8 +34,8 @@ class Action extends React.Component {
           );
         } else {
           last_acts[i] = [];
-          for ( var j = 0; j < this.state['last_acts'][i]; j++ ){
-            last_acts[i].push( <Card key={j} is_small={true} /> );
+          for ( var j = 0; j < this.state['last_acts'][i]['cards_count']; j++ ){
+            last_acts[i].push( <Card key={j} info={false} is_small={true} /> );
           }
         }
       }

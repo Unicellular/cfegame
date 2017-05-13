@@ -15,7 +15,8 @@ class Team < ActiveRecord::Base
     as_json({
       except: [ :created_at, :updated_at ]
     }).merge({
-      members: players.map { |pl| pl.info( pl == player ) }
+      members: players.map { |pl| pl.info( pl == player ) },
+      action: []
     })
   end
 

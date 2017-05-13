@@ -2,7 +2,6 @@ class Player extends React.Component {
   constructor( props ){
     super( props );
     this.state = props;
-    this.state['info']['action'] = [];
   }
 
   componentWillReceiveProps( nextProps ){
@@ -10,10 +9,6 @@ class Player extends React.Component {
     console.log( this.state );
     console.log( nextProps );
     this.setState( nextProps );
-  }
-
-  shouldComponentUpdate( nextProps ){
-    return this.state.current;
   }
 
   componentWillUpdate( nextProps, nextState ){
@@ -24,12 +19,12 @@ class Player extends React.Component {
 
   render () {
     let cards = null;
-    if ( this.state['info']['members'][0]['sustained']['showhand'] || this.state['current'] ){
+    if ( this.state['current'] ){
       // console.log( "show hand" + this.state['info']['members'][0]['hands'] );
       cards = this.state['info']['members'][0]['hands'].map(( card, index ) =>
         <Card key={index} info={card} in_hand={true} />
       );
-    } else {
+    } else if ( this.state['info']['members'][0] ){
       // console.log( "hide hand" + this.state['info']['members'][0]['hands'] );
       cards = [];
       for ( var i = 0; i < this.state['info']['members'][0]['hands']; i++ ){
@@ -43,12 +38,13 @@ class Player extends React.Component {
     );
     let idtag = null;
     let card_area = null;
+    let last_acts = this.state['info']['members'][0] ? this.state['info']['members'][0]['last_acts'] : [];
     if ( this.state['current'] ){
       idtag = "player";
       card_area = (
         <div className="main col-md-10">
           <Action current={this.state['current']}
-            last_acts={this.state['info']['members'][0]['last_acts']}
+            last_acts={last_acts}
             action={this.state['info']['action']} />
           { hand }
         </div>
@@ -59,7 +55,7 @@ class Player extends React.Component {
         <div className="main col-md-10">
           { hand }
           <Action current={this.state['current']}
-            last_acts={this.state['info']['members'][0]['last_acts']} />
+            last_acts={last_acts} />
         </div>
       );
     }
@@ -71,7 +67,7 @@ class Player extends React.Component {
             {this.state['info'].life}
           </div>
           <div className="shield row">
-            {this.state['info']['members'][0]['shield']}
+            {this.state['info']['members'][0] && this.state['info']['members'][0]['shield']}
           </div>
         </div>
         { card_area }

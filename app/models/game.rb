@@ -60,7 +60,7 @@ class Game < ActiveRecord::Base
         game_status[:opponent] = team.info(player)
       end
     end
-    game_status
+    game_status.merge( { possible_moves: [], choices: [] } )
   end
 
   def deal_cards

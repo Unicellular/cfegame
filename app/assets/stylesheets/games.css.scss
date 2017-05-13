@@ -91,7 +91,7 @@ table {
   margin: 10px -10px;
 }
 
-.card.draw, .card.selected {
+.card.selected {
   border: 1px solid yellow;
 }
 
@@ -109,4 +109,9 @@ table {
 
 .modal, .modal-backdrop {
   position: absolute !important;
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 15px;
 }

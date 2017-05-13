@@ -8,23 +8,10 @@ class GameField extends React.Component {
 
   componentDidMount(){
     app = new Game( this.props, this );
-    if ( !this.state.myturn ) {
-      this.timerID = setInterval(
-        () => this.request_status(),
-        1000
-      );
-    }
   }
 
   componentWillUnmount() {
-    clearInterval( this.timerID );
-  }
-
-  request_status() {
-    console.log( "requesting status" );
-    fetch( [this.state.id, "players", this.state.current.id, "info"].join("/") )
-      .then( (response) => response.json() )
-      .then( app.update_status );
+    clearInterval( app.timerID );
   }
 
   render() {
