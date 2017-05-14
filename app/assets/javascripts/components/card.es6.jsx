@@ -42,7 +42,7 @@ class Card extends React.Component {
 
     if ( this.state["info"] ){
       class_list.push( this.state["info"]["element"] );
-      text = this.state["info"]["element"] + this.state["info"]["level"];
+      text = this.state["info"]["level"];
       if ( this.state["selected"] ){
         class_list.push( "selected" );
       }

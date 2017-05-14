@@ -14,6 +14,10 @@ table {
   border-collapse: collapse;
 }
 
+.alert {
+  margin: 0;
+}
+
 #field {
   height: 100%;
 }
@@ -29,7 +33,6 @@ table {
 
 .secondary {
   @include make-md-column(1.5);
-  text-align: center;
   .card {
     margin: 10px auto;
     float: none;
@@ -57,14 +60,6 @@ table {
   height: $player-height;
 }
 
-.card {
-  background-color: BurlyWood;
-  margin: 10px;
-  float: left;
-  border: 1px solid black;
-  padding: 5px;
-}
-
 .hand {
   height: 180px;
 }
@@ -73,18 +68,25 @@ table {
   height: 120px;
 }
 
+.card {
+  background-color: BurlyWood;
+  margin: 10px;
+  float: left;
+  border: 1px solid grey;
+  padding: 5px;
+  text-align: center;
+}
+
 .card-lg {
   width: 120px;
   height: 160px;
+  font-size: 3em;
 }
 
 .card-sm {
   width: 75px;
   height: 100px;
-}
-
-.alert {
-  margin: 0;
+  font-size: 2em;
 }
 
 .used .card {
@@ -93,6 +95,27 @@ table {
 
 .card.selected {
   border: 1px solid yellow;
+}
+
+.card.metal {
+  background-color: white;
+}
+
+.card.tree {
+  background-color: green;
+}
+
+.card.water {
+  background-color: black;
+  color: white;
+}
+
+.card.fire {
+  background-color: red;
+}
+
+.card.earth {
+  background-color: yellow;
 }
 
 .life {
