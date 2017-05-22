@@ -124,8 +124,10 @@ class Game {
       self.info['discard'] = data['discard'];
       console.log( self.info );
       self.update_status( self.info );
+      $('#choose').one('hidden.bs.modal', (e) => {
+        self.turn_end();
+      });
       $('#choose').modal('hide');
-      this.turn_end();
     });
   }
 
@@ -146,8 +148,10 @@ class Game {
       console.log("discard !");
       console.log( data );
       self.update_status( data );
+      $('#choose').one('hidden.bs.modal', (e) => {
+        self.draw_cards();
+      });
       $('#choose').modal('hide');
-      this.draw_cards();
     });
   }
 
@@ -255,7 +259,7 @@ class Game {
       });
       console.log( this.info );
       this.view.setState( this.info );
-      $('#choose').modal();
+      $('#choose').modal('show');
     });
   }
 
@@ -266,7 +270,7 @@ class Game {
     });
     console.log( this.info );
     this.view.setState( this.info );
-    $('#choose').modal();
+    $('#choose').modal('show');
   }
 
 }

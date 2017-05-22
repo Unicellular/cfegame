@@ -34,8 +34,8 @@ class Choose extends React.Component {
       <Card key={index} info={card} selected={card.selected} handle_click={this.card_clicked} />
     );
     return (
-      <div id="choose" className="modal fade" data-backdrop="static">
-        <div className="modal-dialog">
+      <div id="choose" className="modal fade in" data-backdrop="static" data-keyboard="false">
+        <div className="modal-lg modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
               <h4>選擇一張牌</h4>
