@@ -14,9 +14,9 @@ class Card extends React.Component {
   }
 
   componentWillReceiveProps( nextProps ){
-    console.log( "card updating..." );
-    console.log( this.props );
-    console.log( nextProps );
+    //console.log( "card updating..." );
+    //console.log( this.props );
+    //console.log( nextProps );
     let first_info_null = !(this.state['info']) && nextProps['info'];
     let second_info_null = this.state['info'] && !(nextProps['info']);
     let two_info_exist = !!(this.state['info']) && !!(nextProps['info']);
@@ -24,7 +24,8 @@ class Card extends React.Component {
     if ( two_info_exist ){
       something_changed = ( this.state['info']['element'] != nextProps['info']['element'] ) ||
                           ( this.state['info']['level'] != nextProps['info']['level'] ) ||
-                          ( this.state['selected'] != nextProps['selected'] );
+                          ( this.state['selected'] != nextProps['selected'] ) ||
+                          ( this.state['info']['id'] != nextProps['info']['id'] );
     }
     if ( first_info_null || second_info_null || ( two_info_exist && something_changed ) ) {
       this.setState( nextProps );

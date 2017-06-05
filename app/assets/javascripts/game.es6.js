@@ -86,13 +86,6 @@ class Game {
     this.request_possible_moves( action );
   }
 
-  /* not using
-  card_choosed( card ){
-    card.setState(( prevState, props ) => {
-      return { selected: !(prevState['selected']) };
-    });
-  }*/
-
   confirm_choice( choose ){
     var selected_ids = this.collect_cards( choose.state['choices'], "selected" );
     if ( this.info['opponent']['members'][0]['sustained']['showhand'] ) {
