@@ -7,7 +7,7 @@ class Player < ActiveRecord::Base
   serialize :sustained, Hash
 
   def draw( amount )
-    return nil unless is_phase?( :draw )
+    return nil unless is_phase?( :draw ) || ( is_phase?( :start ) && cards.count == 0 )
     deck = game.deck
     space = hand_limit-cards.count
     amount = amount + sustained[:draw_extra] unless sustained[:draw_extra].nil?
