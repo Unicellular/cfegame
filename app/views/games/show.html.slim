@@ -15,7 +15,7 @@
       .col-md-2#field
       .col-md-1
         span.glyphicon.glyphicon-chevron-left aria-hidden="true"
-      .col-md-4.moves
+      .col-md-4#moves
         .row
       .col-md-1
         span.glyphicon.glyphicon-chevron-right aria-hidden="true"
@@ -37,3 +37,12 @@
   .secondary
     .row.discard
       .card.card-sm
+  #choose.modal.fade.in data-backdrop="static" data-keyboard="false"
+    .modal-lg.modal-dialog
+      .modal-content
+        .modal-header
+          h4 選擇一張牌
+        .modal-body
+        .modal-footer
+          button.btn.btn-primary
+            | Confirm

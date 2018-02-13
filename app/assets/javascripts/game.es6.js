@@ -1,10 +1,9 @@
-var app;
-
 class Game {
-  constructor( info, view ) {
-    this.info = JSON.parse(JSON.stringify(info));
-    this.view = view;
-    console.log( info );
+  constructor() {
+    //this.info = JSON.parse(JSON.stringify(info));
+    //this.view = view;
+    //console.log( info );
+    this.view = new GameField();
     this.update_status = this.update_status.bind(this);
     this.request_status();
   }
@@ -13,7 +12,7 @@ class Game {
     console.log( "status updated" );
     console.log( json );
     this.info = json;
-    this.view.setState( json );
+    this.view.update_view( json );
     console.log( "myturn = " + json.myturn );
     console.log( "timerID = " + this.timerID );
     if ( json['status'] == "prepare" ){
@@ -55,9 +54,9 @@ class Game {
   request_status() {
     console.log( "requesting status" );
     let url = [
-      this.info['id'],
+      $("#maincontainer").data( "game_id" ),
       "players",
-      this.info['current']['members'][0]['id'],
+      $("#player").data( "id" ),
       "info"
     ].join("/");
     fetch( url )
@@ -66,7 +65,9 @@ class Game {
   }
 
   card_selected( card, in_hand ) {
-    let cid = card.state['info']['id'];
+    console.log( "in card_selected" );
+    console.log( card );
+    let cid = card.data("id");
     let ps = this.info['current'];
     let action = ps['action'];
     let hands = ps['members'][0]['hands'];
@@ -86,8 +87,8 @@ class Game {
     this.request_possible_moves( action );
   }
 
-  confirm_choice( choose ){
-    var selected_ids = this.collect_cards( choose.state['choices'], "selected" );
+  confirm_choice(){
+    var selected_ids = this.collect_cards( this.info['choices'], "selected" );
     if ( this.info['opponent']['members'][0]['sustained']['showhand'] ) {
       this.select_opponent_hands( selected_ids );
     } else {
@@ -209,7 +210,7 @@ class Game {
   perform_rule( rule ){
     let action = this.info['current']['action'];
     let card_ids = this.collect_cards( action );
-    console.log( rule.state );
+    console.log( rule.data("id") );
     let url = [
       this.info['id'],
       "players",
@@ -220,7 +221,7 @@ class Game {
     $.ajax({
       type: "GET",
       url: url,
-      data: { cards: card_ids, rule: rule.state['rule'].id }
+      data: { cards: card_ids, rule: rule.data("id") }
     }).done( (data) => {
       console.log("rule performed");
       console.log(data);
@@ -253,7 +254,7 @@ class Game {
         return card;
       });
       console.log( this.info );
-      this.view.setState( this.info );
+      this.view.update_view( this.info );
       $('#choose').modal('show');
     });
   }
@@ -264,8 +265,17 @@ class Game {
       return card;
     });
     console.log( this.info );
-    this.view.setState( this.info );
+    this.view.update_view( this.info );
     $('#choose').modal('show');
+  }
+
+  toggle_choice( clicked ){
+    this.info['choices'] = this.info['choices'].map( ( card, index ) => {
+      if ( card.id == clicked.data('id') ){
+        card.selected = !(card.selected);
+      }
+      return card;
+    });
   }
 
 }
