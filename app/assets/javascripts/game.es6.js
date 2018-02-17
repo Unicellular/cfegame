@@ -278,4 +278,23 @@ class Game {
     });
   }
 
+  recycle( card ){
+    let url = [
+      this.info['id'],
+      "players",
+      this.info['current']['members'][0]['id'],
+      "recycle"
+    ].join("/");
+    var self = this;
+    $.ajax({
+      type: "GET",
+      url: url,
+      data: { cards: card.data("id") }
+    }).done( (data) => {
+      console.log("recycled");
+      console.log(data);
+      $('.secondary .discard').empty();
+    });
+  }
+
 }

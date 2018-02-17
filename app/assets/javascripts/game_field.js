@@ -17,6 +17,9 @@ class GameField {
       $(e.target).toggleClass("selected");
       app.toggle_choice( $(e.target) );
     });
+    $(".secondary .discard").on( "click", ".card", (e) => {
+      app.recycle( $(e.target) );
+    });
   }
 
   update_view( game_data ){
