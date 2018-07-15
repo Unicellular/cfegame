@@ -293,7 +293,7 @@ class Game {
     }).done( (data) => {
       console.log("recycled");
       console.log(data);
-      $('.secondary .discard').empty();
+      self.update_status( data );
     });
   }
 

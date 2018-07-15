@@ -35,6 +35,7 @@ class Player < ActiveRecord::Base
   def recycle( card )
     return nil unless is_phase?( :start )
     game.deck.recycle( card )
+    reduced( card.level * 2 )
   end
 
   def perform( rule, cards_used )
@@ -107,6 +108,10 @@ class Player < ActiveRecord::Base
     else
       deshielded( point )
     end
+  end
+
+  def reduced( point, kind=nil )
+    team.attacked( point, kind )
   end
 
   def healed( point, kind=nil )

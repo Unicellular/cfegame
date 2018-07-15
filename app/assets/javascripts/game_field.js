@@ -47,13 +47,14 @@ class GameField {
   generate_card( card_data, is_small ){
     let class_list = [ "card" ];
     let text = "";
+    let card_id = card_data ? card_data.id : null;
     if ( is_small ){
       class_list.push( "card-sm" );
     } else {
       class_list.push( "card-lg" );
     }
 
-    if ( card_data.element ){
+    if ( card_data && card_data.element ){
       class_list.push( card_data.element );
       text = card_data.level;
       if ( card_data.selected ){
@@ -61,7 +62,7 @@ class GameField {
       }
     }
 
-    return $("<div>").text(text).addClass( class_list.join( " " ) ).data( "id", card_data.id );
+    return $("<div>").text(text).addClass( class_list.join( " " ) ).data( "id", card_id );
   }
 
   generate_card_list( cards_data, show, is_small ){
