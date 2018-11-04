@@ -1,8 +1,8 @@
 class Rule < ActiveRecord::Base
-  enum form: [ :attack, :spell ]
+  enum form: { attack: 0, spell: 1, power: 2 }
   enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
                   active: 7, passive: 8, lasting: 9 }
-  enum series: [ :base, :star, :field, :hero ]
+  enum series: { basic: 0, star: 1, field: 2, hero: 3 }
   serialize :condition, JSON
   serialize :material, JSON
   serialize :formula, JSON
@@ -14,7 +14,7 @@ class Rule < ActiveRecord::Base
   GENERATE = %w( metal water tree fire earth )
   OVERCOME = %w( metal tree earth water fire )
 
-  def test( cards )
+  def combination_test( cards )
     sts = stats( cards )
     material.all? do |key, value|
       case key
@@ -33,6 +33,61 @@ class Rule < ActiveRecord::Base
         cards.count == value
       end
     end
+  end
+
+  def condition_test( game, player )
+    return true if condition.empty?
+    event_list = game.current_turn.events
+    condition.all? do |key, value|
+      case key
+      when "star"
+        value.any? do |k, v|
+          case v
+          when "none"
+            !(game.teams.any? { |t| t.has_star? k })
+          when "mine"
+            player.team.has_star? k
+          when "other"
+            game.teams.any? { |t| t.has_star? k && !(t.players.include? player) }
+          end
+        end
+      when "field"
+      when "hero"
+      when "rule"
+        value.all? do |rule_name, rule_condition|
+          event_list.where( rule: Rule.find_by_name( rule_name ) ).any? do |event|
+            # 陣法或能力的點數需符合條件。
+            event.effect['point'] >= rule_condition
+          end
+        end
+      end
+    end
+  end
+
+  def restrict_test( player, cards )
+    return true if player.annex[:restrict].nil?
+    player.annex[:restrict].all? do |key, value|
+      case key
+      when "ruleset"
+        if cards.any?{ |card| card.virtural }
+          if value.respond_to?( :find_index )
+            !(value.find_index( series ).nil?)
+          else
+            series == value
+          end
+        else
+          if value.respond_to?( :find_index )
+            value.find_index( series ).nil?
+          else
+            series != value
+          end
+        end
+      end
+    end
+  end
+
+  def total_test( cards, game, player )
+    combination_test( cards ) && condition_test( game, player ) && restrict_test( player, cards ) && !( passive? && power? )
   end
 
   # 4/5 generate or overcome elements are the same to 4/5 different elements
@@ -137,13 +192,14 @@ class Rule < ActiveRecord::Base
     last_player = game.last_player
     point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
     player.attached( element: nil )
+    #p effect
     effect.each do |key, value|
       value = point if value == "point"
       case key
       when "attack"
-        if last_player.sustained[:counter] == "attack"
+        if last_player.annex[:counter] == "attack"
           target.attacked( 0, subform )
-        elsif last_player.sustained[:counter] == "split"
+        elsif last_player.annex[:counter] == "split"
           target.attacked( value.fdiv(2).ceil, subform )
           player.attacked( value.fdiv(2).ceil, subform )
         else
@@ -156,7 +212,7 @@ class Rule < ActiveRecord::Base
         player.attached( counter: value )
       when "copy"
         last_act = Rule.action.joins( :event ).where( series: Rule.series[value], events: { turn_id: game.turns[turn_num-1].id } ).first
-        target = last_act.executed( player, cards_used, game, turn_num - 1 )
+        target, return_point = last_act.executed( player, cards_used, game, turn_num - 1 )
       when "shield"
         target.shielded( value )
       when "deshield"
@@ -173,23 +229,36 @@ class Rule < ActiveRecord::Base
         target.attached( showhand: value )
       when "hidden"
         player.attached( hidden: :counter )
+      when "obtain"
+        player.obtain( cards_used, value )
+      when "summon"
+        player.summon( value )
+      when "eject"
+        game.eject( value )
+      when "restrict"
+        player.attached( restrict: value )
       end
-    end unless last_player.sustained[:counter] == "spell" && form == "spell"
-    last_player.sustained.delete( :counter )
-    last_player.sustained.delete( :hidden )
+    end unless last_player.annex[:counter] == "spell" && form == "spell"
+    last_player.annex.delete( :counter )
+    last_player.annex.delete( :hidden )
     last_player.save
-    return target
+    return_point = point unless return_point
+    return target, return_point
   end
 
   def performed( player, cards_used, game, turn_num )
-    target = executed( player, cards_used, game, turn_num )
+    target, point = executed( player, cards_used, game, turn_num )
     turn = game.current_turn
-    turn.events.create player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }
+    turn.events.create player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: { point: point }
     target
   end
 
   def get_target( player, game )
     game.players[ ( player.sequence + effect["target"] ) % game.players.count ] if effect["target"].is_a? Integer
+  end
+
+  def is_action?
+    attack? or spell?
   end
 
   def self.interact( element1, element2 )
@@ -204,6 +273,13 @@ class Rule < ActiveRecord::Base
       :cancel
     else
       nil
+    end
+  end
+
+  def self.all_fitted( game, player )
+    rules = where( form: forms[:power], subform: subforms[:passive] )
+    rules.select do |rule|
+      rule.condition_test( game, player )
     end
   end
 end

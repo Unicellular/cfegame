@@ -23,12 +23,13 @@ ActiveRecord::Schema.define(version: 20160726140350) do
 
   create_table "cards", force: :cascade do |t|
     t.integer  "element",         default: 0
-    t.integer  "level"
+    t.integer  "level",           default: 0
+    t.boolean  "virtural",        default: false
     t.integer  "position"
     t.integer  "cardholder_id"
     t.string   "cardholder_type"
-    t.datetime "created_at",                  null: false
-    t.datetime "updated_at",                  null: false
+    t.datetime "created_at",                      null: false
+    t.datetime "updated_at",                      null: false
   end
 
   create_table "decks", force: :cascade do |t|
@@ -63,7 +64,7 @@ ActiveRecord::Schema.define(version: 20160726140350) do
 
   create_table "players", force: :cascade do |t|
     t.string   "star_history"
-    t.string   "sustained"
+    t.string   "annex"
     t.integer  "shield",       default: 0
     t.integer  "hand_limit",   default: 5
     t.integer  "sequence"
@@ -92,7 +93,8 @@ ActiveRecord::Schema.define(version: 20160726140350) do
   create_table "teams", force: :cascade do |t|
     t.integer  "life",       default: 200
     t.integer  "life_limit", default: 200
-    t.string   "star"
+    t.integer  "star",       default: 0
+    t.string   "annex"
     t.integer  "maximum",    default: 1
     t.integer  "game_id"
     t.datetime "created_at",               null: false

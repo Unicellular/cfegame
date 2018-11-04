@@ -22,7 +22,7 @@ class Game {
       );
     } else if ( json.myturn ) {
       this.timerID = clearInterval( this.timerID );
-      if ( json['current']['members'][0]['sustained']['freeze'] ) {
+      if ( json['current']['members'][0]['annex']['freeze'] ) {
         this.turn_end();
       } else if ( json['current']['members'][0]['hands'].length == 0 ){
         this.draw_cards();
@@ -89,7 +89,7 @@ class Game {
 
   confirm_choice(){
     var selected_ids = this.collect_cards( this.info['choices'], "selected" );
-    if ( this.info['opponent']['members'][0]['sustained']['showhand'] ) {
+    if ( this.info['opponent']['members'][0]['annex']['showhand'] ) {
       this.select_opponent_hands( selected_ids );
     } else {
       this.fill_self_hands( selected_ids );
@@ -226,7 +226,7 @@ class Game {
       console.log("rule performed");
       console.log(data);
       self.update_status( data );
-      if ( data['opponent']['members'][0]['sustained']['showhand'] ) {
+      if ( data['opponent']['members'][0]['annex']['showhand'] ) {
         self.select_cards( data['opponent']['members'][0]['hands'] );
       } else {
         self.draw_cards();

@@ -2,6 +2,8 @@ class Team < ActiveRecord::Base
   belongs_to :game
   has_many :players, dependent: :destroy
   has_many :users, through: :players
+  enum star: { nothing: 0, venus: 1, jupiter: 2, mercury: 3, mars: 4, saturn: 5 }
+  serialize :annex, Hash
 
   def position_available?
     members_amount < maximum
@@ -9,6 +11,10 @@ class Team < ActiveRecord::Base
 
   def members_amount
     @count ||= players.count
+  end
+
+  def has_star?( star_name )
+    star == star_name
   end
 
   def info( player )

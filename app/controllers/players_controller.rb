@@ -49,8 +49,8 @@ class PlayersController < ApplicationController
 
   def possible_moves
     cards = Card.find(params[:cards] || [])
-    rules = Rule.all.select do |rule|
-      rule.test( cards )
+    rules = Rule.select do |rule|
+      rule.total_test( cards, @game, @player )
     end
     render json: rules.map { |rule| { id: rule.id, name: rule.chinese_name } }
   end

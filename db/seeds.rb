@@ -20,12 +20,14 @@ def reset_pk_sequence(table_name)
 end
 Rule.delete_all
 reset_pk_sequence("rules")
-CSV.foreach(::Rails.root.join('db', 'basic_rules.csv'), headers: true) do |row|
-  data = row.to_hash.map do |key, value|
-    if [ "material", "condition", "effect" ].include?( key )
-      value = JSON.parse(value)
+[ 'basic_rules.csv', 'star_rules.csv' ].each do | filename |
+  CSV.foreach(::Rails.root.join('db', filename), headers: true) do |row|
+    data = row.to_hash.map do |key, value|
+      if [ "material", "condition", "effect" ].include?( key )
+        value = JSON.parse(value)
+      end
+      [key.to_sym, value]
     end
-    [key.to_sym, value]
+    Rule.create( Hash[data] )
   end
-  Rule.create( Hash[data] )
 end

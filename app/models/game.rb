@@ -108,6 +108,20 @@ class Game < ActiveRecord::Base
     teams[1].update( life: temp )
   end
 
+  def eject( entity )
+    entity.each do |key, value|
+      case key
+      when "star"
+        teams.each do |team|
+          if team.has_star?( value )
+            team.star = :nothing
+          end
+          team.save
+        end
+      end
+    end
+  end
+
   def discarded( card )
     ActiveRecord::Base.transaction do
       last_discard = cards.where( position: -1 ).first
