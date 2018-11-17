@@ -237,6 +237,8 @@ class Rule < ActiveRecord::Base
         game.eject( value )
       when "restrict"
         player.attached( restrict: value )
+      else
+        raise "This effect [" + key + "] is not implemented"
       end
     end unless last_player.annex[:counter] == "spell" && form == "spell"
     last_player.annex.delete( :counter )

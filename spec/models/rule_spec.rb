@@ -170,4 +170,14 @@ RSpec.describe Rule, type: :model do
       expect( @player1.reload.team.has_star?( "venus" ) ).to be false
     end
   end
+
+  context "when an effect doesn't implemented" do
+    before( :each ) do
+      @new_rule = Rule.new( name: "new rule", effect: JSON.parse( "{ \"hello\": \"world\" }" ) )
+    end
+
+    it "should raise an exception while performed" do
+      expect{ @new_rule.performed( @player1, [], @game, 1 ) }.to raise_error( "This effect [hello] is not implemented" )
+    end
+  end
 end
