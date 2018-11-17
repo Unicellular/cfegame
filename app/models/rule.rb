@@ -254,7 +254,7 @@ class Rule < ActiveRecord::Base
   end
 
   def get_target( player, game )
-    game.players[ ( player.sequence + effect["target"] ) % game.players.count ] if effect["target"].is_a? Integer
+    game.players[ ( player.sequence + target ) % game.players.count ] if target.is_a? Integer
   end
 
   def is_action?

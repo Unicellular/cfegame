@@ -8,6 +8,7 @@ class CreateRules < ActiveRecord::Migration
       t.string :condition
       t.integer :form
       t.integer :subform
+      t.integer :target
       t.string :material
       t.string :formula
       t.string :effect
