@@ -26,7 +26,7 @@ class Team < ActiveRecord::Base
     })
   end
 
-  def attacked( point, kind=nil )
+  def reduced( point, kind=nil )
     if life > point
       update( life: life - point )
     else

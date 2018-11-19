@@ -13,7 +13,7 @@ RSpec.describe Team, type: :model do
   end
 
   it "should sub the amount of attacking point" do
-    @team.attacked( 15 )
+    @team.reduced( 15 )
     @team.reload
     expect( @team.life ).to eq( 185 )
   end
@@ -27,7 +27,7 @@ RSpec.describe Team, type: :model do
 
   it "should not have less life than 0" do
     @team.life = 20
-    @team.attacked( 25 )
+    @team.reduced( 25 )
     @team.reload
     expect( @team.life ).to eq( 0 )
   end

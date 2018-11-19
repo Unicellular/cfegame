@@ -110,11 +110,11 @@ class Player < ActiveRecord::Base
       when :generate
         team.healed( point, kind )
       when :overcome
-        team.attacked( point * 2, kind )
+        team.reduced( point * 2, kind )
       when :cancel
-        team.attacked( point.fdiv(2).ceil, kind )
+        team.reduced( point.fdiv(2).ceil, kind )
       else
-        team.attacked( point, kind )
+        team.reduced( point, kind )
       end
     elsif kind == "physical"
       deshielded( point * 2 )
@@ -124,7 +124,7 @@ class Player < ActiveRecord::Base
   end
 
   def reduced( point, kind=nil )
-    team.attacked( point, kind )
+    team.reduced( point, kind )
   end
 
   def healed( point, kind=nil )

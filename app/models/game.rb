@@ -109,17 +109,20 @@ class Game < ActiveRecord::Base
   end
 
   def eject( entity )
+    effected = []
     entity.each do |key, value|
       case key
       when "star"
         teams.each do |team|
-          if team.has_star?( value )
+          if team.has_star?( value ) || ( value == "all" && team.star != :nothing )
             team.star = :nothing
+            effected.push( team )
           end
           team.save
         end
       end
     end
+    effected
   end
 
   def discarded( card )

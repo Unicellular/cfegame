@@ -192,6 +192,8 @@ class Rule < ActiveRecord::Base
     last_player = game.last_player
     point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
     player.attached( element: nil )
+    # initialize object for the one in block
+    affected = nil
     #p effect
     effect.each do |key, value|
       value = point if value == "point"
@@ -234,9 +236,13 @@ class Rule < ActiveRecord::Base
       when "summon"
         player.summon( value )
       when "eject"
-        game.eject( value )
+        affected = game.eject( value )
       when "restrict"
         player.attached( restrict: value )
+      when "reduce_affected"
+        affected.each do |entity|
+          entity.reduced( value )
+        end
       else
         raise "This effect [" + key + "] is not implemented"
       end

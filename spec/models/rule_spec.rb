@@ -171,6 +171,23 @@ RSpec.describe Rule, type: :model do
     end
   end
 
+  context "when void star is performed" do
+    before( :each ) do
+      @void_star = Rule.find_by_name( "void star" )
+      @player1.team.star = :jupiter
+      @void_star.performed( @player1, [], @game, 1 )
+      @player1.team.reload
+    end
+
+    it "should eject all stars" do
+      expect( @player1.team.star ).to eq("nothing")
+    end
+
+    it "should reduece life to whose star is ejected" do
+      expect( @player1.team.life ).to eq(180)
+    end
+  end
+
   context "when an effect doesn't implemented" do
     before( :each ) do
       @new_rule = Rule.new( name: "new rule", effect: JSON.parse( "{ \"hello\": \"world\" }" ) )
