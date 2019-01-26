@@ -21,8 +21,6 @@ class Rule < ActiveRecord::Base
       when "element", "level"
         value.all? do |k, v|
           case k
-          when "same"
-            sts[key].any?{ |k1, v1| v1 == v }
           when "generate", "overcome"
             special_test( key, k, v, sts )
           else
@@ -115,9 +113,11 @@ class Rule < ActiveRecord::Base
     }
     GENERATE.each do |elem|
       rs["element"][elem] = cards.count{ |card| card.element == elem }
+      rs["element"]["same"] = rs["element"][elem] if rs["element"][elem] > rs["element"]["same"]
     end
     (1..5).each do |level|
       rs["level"][level.to_s] = cards.count{ |card| card.level == level }
+      rs["level"]["same"] = rs["level"][level.to_s] if rs["level"][level.to_s] > rs["level"]["same"]
     end
     rs["element"]["different"] = cards.uniq{ |card| card.element }.count
     rs["level"]["different"] = cards.uniq{ |card| card.level }.count
