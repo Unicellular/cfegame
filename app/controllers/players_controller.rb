@@ -81,6 +81,7 @@ class PlayersController < ApplicationController
   end
 
   def if_game_end
+    @game.trigger( @player )
     winners = @game.teams.select do |team|
       team.life > 0
     end

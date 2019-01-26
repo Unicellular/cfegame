@@ -50,11 +50,6 @@ class Player < ActiveRecord::Base
       end
       #puts "before perform"
       target = rule.performed( self, cards_used, game, game.turn ) if rule.total_test( cards_used, game, self )
-      trigger_rules = Rule.all_fitted( game, self )
-      trigger_rules.each do |rule|
-        # puts "now performing rule: " + rule.name
-        rule.performed( self, [], game, game.turn )
-      end
       set_phase( :draw ) unless target && target.annex[:showhand] || !rule.is_action?
     end
   end
@@ -172,6 +167,7 @@ class Player < ActiveRecord::Base
       case key
       when "star"
         team.star = value.to_sym
+        star_history << value unless star_history.include? value
       end
     end
     team.save

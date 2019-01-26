@@ -108,6 +108,15 @@ class Game < ActiveRecord::Base
     teams[1].update( life: temp )
   end
 
+  def trigger( player )
+    3.times do
+      trigger_rules = Rule.all_fitted( self, player )
+      trigger_rules.each do |rule|
+        rule.performed( player, [], self, turn )
+      end
+    end
+  end
+
   def eject( entity )
     effected = []
     entity.each do |key, value|

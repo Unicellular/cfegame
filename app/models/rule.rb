@@ -60,6 +60,8 @@ class Rule < ActiveRecord::Base
             event.effect['point'] >= rule_condition
           end
         end
+      when "history"
+        # TODO:
       end
     end
   end
