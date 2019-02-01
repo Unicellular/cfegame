@@ -30,18 +30,38 @@ class GameField {
       ( game_data.winning ? "You Win!" : "You Lose" ) :
       ( game_data.myturn ? "Your Turn" : "Opponent Turn" );
     $("#message_field").text( message );
-    $("#player .hand").empty().append( this.generate_card_list( game_data.current.members[0].hands, true, false ) );
-    $("#player .action").empty().append( this.generate_card_list( game_data.current.action, true, true ) );
-    $("#opponent .hand").empty().append( this.generate_card_list( game_data.opponent.members[0].hands, false, false ) );
-    $("#player .used").empty().append( this.generate_last_act( game_data.current.members[0].last_acts[0] ) );
-    $("#opponent .action").empty().append( this.generate_last_act( game_data.opponent.members[0].last_acts[0] ) );
-    $("#opponent .used").empty().append( this.generate_last_act( game_data.opponent.members[0].last_acts[1] ) );
-    $("#player .life").empty().append( game_data.current.life );
-    $("#player .shield").empty().append( game_data.current.members[0].shield );
-    $("#opponent .life").empty().append( game_data.opponent.life );
-    $("#opponent .shield").empty().append( game_data.opponent.members[0].shield );
+    this.display_player( true, game_data.current );
+    this.display_player( false, game_data.opponent );
     $("#choose .modal-body").empty().append( this.generate_card_list( game_data.choices, true, false ) );
     $("#moves .row").empty().append( this.generate_rule_list( game_data.possible_moves ) );
+  }
+
+  display_player( is_current, data ){
+    var html_id;
+    var visible;
+    var action_cards;
+    var used_cards;
+    // 防止對手尚未出現時，opponent物件不存在的問題。
+    if ( !data.members[0] ){
+      data.members[0] = { "last_acts": [], "hands": [], "shield": 0 };
+    }
+
+    if ( is_current ){
+      html_id = "#player";
+      visible = true;
+      action_cards = this.generate_card_list( data.action, true, true );
+      used_cards = this.generate_last_act( data.members[0].last_acts[0] );
+    } else {
+      html_id = "#opponent";
+      visible = false;
+      action_cards = this.generate_last_act( data.members[0].last_acts[0] );
+      used_cards = this.generate_last_act( data.members[0].last_acts[1] );
+    }
+    $( html_id + " .hand" ).empty().append( this.generate_card_list( data.members[0].hands, visible, false ) );
+    $( html_id + " .life" ).empty().append( data.life );
+    $( html_id + " .shield" ).empty().append( data.members[0].shield );
+    $( html_id + " .action" ).empty().append( action_cards );
+    $( html_id + " .used" ).empty().append( used_cards );
   }
 
   generate_card( card_data, is_small ){

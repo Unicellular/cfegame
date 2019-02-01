@@ -11,10 +11,14 @@ class Game {
   update_status( json ) {
     console.log( "status updated" );
     console.log( json );
+    console.log( "timerID = " + this.timerID );
+    // 如果沒有資料回傳，直接結束不做事。
+    if ( !json ) {
+      return;
+    }
     this.info = json;
     this.view.update_view( json );
     console.log( "myturn = " + json.myturn );
-    console.log( "timerID = " + this.timerID );
     if ( json['status'] == "prepare" ){
       this.timerID = setInterval(
         () => this.find_opponent(),

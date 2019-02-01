@@ -46,6 +46,14 @@ class Game < ActiveRecord::Base
     info( player )
   end
 
+  def reinit
+    deck.cards << players[0].cards << players[1].cards
+    deck.shuffle
+    #update( turn: 0 )
+    prepare!
+    turns.destroy_all
+  end
+
   def info( player )
     game_status = as_json({
       except: [ :created_at, :updated_at ]
