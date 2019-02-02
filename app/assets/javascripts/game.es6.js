@@ -28,7 +28,7 @@ class Game {
       this.timerID = clearInterval( this.timerID );
       if ( json['current']['members'][0]['annex']['freeze'] ) {
         this.turn_end();
-      } else if ( json['current']['members'][0]['hands'].length == 0 ){
+      } else if ( json['current']['members'][0]['hands'].length == 0 && json['current']['action'].length == 0 ){
         this.draw_cards();
       }
     } else {
