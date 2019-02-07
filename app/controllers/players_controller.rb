@@ -82,12 +82,6 @@ class PlayersController < ApplicationController
 
   def if_game_end
     @game.trigger( @player )
-    winners = @game.teams.select do |team|
-      team.life > 0
-    end
-    if winners.count <= 1
-      @game.winner = winners.first
-      @game.over!
-    end
+    @game.check_over
   end
 end

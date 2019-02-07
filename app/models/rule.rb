@@ -59,7 +59,11 @@ class Rule < ActiveRecord::Base
           end
         end
       when "history"
-        # TODO:
+        stars = value.dup
+        player.star_history.each do |star|
+          stars.delete( star )
+        end
+        stars.empty?
       end
     end
   end
@@ -245,6 +249,9 @@ class Rule < ActiveRecord::Base
         affected.each do |entity|
           entity.reduced( value )
         end
+      when "win"
+        game.winner = player.team
+        game.over!
       else
         raise "This effect [" + key + "] is not implemented"
       end

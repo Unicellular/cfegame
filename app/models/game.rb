@@ -125,6 +125,16 @@ class Game < ActiveRecord::Base
     end
   end
 
+  def check_over
+    winners = teams.select do |team|
+      team.life > 0
+    end
+    if winners.count <= 1
+      winner = winners.first
+      over!
+    end
+  end
+
   def eject( entity )
     effected = []
     entity.each do |key, value|
