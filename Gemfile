@@ -4,9 +4,10 @@ ruby "2.3.3"
 gem 'rails', '~> 4.2.0'
 
 group :development, :test do
-  gem 'sqlite3'
+  gem 'sqlite3', '~> 1.3.0'
   gem 'rspec-rails'
   gem 'pry-rails'
+  gem 'byebug'
 end
 
 group :production do
