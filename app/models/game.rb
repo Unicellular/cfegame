@@ -82,11 +82,11 @@ class Game < ActiveRecord::Base
   end
 
   def turn_player
-    @turn_player || players[ ( first + turn ) % players.count ]
+    players[ ( first + turn ) % players.count ]
   end
 
   def last_player
-    @last_player || players[ ( first + turn - 1 ) % players.count ]
+    players[ ( first + turn - 1 ) % players.count ]
   end
 
   def turn_end

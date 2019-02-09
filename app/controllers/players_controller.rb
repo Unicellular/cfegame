@@ -22,7 +22,9 @@ class PlayersController < ApplicationController
 
   def turn_end
     @player.turn_end
-    render json: @game.reload.info(@player)
+    @game.reload
+    @game.turn_player.turn_start
+    render json: @game.info(@player)
   end
 
   def use_cards

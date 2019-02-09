@@ -197,7 +197,6 @@ class Rule < ActiveRecord::Base
     target_hand = target.cards.count unless target.nil?
     last_player = game.last_player
     point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
-    player.attached( element: nil )
     # initialize object for the one in block
     affected = nil
     #p effect

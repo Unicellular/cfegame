@@ -94,6 +94,10 @@ class Player < ActiveRecord::Base
     game.turn_end
   end
 
+  def turn_start
+    attached( element: nil )
+  end
+
   def set_phase( phase )
     game.current_turn.update( phase: phase )
   end
