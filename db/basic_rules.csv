@@ -4,7 +4,7 @@ tree attack,木擊術,／木／木行攻擊，點數＝等級＋４,basic,{},att
 water attack,水擊術,／水／水行攻擊，點數＝等級＋４,basic,{},attack,water,-1,"{ ""element"": { ""water"": 1 }, ""count"": 1 }",sum + 4,"{ ""attack"": ""point"" }"
 fire attack,火擊術,／火／火行攻擊，點數＝等級＋４,basic,{},attack,fire,-1,"{ ""element"": { ""fire"": 1 }, ""count"": 1 }",sum + 4,"{ ""attack"": ""point"" }"
 earth attack,土擊術,／土／土行攻擊，點數＝等級＋４,basic,{},attack,earth,-1,"{ ""element"": { ""earth"": 1 }, ""count"": 1 }",sum + 4,"{ ""attack"": ""point"" }"
-weapon,武器,／金金／物理攻擊，點數＝等級總和×２,basic,{},attack,physical,,"{ ""element"": { ""metal"": 2 }, ""count"": 2 }",sum * 2,"{ ""attack"": ""point"" }"
+weapon,武器,／金金／物理攻擊，點數＝等級總和×２,basic,{},attack,physical,-1,"{ ""element"": { ""metal"": 2 }, ""count"": 2 }",sum * 2,"{ ""attack"": ""point"" }"
 defense,防禦,／木木／被動術式，反制：下家下回合攻擊之傷害無效,basic,{},spell,passive,,"{ ""element"": { ""tree"": 2 }, ""count"": 2 }",,"{ ""hidden"": true, ""counter"": ""attack"" }"
 seal,封印,／水水／被動術式，反制：下家下回合術式無效,basic,{},spell,passive,,"{ ""element"": { ""water"": 2 }, ""count"": 2 }",,"{ ""hidden"": true, ""counter"": ""spell"" }"
 backfire,反震,／火火／被動術式，反制：下家下回合攻擊之傷害由目標與施展者平分,basic,{},spell,passive,,"{ ""element"": { ""fire"": 2 }, ""count"": 2 }",,"{ ""hidden"": true, ""counter"": ""split"" }"
