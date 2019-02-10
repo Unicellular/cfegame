@@ -143,6 +143,7 @@ RSpec.describe Rule, type: :model do
       @metal_formation = Rule.find_by_name( "metal formation" )
       @venus_attack = Rule.find_by_name( "venus attack" )
       @venus_formation = Rule.find_by_name( "venus formation" )
+      @venus_summon = Rule.find_by_name( "venus summon" )
       @player1.perform( @metal_formation, [ @one_metal, @two_metal ].flatten )
       #puts "after playing metal formation"
       #pp @player1.cards
@@ -152,22 +153,32 @@ RSpec.describe Rule, type: :model do
       expect( @player2.reload.team.life ).to eq( 161 )
     end
 
-    it "should summon venus" do
-      expect( @player1.team.has_star?( "venus" ) ).to be true
+    it "should fulfill the condition of summonning venus" do
+      expect( @venus_summon.condition_test( @game, @player1 ) ).to be true
     end
 
-    it "should make venus attack avaliable" do
-      expect( @venus_attack.condition_test( @game, @player1 ) ).to be true
-    end
+    context "after venus is summoned" do
+      before( :each ) do
+        @venus_summon.performed( @player1, [], @game, @game.turn )
+      end
+      
+      it "should summon venus" do
+        expect( @player1.team.has_star?( "venus" ) ).to be true
+      end
 
-    it "should remove venus after performing venus formation" do
-      @game.turn_end
-      @game.turn_end
-      @player1.reload
-      #puts "before playing venus formation"
-      #pp @player1.cards
-      @player1.perform( @venus_formation, [ @two_other_metal, @one_earth ].flatten )
-      expect( @player1.reload.team.has_star?( "venus" ) ).to be false
+      it "should make venus attack avaliable" do
+        expect( @venus_attack.condition_test( @game, @player1 ) ).to be true
+      end
+
+      it "should remove venus after performing venus formation" do
+        @game.turn_end
+        @game.turn_end
+        @player1.reload
+        #puts "before playing venus formation"
+        #pp @player1.cards
+        @player1.perform( @venus_formation, [ @two_other_metal, @one_earth ].flatten )
+        expect( @player1.reload.team.has_star?( "venus" ) ).to be false
+      end
     end
   end
 
