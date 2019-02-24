@@ -1,13 +1,18 @@
 source 'https://rubygems.org'
 ruby "2.3.3"
 
-gem 'rails', '~> 4.2.0'
+gem 'rails', '~> 5.2.0'
 
 group :development, :test do
   gem 'sqlite3', '~> 1.3.0'
   gem 'rspec-rails'
   gem 'pry-rails'
   gem 'byebug'
+  gem 'listen', '~> 3.0'
+end
+
+group :development do
+  gem 'web-console'
 end
 
 group :production do
@@ -22,10 +27,11 @@ gem 'therubyracer'
 gem 'jquery-rails'
 gem 'jquery-turbolinks'
 gem 'turbolinks'
-gem 'jbuilder', '~> 1.2'
+gem 'jbuilder', '~> 2.6'
 gem 'slim-rails'
 #gem 'react-rails'
 gem 'thin'
+gem 'bootsnap', require: false
 
 # for log in
 gem 'omniauth'

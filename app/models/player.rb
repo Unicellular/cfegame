@@ -1,4 +1,4 @@
-class Player < ActiveRecord::Base
+class Player < ApplicationRecord
   belongs_to :user
   belongs_to :team
   has_many :cards, as: :cardholder, dependent: :destroy
@@ -63,7 +63,7 @@ class Player < ActiveRecord::Base
     target.annex.delete( :remove )
     target.annex.delete( :showhand )
     target.save
-    game.current_turn.events.create player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
+    game.current_turn.events.create! player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
     set_phase( :draw )
   end
 

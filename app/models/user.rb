@@ -1,4 +1,4 @@
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   has_many :authorizations
   has_many :players
   has_many :teams, through: :players

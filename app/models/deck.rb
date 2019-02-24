@@ -1,4 +1,4 @@
-class Deck < ActiveRecord::Base
+class Deck < ApplicationRecord
   has_many :cards, -> { order(:position) }, as: :cardholder, dependent: :destroy
   belongs_to :game
 

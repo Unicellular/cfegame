@@ -1,4 +1,4 @@
-class Rule < ActiveRecord::Base
+class Rule < ApplicationRecord
   enum form: { attack: 0, spell: 1, power: 2 }
   enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
                   active: 7, passive: 8, lasting: 9 }
@@ -250,7 +250,6 @@ class Rule < ActiveRecord::Base
         end
       when "win"
         game.winner = player.team
-        game.over!
       else
         raise "This effect [" + key + "] is not implemented"
       end
@@ -265,7 +264,7 @@ class Rule < ActiveRecord::Base
   def performed( player, cards_used, game, turn_num )
     target, point = executed( player, cards_used, game, turn_num )
     turn = game.current_turn
-    turn.events.create player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: { point: point }
+    turn.events.create! player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: { point: point }
     target
   end
 

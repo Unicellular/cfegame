@@ -9,8 +9,8 @@ RSpec.describe Rule, type: :model do
     @generate = Rule.find_by_name( "generating formation")
     @overcome = Rule.find_by_name( "overcoming formation" )
     @feao = Rule.find_by_name( "five element as one" )
-    @game = Game.open( User.new )
-    @game.join_with( User.new, @game.teams[1] )
+    @game = Game.open( User.create )
+    @game.join_with( User.create, @game.teams[1] )
     @game.begin( @game.players[0] )
     @player1 = @game.players[0]
     @player2 = @game.players[1]
@@ -161,7 +161,7 @@ RSpec.describe Rule, type: :model do
       before( :each ) do
         @venus_summon.performed( @player1, [], @game, @game.turn )
       end
-      
+
       it "should summon venus" do
         expect( @player1.team.has_star?( "venus" ) ).to be true
       end

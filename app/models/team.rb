@@ -1,4 +1,4 @@
-class Team < ActiveRecord::Base
+class Team < ApplicationRecord
   belongs_to :game
   has_many :players, dependent: :destroy
   has_many :users, through: :players

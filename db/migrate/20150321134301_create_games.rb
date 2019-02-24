@@ -1,7 +1,6 @@
-class CreateGames < ActiveRecord::Migration
+class CreateGames < ActiveRecord::Migration[5.2]
   def change
     create_table :games do |t|
-      t.belongs_to :winner
       t.string :field
       t.integer :status, default: 0
       t.integer :team_amount, default: 2
@@ -9,6 +8,7 @@ class CreateGames < ActiveRecord::Migration
       t.integer :turn, default: 0
       t.integer :first, default: 0
       t.boolean :equal_member, default: true
+      t.integer :winner
 
       t.timestamps null: false
     end

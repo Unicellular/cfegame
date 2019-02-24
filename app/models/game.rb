@@ -1,15 +1,14 @@
-class Game < ActiveRecord::Base
+class Game < ApplicationRecord
   has_many :teams, dependent: :destroy
   has_many :players, -> { order(:sequence) }, through: :teams
   has_many :cards, as: :cardholder, dependent: :destroy
   has_many :turns, -> { order(:number) }, dependent: :destroy
   has_one :deck, dependent: :destroy
-  belongs_to :winner, class_name: "Team"
 
   enum status: [ :prepare, :start, :over ]
 
   def self.open( user, game_options: {}, team_options: {} )
-    game = self.create( game_options )
+    game = self.create!( game_options )
     team_amount ||= game.team_amount
     teams = game.teams
     team_amount.times do
@@ -131,8 +130,12 @@ class Game < ActiveRecord::Base
     end
     if winners.count <= 1
       winner = winners.first
-      over!
     end
+  end
+
+  def winner=( team )
+    winner = teams.index( team )
+    over!
   end
 
   def eject( entity )

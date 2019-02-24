@@ -2,8 +2,8 @@ require 'rails_helper'
 
 RSpec.describe Player, type: :model do
   before( :each ) do
-    @game = Game.open( User.new )
-    @game.join_with( User.new, @game.teams[1] )
+    @game = Game.open( User.create )
+    @game.join_with( User.create, @game.teams[1] )
     @game.begin( @game.players[0] )
     @player1 = @game.players[0]
     @player2 = @game.players[1]

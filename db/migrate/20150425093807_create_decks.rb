@@ -1,4 +1,4 @@
-class CreateDecks < ActiveRecord::Migration
+class CreateDecks < ActiveRecord::Migration[5.2]
   def change
     create_table :decks do |t|
       t.belongs_to :game
