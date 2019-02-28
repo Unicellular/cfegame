@@ -43,7 +43,7 @@ class GameField {
     var used_cards;
     // 防止對手尚未出現時，opponent物件不存在的問題。
     if ( !data.members[0] ){
-      data.members[0] = { "last_acts": [], "hands": [], "shield": 0 };
+      data.members[0] = { "last_acts": [], "hands": [], "shield": 0, "star_history": [] };
     }
 
     if ( is_current ){
@@ -62,6 +62,20 @@ class GameField {
     $( html_id + " .shield" ).empty().append( data.members[0].shield );
     $( html_id + " .action" ).empty().append( action_cards );
     $( html_id + " .used" ).empty().append( used_cards );
+    $( html_id + " .star_history" ).empty().append( this.generate_star_history( data.members[0].star_history ));
+    $( html_id + " .current_star" ).empty().append( $("<div>").text("★").addClass( "star " + data.star ) );
+  }
+
+  generate_star_history( star_history ){
+    let all_star = ["venus", "jupiter", "mercury", "mars", "saturn"];
+    let stars = all_star.map(( star, index ) => {
+      if ( star_history.indexOf( star ) != -1 ){
+        return $("<div>").text("★").addClass( "star " + star );
+      } else {
+        return $("<div>").text("☆").addClass( "star " + star );
+      }
+    });
+    return stars;
   }
 
   generate_card( card_data, is_small ){

@@ -75,6 +75,30 @@ table {
   border: 1px solid grey;
   padding: 5px;
   text-align: center;
+  &.selected {
+    border: 1px solid yellow;
+  }
+
+  &.metal {
+    background-color: white;
+  }
+
+  &.tree {
+    background-color: green;
+  }
+
+  &.water {
+    background-color: black;
+    color: white;
+  }
+
+  &.fire {
+    background-color: red;
+  }
+
+  &.earth {
+    background-color: yellow;
+  }
 }
 
 .card-lg {
@@ -91,31 +115,6 @@ table {
 
 .used .card {
   margin: 10px -10px;
-}
-
-.card.selected {
-  border: 1px solid yellow;
-}
-
-.card.metal {
-  background-color: white;
-}
-
-.card.tree {
-  background-color: green;
-}
-
-.card.water {
-  background-color: black;
-  color: white;
-}
-
-.card.fire {
-  background-color: red;
-}
-
-.card.earth {
-  background-color: yellow;
 }
 
 .life {
@@ -137,4 +136,45 @@ table {
 .modal-body {
   overflow-y: auto;
   padding: 15px;
+}
+
+.star {
+  margin: 0px auto;
+  text-align: center;
+  &.venus {
+    color: white;
+  }
+
+  &.jupiter {
+    color: green;
+  }
+
+  &.mercury {
+    color: black;
+  }
+
+  &.mars {
+    color: red;
+  }
+
+  &.saturn {
+    color: yellow;
+  }
+
+  &.nothing {
+    color: grey;
+  }
+}
+
+.current_star {
+  font-size: 48px;
+}
+
+.star_history {
+  font-size: 28px;
+  .star {
+    @include make-md-column(2.4);
+    padding: 0px;
+    float: left;
+  }
 }
