@@ -175,6 +175,7 @@ class Player < ApplicationRecord
       end
     end
     team.save
+    save
   end
 
 # request information, not updated anything
