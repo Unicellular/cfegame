@@ -59,7 +59,7 @@ class Game < ApplicationRecord
     })
     game_status[:myturn] = ( turn_player == player )
     game_status[:discard] = cards.where( position: -1 ).first
-    game_status[:winning] = ( player.team == winner )
+    game_status[:winning] = ( teams.index( player.team ) == winner )
     teams.each do |team|
       if team.players.include? player
         game_status[:current] = team.info(player)
@@ -128,14 +128,18 @@ class Game < ApplicationRecord
     winners = teams.select do |team|
       team.life > 0
     end
+    #byebug
     if winners.count <= 1
-      winner = winners.first
+      decide_winner( winners.first )
     end
+    #save
   end
 
-  def winner=( team )
-    winner = teams.index( team )
-    over!
+  def decide_winner( team )
+    unless team.nil?
+      update!( winner: teams.index( team ) )
+      over!
+    end
   end
 
   def eject( entity )

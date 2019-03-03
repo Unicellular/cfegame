@@ -249,7 +249,7 @@ class Rule < ApplicationRecord
           entity.reduced( value )
         end
       when "win"
-        game.winner = player.team
+        game.decide_winner( player.team )
       else
         raise "This effect [" + key + "] is not implemented"
       end
