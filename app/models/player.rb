@@ -161,7 +161,7 @@ class Player < ApplicationRecord
 
   def obtain( used_cards, modified )
     old_card = used_cards.first
-    card_attrs = { level: old_card.level, element: old_card.element, virtural: true }.merge( modified )
+    card_attrs = { level: old_card.level, element: old_card.element, virtual: true }.merge( modified )
     new_card = Card.new( card_attrs )
     cards << new_card
   end

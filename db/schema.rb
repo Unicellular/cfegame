@@ -23,7 +23,7 @@ ActiveRecord::Schema.define(version: 2016_07_26_140350) do
   create_table "cards", force: :cascade do |t|
     t.integer "element", default: 0
     t.integer "level", default: 0
-    t.boolean "virtural", default: false
+    t.boolean "virtual", default: false
     t.integer "position"
     t.integer "cardholder_id"
     t.string "cardholder_type"

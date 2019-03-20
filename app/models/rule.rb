@@ -73,7 +73,7 @@ class Rule < ApplicationRecord
     player.annex[:restrict].all? do |key, value|
       case key
       when "ruleset"
-        if cards.any?{ |card| card.virtural }
+        if cards.any?{ |card| card.virtual }
           if value.respond_to?( :find_index )
             !(value.find_index( series ).nil?)
           else

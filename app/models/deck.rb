@@ -19,7 +19,7 @@ class Deck < ApplicationRecord
 
   def shuffle( todeck = false )
 # 預設為要洗用過的牌，有特別設定時為洗牌組中的牌。
-    handle = todeck ? cards : game.cards
+    handle = todeck ? cards : game.cards.where( virtual: false )
     deck_count = todeck ? 0 : cards.count
     handle_count = handle.count
     deck_keys = todeck ? [] : cards.map { |c| c.id }
