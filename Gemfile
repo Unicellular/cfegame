@@ -21,7 +21,7 @@ group :production do
 end
 
 gem 'sass-rails', '~> 5.0'
-gem 'bootstrap-sass', '~> 3.3'
+gem 'bootstrap-sass', '~> 3.4'
 gem 'uglifier', '>= 1.3.0'
 gem 'therubyracer'
 gem 'jquery-rails'
