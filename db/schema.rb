@@ -55,7 +55,7 @@ ActiveRecord::Schema.define(version: 2016_07_26_140350) do
   end
 
   create_table "games", force: :cascade do |t|
-    t.string "field"
+    t.integer "field", default: 0
     t.integer "status", default: 0
     t.integer "team_amount", default: 2
     t.integer "member_limit", default: 1

@@ -47,4 +47,10 @@ RSpec.describe Player, type: :model do
     expect( @player2.cards.count ).to eq( 4 )
     expect( @player2.annex[:draw_extra] ).to be_nil
   end
+
+  it "shold change the field after summon tree field" do
+    @player1.summon( { "field" => "tree" } )
+    @game.reload
+    expect( @game.field ).to eq( "tree" )
+  end
 end

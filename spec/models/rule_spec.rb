@@ -157,7 +157,7 @@ RSpec.describe Rule, type: :model do
       expect( @venus_summon.condition_test( @game, @player1 ) ).to be true
     end
 
-    context "after venus is summoned" do
+    context "after venus summon is executed" do
       before( :each ) do
         @venus_summon.performed( @player1, [], @game, @game.turn )
       end
@@ -206,6 +206,58 @@ RSpec.describe Rule, type: :model do
 
     it "should raise an exception while performed" do
       expect{ @new_rule.performed( @player1, [], @game, 1 ) }.to raise_error( "This effect [hello] is not implemented" )
+    end
+  end
+
+  context "when perform azure dragon summon" do
+    before( :each ) do
+      @three_trees = @game.deck.find_card( :tree, 3 ).first(3)
+      @player1.cards = [ @two_trees, @three_trees ].flatten
+      @azure_dragon = Rule.find_by_name( "azure dragon summon" )
+      @player1.perform( @azure_dragon, [ @two_trees, @three_trees ].flatten )
+      @game.reload
+    end
+
+    it "should change the field" do
+      expect( @game.field ).to eq( "tree" )
+    end
+
+    it "should deal 81 damage to player2" do
+      @player2.reload
+      expect( @player2.team.life ).to eq( 119 )
+    end
+  end
+
+  context "when the field is tree" do
+    before( :each ) do
+      @game.field = :tree
+      @game.save!
+      @one_water = [ Card.new( element: :water, level: 3 ) ]
+      @two_earth_one_metal = [ Card.new( element: :metal, level: 1 ), Card.new( element: :earth, level: 2 ), Card.new( element: :earth, level: 4 ) ]
+      @player1.cards = [@one_tree, @one_water].flatten
+      @water_attack = Rule.find_by_name("water attack")
+      @chaos = Rule.find_by_name("chaos")
+    end
+
+    it "should make tree-attack deal double damage" do
+      @player1.perform( @tree_attack, @one_tree )
+      @player2.reload
+      expect( @player2.team.life ).to eq( 190 )
+    end
+
+    it "should make water-attack heal player2" do
+      @player2.team.life = 150
+      @player2.team.save!
+      @player1.perform( @water_attack, @one_water )
+      @player2.reload
+      expect( @player2.team.life ).to eq( 157 )
+    end
+
+    it "should make chaos loss its effect" do
+      @player1.perform( @chaos, [ @one_tree, @two_earth_one_metal ].flatten )
+      @player2.reload
+      expect( @player2.annex["showhand"] ).to be_nil
+      expect( @player2.annex["remove"] ).to be_nil
     end
   end
 end

@@ -1,7 +1,7 @@
 class Rule < ApplicationRecord
   enum form: { attack: 0, spell: 1, power: 2 }
   enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
-                  active: 7, passive: 8, lasting: 9 }
+                  active: 7, passive: 8, static: 9, lasting: 10 }
   enum series: { basic: 0, star: 1, field: 2, hero: 3 }
   serialize :condition, JSON
   serialize :material, JSON
@@ -33,7 +33,7 @@ class Rule < ApplicationRecord
     end
   end
 
-  def condition_test( game, player )
+  def condition_test( game, player, executing_rule=nil )
     return true if condition.empty?
     event_list = game.current_turn.events
     condition.all? do |key, value|
@@ -50,8 +50,15 @@ class Rule < ApplicationRecord
           end
         end
       when "field"
+        game.field == value
       when "hero"
+      when "ruletype"
+        value["form"] == executing_rule.form && value["subform"] == executing_rule.subform
       when "rule"
+        value.any? do |rule|
+          rule == executing_rule.name
+        end
+      when "executed"
         value.all? do |rule_name, rule_condition|
           event_list.where( rule: Rule.find_by_name( rule_name ) ).any? do |event|
             # 陣法或能力的點數需符合條件。
@@ -197,6 +204,7 @@ class Rule < ApplicationRecord
     target_hand = target.cards.count unless target.nil?
     last_player = game.last_player
     point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
+    point = modify_effect( game, player, point )
     # initialize object for the one in block
     affected = nil
     #p effect
@@ -204,17 +212,9 @@ class Rule < ApplicationRecord
       value = point if value == "point"
       case key
       when "attack"
-        if last_player.annex[:counter] == "attack"
-          target.attacked( 0, subform )
-        elsif last_player.annex[:counter] == "split"
-          target.attacked( value.fdiv(2).ceil, subform )
-          player.attacked( value.fdiv(2).ceil, subform )
-        else
-          target.attacked( value, subform )
-        end
-        player.attached( element: subform ) if GENERATE.include? subform
+        work_with_counter( player, target, last_player, :attacked, value )
       when "heal"
-        target.healed( value )
+        work_with_counter( player, target, last_player, :healed, value )
       when "counter"
         player.attached( counter: value )
       when "copy"
@@ -250,6 +250,8 @@ class Rule < ApplicationRecord
         end
       when "win"
         game.decide_winner( player.team )
+      when "immune"
+        # do nothing
       else
         raise "This effect [" + key + "] is not implemented"
       end
@@ -266,6 +268,37 @@ class Rule < ApplicationRecord
     turn = game.current_turn
     turn.events.create! player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: { point: point }
     target
+  end
+
+  def modify_effect( game, player, point )
+    return point if effect["immune"]
+    fits = Rule.all_fitted( game, player, :static, self )
+    fits.each do |rule|
+      case rule.effect["modify"]
+      when "double"
+        point = point * 2
+      when "heal"
+        effect["heal"] = effect.delete( "attack" )
+      when "counter"
+        effect = {}
+      else
+        raise "This effect [" + rule.name + "] is not implemented"
+      end
+    end
+    return point
+  end
+
+  def work_with_counter( player, target, last_player, action, point )
+    # action可能是攻擊或被其他效果影響改成回復的攻擊，所以仍要判斷和反制效果的互動
+    if last_player.annex[:counter] == "attack" && form == "attack"
+      target.send( action, 0, subform )
+    elsif last_player.annex[:counter] == "split" && form == "attack"
+      target.send( action, point.fdiv(2).ceil, subform )
+      player.send( action, point.fdiv(2).ceil, subform )
+    else
+      target.send( action,  point, subform )
+    end
+    player.attached( element: subform ) if GENERATE.include? subform
   end
 
   def get_target( player, game )
@@ -291,10 +324,10 @@ class Rule < ApplicationRecord
     end
   end
 
-  def self.all_fitted( game, player )
-    rules = where( form: forms[:power], subform: subforms[:passive] )
+  def self.all_fitted( game, player, subform, executing_rule )
+    rules = where( form: forms[:power], subform: subforms[subform] )
     rules.select do |rule|
-      rule.condition_test( game, player )
+      rule.condition_test( game, player, executing_rule )
     end
   end
 end

@@ -20,7 +20,7 @@ def reset_pk_sequence(table_name)
 end
 Rule.delete_all
 reset_pk_sequence("rules")
-[ 'basic_rules.csv', 'star_rules.csv' ].each do | filename |
+[ 'basic_rules.csv', 'star_rules.csv', 'field_rules.csv' ].each do | filename |
   CSV.foreach(::Rails.root.join('db', filename), headers: true) do |row|
     data = row.to_hash.map do |key, value|
       if [ "material", "condition", "effect" ].include?( key )

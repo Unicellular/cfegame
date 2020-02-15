@@ -1,7 +1,7 @@
 class CreateGames < ActiveRecord::Migration[5.2]
   def change
     create_table :games do |t|
-      t.string :field
+      t.integer :field, default: 0
       t.integer :status, default: 0
       t.integer :team_amount, default: 2
       t.integer :member_limit, default: 1

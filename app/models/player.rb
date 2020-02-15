@@ -127,7 +127,14 @@ class Player < ApplicationRecord
   end
 
   def healed( point, kind=nil )
-    team.healed( point, kind )
+    case Rule.interact( kind, annex[:element] )
+    when :overcome
+      team.healed( point * 2, kind )
+    when :cancel
+      team.healed( point.fdiv(2).ceil, kind )
+    else
+      team.healed( point, kind )
+    end
   end
 
   def attached( effect )
@@ -172,10 +179,12 @@ class Player < ApplicationRecord
       when "star"
         team.star = value.to_sym
         star_history << value unless star_history.include? value
+      when "field"
+        game.field = value.to_sym
       end
     end
-    team.save
-    save
+    game.save!
+    save!
   end
 
 # request information, not updated anything

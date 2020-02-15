@@ -6,6 +6,7 @@ class Game < ApplicationRecord
   has_one :deck, dependent: :destroy
 
   enum status: [ :prepare, :start, :over ]
+  enum field: { nothing: 0, metal: 1, tree: 2, water: 3, fire: 4, earth: 5 }
 
   def self.open( user, game_options: {}, team_options: {} )
     game = self.create!( game_options )
@@ -117,7 +118,7 @@ class Game < ApplicationRecord
 
   def trigger( player )
     3.times do
-      trigger_rules = Rule.all_fitted( self, player )
+      trigger_rules = Rule.all_fitted( self, player, :passive )
       trigger_rules.each do |rule|
         rule.performed( player, [], self, turn )
       end
