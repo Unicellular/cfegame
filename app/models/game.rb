@@ -155,8 +155,12 @@ class Game < ApplicationRecord
           end
           team.save
         end
+      when "field"
+        effected = (teams.to_a) unless nothing?
+        nothing!
       end
     end
+    save
     effected
   end
 

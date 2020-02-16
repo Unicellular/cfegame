@@ -233,8 +233,8 @@ RSpec.describe Rule, type: :model do
       @game.field = :tree
       @game.save!
       @one_water = [ Card.new( element: :water, level: 3 ) ]
-      @two_earth_one_metal = [ Card.new( element: :metal, level: 1 ), Card.new( element: :earth, level: 2 ), Card.new( element: :earth, level: 4 ) ]
-      @player1.cards = [@one_tree, @one_water].flatten
+      @two_earth_one_metal = [ Card.new( element: :metal, level: 2 ), Card.new( element: :earth, level: 2 ), Card.new( element: :earth, level: 2 ) ]
+      @player1.cards = [@one_tree, @one_water, @two_earth_one_metal].flatten
       @water_attack = Rule.find_by_name("water attack")
       @chaos = Rule.find_by_name("chaos")
     end
@@ -258,6 +258,25 @@ RSpec.describe Rule, type: :model do
       @player2.reload
       expect( @player2.annex["showhand"] ).to be_nil
       expect( @player2.annex["remove"] ).to be_nil
+    end
+
+    context "performing void field" do
+      before( :each ) do
+        @void_field = Rule.find_by_name( "void field" )
+        @player1.perform( @void_field, @two_earth_one_metal )
+        @game.reload
+        @player1.reload
+        @player2.reload
+      end
+
+      it "should make field disappear" do
+        expect( @game.field ).to eq( "nothing" )
+      end
+
+      it "should make both team lost 20 life" do
+        expect( @player1.team.life ).to eq( 180 )
+        expect( @player2.team.life ).to eq( 180 )
+      end
     end
   end
 end
