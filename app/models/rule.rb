@@ -98,7 +98,7 @@ class Rule < ApplicationRecord
   end
 
   def total_test( cards, game, player )
-    combination_test( cards ) && condition_test( game, player ) && restrict_test( player, cards ) && !( passive? && power? )
+    !((passive? || static?) && power?) && combination_test(cards) && condition_test(game, player) && restrict_test(player, cards)
   end
 
   # 4/5 generate or overcome elements are the same to 4/5 different elements
@@ -256,9 +256,11 @@ class Rule < ApplicationRecord
         raise "This effect [" + key + "] is not implemented"
       end
     end unless last_player.annex[:counter] == "spell" && form == "spell"
-    last_player.annex.delete( :counter )
-    last_player.annex.delete( :hidden )
-    last_player.save
+    if is_action?
+      last_player.annex.delete( :counter )
+      last_player.annex.delete( :hidden )
+      last_player.save
+    end
     return_point = point unless return_point
     return target, return_point
   end
@@ -280,7 +282,7 @@ class Rule < ApplicationRecord
       when "heal"
         effect["heal"] = effect.delete( "attack" )
       when "counter"
-        effect = {}
+        effect.clear
       else
         raise "This effect [" + rule.name + "] is not implemented"
       end
