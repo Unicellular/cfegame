@@ -324,7 +324,7 @@ class Rule < ApplicationRecord
     end
   end
 
-  def self.all_fitted( game, player, subform, executing_rule )
+  def self.all_fitted( game, player, subform, executing_rule=nil )
     rules = where( form: forms[:power], subform: subforms[subform] )
     rules.select do |rule|
       rule.condition_test( game, player, executing_rule )

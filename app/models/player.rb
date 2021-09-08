@@ -1,6 +1,6 @@
 class Player < ApplicationRecord
   belongs_to :user
-  belongs_to :team
+  belongs_to :team, autosave: true
   has_many :cards, as: :cardholder, dependent: :destroy
   has_many :event
   serialize :star_history, Array
@@ -183,8 +183,7 @@ class Player < ApplicationRecord
         game.field = value.to_sym
       end
     end
-    game.save!
-    save!
+    save
   end
 
 # request information, not updated anything
