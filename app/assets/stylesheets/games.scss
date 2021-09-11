@@ -76,7 +76,8 @@ table {
   padding: 5px;
   text-align: center;
   &.selected {
-    border: 1px solid yellow;
+    border: 6px solid grey;
+    padding: 0;
   }
 
   &.metal {
@@ -126,6 +127,14 @@ table {
 .shield {
   font-size: 48px;
   color: blue;
+  text-align: center;
+}
+
+#field {
+  text-align: center;
+}
+
+.role {
   text-align: center;
 }
 

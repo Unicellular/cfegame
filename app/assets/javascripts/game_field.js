@@ -32,6 +32,7 @@ class GameField {
     $("#message_field").text( message );
     this.display_player( true, game_data.current );
     this.display_player( false, game_data.opponent );
+    $("#field").text(game_data.field);
     $("#choose .modal-body").empty().append( this.generate_card_list( game_data.choices, true, false ) );
     $("#moves .row").empty().append( this.generate_rule_list( game_data.possible_moves ) );
   }
@@ -41,6 +42,7 @@ class GameField {
     var visible;
     var action_cards;
     var used_cards;
+    var role = data.members[0].annex.role ? data.members[0].annex.role : "無職業";
     // 防止對手尚未出現時，opponent物件不存在的問題。
     if ( !data.members[0] ){
       data.members[0] = { "last_acts": [], "hands": [], "shield": 0, "star_history": [] };
@@ -57,13 +59,14 @@ class GameField {
       action_cards = this.generate_last_act( data.members[0].last_acts[0] );
       used_cards = this.generate_last_act( data.members[0].last_acts[1] );
     }
-    $( html_id + " .hand" ).empty().append( this.generate_card_list( data.members[0].hands, visible, false ) );
-    $( html_id + " .life" ).empty().append( data.life );
-    $( html_id + " .shield" ).empty().append( data.members[0].shield );
-    $( html_id + " .action" ).empty().append( action_cards );
-    $( html_id + " .used" ).empty().append( used_cards );
-    $( html_id + " .star_history" ).empty().append( this.generate_star_history( data.members[0].star_history ));
-    $( html_id + " .current_star" ).empty().append( $("<div>").text("★").addClass( "star " + data.star ) );
+    $(html_id + " .hand").empty().append(this.generate_card_list(data.members[0].hands, visible, false));
+    $(html_id + " .life").empty().append(data.life);
+    $(html_id + " .shield").empty().append(data.members[0].shield);
+    $(html_id + " .action").empty().append(action_cards);
+    $(html_id + " .used").empty().append(used_cards);
+    $(html_id + " .star_history").empty().append(this.generate_star_history(data.members[0].star_history));
+    $(html_id + " .current_star").empty().append($("<div>").text("★").addClass("star " + data.star));
+    $(html_id + " .role").text(role)
   }
 
   generate_star_history( star_history ){
