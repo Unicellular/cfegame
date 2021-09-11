@@ -1,7 +1,7 @@
 class Rule < ApplicationRecord
-  enum form: { attack: 0, spell: 1, power: 2 }
+  enum form: { attack: 0, spell: 1, power: 2, become: 3 }
   enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
-                  active: 7, passive: 8, static: 9, lasting: 10 }
+                  active: 7, passive: 8, static: 9, mastery: 10, continuous: 11 }
   enum series: { basic: 0, star: 1, field: 2, hero: 3 }
   serialize :condition, JSON
   serialize :material, JSON
@@ -24,11 +24,17 @@ class Rule < ApplicationRecord
           when "generate", "overcome"
             special_test( key, k, v, sts )
           else
-            sts[key][k] == v
+            if v == "all"
+              sts[key][k] == cards.count
+            else
+              sts[key][k] == v
+            end
           end
         end
       when "count"
         cards.count == value
+      when "total_level"
+        sts["level"]["sum"] >= value
       end
     end
   end
@@ -52,6 +58,7 @@ class Rule < ApplicationRecord
       when "field"
         game.field == value
       when "hero"
+        player.is_hero?(value)
       when "ruletype"
         value["form"] == executing_rule.form && value["subform"] == executing_rule.subform
       when "rule"
@@ -61,8 +68,12 @@ class Rule < ApplicationRecord
       when "executed"
         value.all? do |rule_name, rule_condition|
           event_list.where( rule: Rule.find_by_name( rule_name ) ).any? do |event|
-            # 陣法或能力的點數需符合條件。
-            event.effect['point'] >= rule_condition
+            if rule_condition.is_a? Numeric
+              # 陣法或能力的點數需符合條件。
+              event.effect['point'] >= rule_condition
+            else
+              true
+            end
           end
         end
       when "history"
@@ -98,7 +109,21 @@ class Rule < ApplicationRecord
   end
 
   def total_test( cards, game, player )
-    !((passive? || static?) && power?) && combination_test(cards) && condition_test(game, player) && restrict_test(player, cards)
+    (attack? || spell? || become? || (active? && power?)) && test_combination_with_mastery(cards, game, player) && condition_test(game, player) && restrict_test(player, cards)
+  end
+
+  def get_mastery(game, player)
+    Rule.where(form: "power", subform: "mastery").select do |rule|
+      rule.condition_test(game, player) && rule.effect["rule"] == self.name
+    end
+  end
+
+  def test_combination_with_mastery( cards, game, player )
+    mastery_rules = get_mastery(game, player)
+    all_rules = mastery_rules.push(self)
+    test_result = all_rules.any? do |rule|
+      rule.combination_test(cards)
+    end
   end
 
   # 4/5 generate or overcome elements are the same to 4/5 different elements
@@ -252,6 +277,12 @@ class Rule < ApplicationRecord
         game.decide_winner( player.team )
       when "immune"
         # do nothing
+      when "gain"
+        player.change_if(condition_test(game, player), value)
+      when "become"
+        player.attached(role: value)
+      when "self_reduce"
+        player.reduced(value)
       else
         raise "This effect [" + key + "] is not implemented"
       end
@@ -308,7 +339,7 @@ class Rule < ApplicationRecord
   end
 
   def is_action?
-    attack? or spell?
+    attack? || spell? || become?
   end
 
   def self.interact( element1, element2 )

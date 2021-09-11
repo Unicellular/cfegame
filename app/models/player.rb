@@ -104,16 +104,21 @@ class Player < ApplicationRecord
 
 # happens in opponent's turn
   def attacked( point, kind=nil )
+    role = annex[:role]
     if shield == 0
       case Rule.interact( kind, annex[:element] )
       when :generate
-        team.healed( point, kind )
+        team.healed( point )
       when :overcome
-        team.reduced( point * 2, kind )
+        team.reduced( point * 2 )
       when :cancel
-        team.reduced( point.fdiv(2).ceil, kind )
+        team.reduced( point.fdiv(2).ceil )
       else
-        team.reduced( point, kind )
+        if !role.nil? && annex.has_key?(role) && annex[role][kind] == "half"
+          team.reduced( point.fdiv(2).ceil )
+        else
+          team.reduced( point )
+        end
       end
     elsif kind == "physical"
       deshielded( point * 2 )
@@ -123,23 +128,41 @@ class Player < ApplicationRecord
   end
 
   def reduced( point, kind=nil )
-    team.reduced( point, kind )
+    team.reduced( point )
   end
 
   def healed( point, kind=nil )
     case Rule.interact( kind, annex[:element] )
     when :overcome
-      team.healed( point * 2, kind )
+      team.healed( point * 2 )
     when :cancel
-      team.healed( point.fdiv(2).ceil, kind )
+      team.healed( point.fdiv(2).ceil )
     else
-      team.healed( point, kind )
+      team.healed( point )
     end
   end
 
   def attached( effect )
     effect.each do |key, value|
       annex[key] = value
+    end
+    save
+  end
+
+  def deleted( key )
+    annex.delete( key )
+    save
+  end
+
+  def change_if( condition, effect )
+    effect.each do |key, value|
+      if condition
+        unless annex.has_key?(key)
+          annex[key] = value
+        end
+      else
+        annex.delete(key)
+      end
     end
     save
   end
@@ -184,6 +207,10 @@ class Player < ApplicationRecord
       end
     end
     save
+  end
+
+  def is_hero?( role )
+    annex[:role] == role
   end
 
 # request information, not updated anything

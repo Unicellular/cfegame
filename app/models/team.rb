@@ -26,7 +26,7 @@ class Team < ApplicationRecord
     })
   end
 
-  def reduced( point, kind=nil )
+  def reduced( point )
     if life > point
       update( life: life - point )
     else
@@ -34,7 +34,7 @@ class Team < ApplicationRecord
     end
   end
 
-  def healed( point, kind=nil )
+  def healed( point )
     if life_limit > life + point
       update( life: life + point )
     else

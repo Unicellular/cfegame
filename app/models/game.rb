@@ -125,6 +125,14 @@ class Game < ApplicationRecord
     end
   end
 
+  def trigger_continuous_effect
+    players.each do |player|
+      Rule.where( form: :power, subform: :continuous ).each do |rule|
+        rule.performed(player, [], self, turn)
+      end
+    end
+  end
+
   def check_over
     winners = teams.select do |team|
       team.life > 0
@@ -158,6 +166,10 @@ class Game < ApplicationRecord
       when "field"
         effected = (teams.to_a) unless nothing?
         nothing!
+      when "hero"
+        players.each do |player|
+          player.deleted( :role )
+        end
       end
     end
     save
