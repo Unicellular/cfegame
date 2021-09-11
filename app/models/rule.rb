@@ -9,7 +9,7 @@ class Rule < ApplicationRecord
   serialize :effect, JSON
   has_one :rule
   has_many :event
-  scope :action, -> { where( form: [ forms[:attack], forms[:spell] ] ) }
+  scope :action, -> { where( form: [ :attack, :spell, :become ] ) }
 
   GENERATE = %w( metal water tree fire earth )
   OVERCOME = %w( metal tree earth water fire )
