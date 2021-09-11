@@ -20,7 +20,7 @@ group :production do
   gem 'rails_12factor'
 end
 
-gem 'sass-rails', '~> 5.0'
+gem 'sassc-rails', '~> 2.1'
 gem 'bootstrap-sass', '~> 3.4'
 gem 'uglifier', '>= 1.3.0'
 gem 'therubyracer'
