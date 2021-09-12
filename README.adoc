@@ -1,0 +1,18 @@
+# 五行戰鬥牌
+
+最新規則請見 http://www.cfecards.org/rule/latest[遊戲官方網站]。
+
+對規則有疑義可以到 http://forum.cfecards.org/[討論區]留言討論。
+
+## 開發環境
+
+* rails 5.2.6
+* ruby 2.6.0
+
+## 執行rspec
+
+[source,shell,numbered]
+----
+rake db:reset RAILS_ENV=test # if you have change the db schema
+rake spec
+----
