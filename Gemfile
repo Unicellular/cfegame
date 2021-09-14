@@ -37,6 +37,7 @@ gem 'bootsnap', require: false
 gem 'omniauth'
 gem 'omniauth-google-oauth2'
 gem 'omniauth-facebook'
+gem 'omniauth-rails_csrf_protection'
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
