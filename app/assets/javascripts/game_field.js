@@ -42,7 +42,7 @@ class GameField {
     var visible;
     var action_cards;
     var used_cards;
-    var role = data.members[0].annex.role ? data.members[0].annex.role : "無職業";
+    var hero = data.members[0].annex.hero ? data.members[0].annex.hero : "無職業";
     // 防止對手尚未出現時，opponent物件不存在的問題。
     if ( !data.members[0] ){
       data.members[0] = { "last_acts": [], "hands": [], "shield": 0, "star_history": [] };
@@ -66,7 +66,7 @@ class GameField {
     $(html_id + " .used").empty().append(used_cards);
     $(html_id + " .star_history").empty().append(this.generate_star_history(data.members[0].star_history));
     $(html_id + " .current_star").empty().append($("<div>").text("★").addClass("star " + data.star));
-    $(html_id + " .role").text(role)
+    $(html_id + " .hero").text(hero)
   }
 
   generate_star_history( star_history ){

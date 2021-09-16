@@ -104,7 +104,6 @@ class Player < ApplicationRecord
 
 # happens in opponent's turn
   def attacked( point, kind=nil )
-    role = annex[:role]
     if shield == 0
       case Rule.interact( kind, annex[:element] )
       when :generate
@@ -114,11 +113,13 @@ class Player < ApplicationRecord
       when :cancel
         team.reduced( point.fdiv(2).ceil )
       else
-        if !role.nil? && annex.has_key?(role) && annex[role][kind] == "half"
-          team.reduced( point.fdiv(2).ceil )
-        else
-          team.reduced( point )
+        point_modi = point
+        annex.each do |k, v|
+          if v.respond_to?(:has_key?) && v.has_key?(kind) && v[kind] == "half"
+            point_modi = point.fdiv(2).ceil
+          end
         end
+        team.reduced( point_modi )
       end
     elsif kind == "physical"
       deshielded( point * 2 )
@@ -209,8 +210,18 @@ class Player < ApplicationRecord
     save
   end
 
-  def is_hero?( role )
-    annex[:role] == role
+  def is_hero?( hero, inherit=true )
+    result = annex[:hero] == hero
+    inherit = true if inherit.nil?
+    if inherit
+      inherit_rules = Rule.where(form: :power, subform: :inherit).select do |rule|
+        annex[:hero] == rule.condition["hero"]
+      end
+      result ||= inherit_rules.any? do |rule|
+        rule.effect["hero"].include?(hero)
+      end
+    end
+    result
   end
 
 # request information, not updated anything

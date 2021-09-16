@@ -168,7 +168,7 @@ class Game < ApplicationRecord
         nothing!
       when "hero"
         players.each do |player|
-          player.deleted( :role )
+          player.deleted(:hero)
         end
       end
     end

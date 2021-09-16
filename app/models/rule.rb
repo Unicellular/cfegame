@@ -1,7 +1,7 @@
 class Rule < ApplicationRecord
   enum form: { attack: 0, spell: 1, power: 2, become: 3 }
   enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
-                  active: 7, passive: 8, static: 9, mastery: 10, continuous: 11 }
+                  active: 7, passive: 8, static: 9, mastery: 10, continuous: 11, inherit: 12 }
   enum series: { basic: 0, star: 1, field: 2, hero: 3 }
   serialize :condition, JSON
   serialize :material, JSON
@@ -27,7 +27,7 @@ class Rule < ApplicationRecord
             if v == "all"
               sts[key][k] == cards.count
             else
-              sts[key][k] == v
+              sts[key][k] >= v
             end
           end
         end
@@ -58,7 +58,7 @@ class Rule < ApplicationRecord
       when "field"
         game.field == value
       when "hero"
-        player.is_hero?(value)
+        player.is_hero?(value, condition["inherit"])
       when "ruletype"
         value["form"] == executing_rule.form && value["subform"] == executing_rule.subform
       when "rule"
@@ -82,6 +82,8 @@ class Rule < ApplicationRecord
           stars.delete( star )
         end
         stars.empty?
+      else
+        true
       end
     end
   end
@@ -280,7 +282,7 @@ class Rule < ApplicationRecord
       when "gain"
         player.change_if(condition_test(game, player), value)
       when "become"
-        player.attached(role: value)
+        player.attached(hero: value)
       when "self_reduce"
         player.reduced(value)
       else
