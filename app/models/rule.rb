@@ -9,7 +9,8 @@ class Rule < ApplicationRecord
   serialize :effect, JSON
   has_one :rule
   has_many :event
-  scope :action, -> { where( form: [ :attack, :spell, :become ] ) }
+  scope :action, -> { where(form: [:attack, :spell, :become]) }
+  scope :active_power, -> { where(form: :power, subform: :active) }
 
   GENERATE = %w( metal water tree fire earth )
   OVERCOME = %w( metal tree earth water fire )
@@ -70,7 +71,7 @@ class Rule < ApplicationRecord
           event_list.where( rule: Rule.find_by_name( rule_name ) ).any? do |event|
             if rule_condition.is_a? Numeric
               # 陣法或能力的點數需符合條件。
-              event.effect['point'] >= rule_condition
+              event.effect["point"] >= rule_condition
             else
               true
             end
@@ -227,16 +228,35 @@ class Rule < ApplicationRecord
 
   def executed( player, cards_used, game, turn_num )
     target = get_target( player, game )
-    target_id = target.id unless target.nil?
-    target_hand = target.cards.count unless target.nil?
+    target_hand = target.cards.count unless target.nil? || target.respond_to?(:each)
     last_player = game.last_player
     point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
-    point = modify_effect( game, player, point )
+    modify_effect( game, player, point )
+    unless last_player.annex[:counter] == "spell" && form == "spell"
+      if target.respond_to?(:each)
+        target.each do |t|
+          target, result_effect = implemented(game, player, t, last_player, effect, cards_used)
+        end
+      else
+        target, result_effect = implemented(game, player, target, last_player, effect, cards_used)
+      end
+    end
+    if is_action?
+      last_player.annex.delete( :counter )
+      last_player.annex.delete( :hidden )
+      last_player.save
+    end
+    result_effect = effect unless result_effect
+    # 儲存原始點數
+    result_effect["point"] = point
+    return target, result_effect
+  end
+
+  def implemented( game, player, target, last_player, effect, cards_used )
     # initialize object for the one in block
     affected = nil
-    #p effect
+    result_effect = effect
     effect.each do |key, value|
-      value = point if value == "point"
       case key
       when "attack"
         work_with_counter( player, target, last_player, :attacked, value )
@@ -245,8 +265,16 @@ class Rule < ApplicationRecord
       when "counter"
         player.attached( counter: value )
       when "copy"
-        last_act = Rule.action.joins( :event ).where( series: Rule.series[value], events: { turn_id: game.turns[turn_num-1].id } ).first
-        target, return_point = last_act.executed( player, cards_used, game, turn_num - 1 )
+        last_act = nil
+        Turn.where(game: game, phase: :end).order(number: :desc).each do |turn|
+          last_act = Rule.action.joins(:event).where(events: { turn: turn }).first
+          if last_act.name != "copy"
+            break
+          end
+        end
+        if !last_act && last_act.series != value
+          target, result_effect = last_act.executed(player, cards_used, game)
+        end
       when "shield"
         target.shielded( value )
       when "deshield"
@@ -288,25 +316,19 @@ class Rule < ApplicationRecord
       else
         raise "This effect [" + key + "] is not implemented"
       end
-    end unless last_player.annex[:counter] == "spell" && form == "spell"
-    if is_action?
-      last_player.annex.delete( :counter )
-      last_player.annex.delete( :hidden )
-      last_player.save
     end
-    return_point = point unless return_point
-    return target, return_point
+    [target, result_effect]
   end
 
   def performed( player, cards_used, game, turn_num )
-    target, point = executed( player, cards_used, game, turn_num )
+    target, result_effect = executed( player, cards_used, game, turn_num )
     turn = game.current_turn
-    turn.events.create! player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: { point: point }
+    turn.events.create! player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: result_effect
     target
   end
 
   def modify_effect( game, player, point )
-    return point if effect["immune"]
+    return if effect["immune"]
     fits = Rule.all_fitted( game, player, :static, self )
     fits.each do |rule|
       case rule.effect["modify"]
@@ -320,7 +342,14 @@ class Rule < ApplicationRecord
         raise "This effect [" + rule.name + "] is not implemented"
       end
     end
-    return point
+    patch = {}
+    effect.each do |key,value|
+      if value == "point"
+        patch[key] = point
+      end
+    end
+    effect.merge!(patch)
+    #return point
   end
 
   def work_with_counter( player, target, last_player, action, point )
@@ -337,7 +366,16 @@ class Rule < ApplicationRecord
   end
 
   def get_target( player, game )
-    game.players[ ( player.sequence + target ) % game.players.count ] if target.is_a? Integer
+    if target.is_a? Integer
+      if target < 3
+        game.players[ ( player.sequence + target ) % game.players.count ]
+      elsif target == 3
+        # 除了自己以外的所有人
+        targets = game.players.to_a
+        targets.delete(player)
+        targets
+      end
+    end
   end
 
   def is_action?
