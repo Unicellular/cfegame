@@ -115,8 +115,13 @@ class Player < ApplicationRecord
       else
         point_modi = point
         annex.each do |k, v|
-          if v.respond_to?(:has_key?) && v.has_key?(kind) && v[kind] == "half"
-            point_modi = point.fdiv(2).ceil
+          if v.respond_to?(:has_key?) && v.has_key?(kind)
+            case v[kind]
+            when "half"
+              point_modi = point.fdiv(2).ceil
+            when "none"
+              point_modi = 0
+            end
           end
         end
         team.reduced( point_modi )

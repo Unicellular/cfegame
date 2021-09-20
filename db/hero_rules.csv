@@ -12,6 +12,6 @@ burst mastery,震爆專精,／專精能力，以「火火水＋任意牌」可�
 god weapon,神兵,／金＋同級牌／物理攻擊，點數＝等級總和×３,hero,"{ ""hero"": ""mars"" }",attack,physical,-1,"{ ""element"": { ""metal"": 1 }, ""level"": { ""same"": 2 }, ""count"": 2 }",sum * 3,"{ ""attack"": ""point"" }"
 transfer brave,轉職勇者,戰神／金９,hero,"{ ""hero"": ""mars"", ""inherit"": false }",become,active,0,"{ ""element"": { ""metal"": ""all"" }, ""total_level"": 9 }",,"{ ""become"": ""brave"" }"
 inherit mars,繼承戰神,擁有戰士、戰神之能力,hero,"{ ""hero"": ""brave"" }",power,inherit,,{},,"{ ""hero"": [ ""warrior"", ""mars"" ] }"
-metal resistance,金行抗性,／普通能力，對己金行傷害無效,hero,"{ ""hero"": ""brave"" }",power,continuous,,{},,"{ ""gain"": { ""brave"": { ""metal"": ""none"" } } }"
+metal resistance,金行抗性,／普通能力，對己金行傷害無效,hero,"{ ""hero"": ""brave"" }",power,continuous,,{},,"{ ""gain"": { ""metal_resistance"": { ""metal"": ""none"" } } }"
 battle spirit,戰魄,／普通能力，施展震暴時，所有其他玩家無法行動及抽牌１回合,hero,"{ ""hero"": ""brave"", ""executed"": { ""burst"": 0 } }",power,passive,3,{},,"{ ""freeze"": 1 }"
 flash slash,落光斬,／金金火火／物理攻擊，點數＝等級總和×６,hero,"{ ""hero"": ""brave"" }",attack,physical,-1,"{ ""element"": { ""metal"": 2, ""fire"": 2 }, ""count"": 4 }",sum * 6,"{ ""attack"": ""point"" }"
