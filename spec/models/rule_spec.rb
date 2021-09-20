@@ -87,6 +87,7 @@ RSpec.describe Rule, type: :model do
       @player2.cards = [ @two_earthes ].flatten
       @imitate = Rule.find_by_name( "imitate" )
       @player1.perform( @metal_attack, @one_metal )
+      @player1.set_phase(:end)
       @game.turn_end
       @player2.perform( @imitate, @two_earthes )
       @player1.reload
@@ -100,6 +101,7 @@ RSpec.describe Rule, type: :model do
     end
 
     it "should copy the original player do when it copy imitate" do
+      @player2.set_phase(:end)
       @game.turn_end
       @player1.perform( @imitate, @other_two_earthes )
       expect( @player2.reload.annex[:element] ).to eq( "metal" )
@@ -159,7 +161,7 @@ RSpec.describe Rule, type: :model do
 
     context "after venus summon is executed" do
       before( :each ) do
-        @venus_summon.performed( @player1, [], @game, @game.turn )
+        @venus_summon.performed(@player1, [], @game)
       end
 
       it "should summon venus" do
@@ -186,7 +188,7 @@ RSpec.describe Rule, type: :model do
     before( :each ) do
       @void_star = Rule.find_by_name( "void star" )
       @player1.team.star = :jupiter
-      @void_star.performed( @player1, [], @game, 1 )
+      @void_star.performed(@player1, [], @game)
       @player1.team.reload
     end
 
@@ -205,7 +207,7 @@ RSpec.describe Rule, type: :model do
     end
 
     it "should raise an exception while performed" do
-      expect{ @new_rule.performed( @player1, [], @game, 1 ) }.to raise_error( "This effect [hello] is not implemented" )
+      expect{ @new_rule.performed(@player1, [], @game) }.to raise_error("This effect [hello] is not implemented")
     end
   end
 

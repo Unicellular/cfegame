@@ -120,7 +120,7 @@ class Game < ApplicationRecord
     3.times do
       trigger_rules = Rule.all_fitted( self, player, :passive )
       trigger_rules.each do |rule|
-        rule.performed( player, [], self, turn )
+        rule.performed( player, [], self )
       end
     end
   end
@@ -128,7 +128,7 @@ class Game < ApplicationRecord
   def trigger_continuous_effect
     players.each do |player|
       Rule.where( form: :power, subform: :continuous ).each do |rule|
-        rule.performed(player, [], self, turn)
+        rule.performed(player, [], self)
       end
     end
   end

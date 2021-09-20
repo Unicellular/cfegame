@@ -226,7 +226,7 @@ class Rule < ApplicationRecord
     write_attribute(:formula, postfix)
   end
 
-  def executed( player, cards_used, game, turn_num )
+  def executed( player, cards_used, game )
     target = get_target( player, game )
     target_hand = target.cards.count unless target.nil? || target.respond_to?(:each)
     last_player = game.last_player
@@ -246,7 +246,6 @@ class Rule < ApplicationRecord
       last_player.annex.delete( :hidden )
       last_player.save
     end
-    result_effect = effect unless result_effect
     # 儲存原始點數
     result_effect["point"] = point
     return target, result_effect
@@ -268,11 +267,11 @@ class Rule < ApplicationRecord
         last_act = nil
         Turn.where(game: game, phase: :end).order(number: :desc).each do |turn|
           last_act = Rule.action.joins(:event).where(events: { turn: turn }).first
-          if last_act.name != "copy"
+          if last_act.name != "imitate"
             break
           end
         end
-        if !last_act && last_act.series != value
+        if last_act && last_act.series == value
           target, result_effect = last_act.executed(player, cards_used, game)
         end
       when "shield"
@@ -320,26 +319,27 @@ class Rule < ApplicationRecord
     [target, result_effect]
   end
 
-  def performed( player, cards_used, game, turn_num )
-    target, result_effect = executed( player, cards_used, game, turn_num )
+  def performed( player, cards_used, game )
+    target, result_effect = executed( player, cards_used, game )
     turn = game.current_turn
     turn.events.create! player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: result_effect
     target
   end
 
   def modify_effect( game, player, point )
-    return if effect["immune"]
-    fits = Rule.all_fitted( game, player, :static, self )
-    fits.each do |rule|
-      case rule.effect["modify"]
-      when "double"
-        point = point * 2
-      when "heal"
-        effect["heal"] = effect.delete( "attack" )
-      when "counter"
-        effect.clear
-      else
-        raise "This effect [" + rule.name + "] is not implemented"
+    if !effect["immune"]
+      fits = Rule.all_fitted( game, player, :static, self )
+      fits.each do |rule|
+        case rule.effect["modify"]
+        when "double"
+          point = point * 2
+        when "heal"
+          effect["heal"] = effect.delete( "attack" )
+        when "counter"
+          effect.clear
+        else
+          raise "This effect [" + rule.name + "] is not implemented"
+        end
       end
     end
     patch = {}

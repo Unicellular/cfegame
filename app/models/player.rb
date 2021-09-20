@@ -49,7 +49,7 @@ class Player < ApplicationRecord
         game.cards << card
       end
       #puts "before perform"
-      target = rule.performed( self, cards_used, game, game.turn ) if rule.total_test( cards_used, game, self )
+      target = rule.performed(self, cards_used, game) if rule.total_test(cards_used, game, self)
       set_phase( :draw ) unless target && target.annex[:showhand] || !rule.is_action?
     end
   end
