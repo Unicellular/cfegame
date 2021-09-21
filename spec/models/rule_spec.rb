@@ -188,6 +188,8 @@ RSpec.describe Rule, type: :model do
     before( :each ) do
       @void_star = Rule.find_by_name( "void star" )
       @player1.team.star = :jupiter
+      @player1.save
+      @game.reload
       @void_star.performed(@player1, [], @game)
       @player1.team.reload
     end
