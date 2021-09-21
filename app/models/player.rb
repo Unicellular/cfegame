@@ -228,17 +228,16 @@ class Player < ApplicationRecord
   end
 
   def is_hero?( hero, inherit=true )
-    result = annex[:hero] == hero
     inherit = true if inherit.nil?
-    if inherit
-      inherit_rules = Rule.where(form: :power, subform: :inherit).select do |rule|
-        annex[:hero] == rule.condition["hero"]
+    if annex.has_key?(:hero)
+      if inherit
+        annex[:hero].include?(hero)
+      else
+        annex[:hero][0] == hero
       end
-      result ||= inherit_rules.any? do |rule|
-        rule.effect["hero"].include?(hero)
-      end
+    else
+      false
     end
-    result
   end
 
 # request information, not updated anything
