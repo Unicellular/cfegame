@@ -156,7 +156,7 @@ class Game < ApplicationRecord
       case key
       when "star"
         teams.each do |team|
-          if team.has_star?( value ) || ( value == "all" && team.star != :nothing )
+          if team.has_star?(value) || (value == "all" && !team.has_star?("nothing"))
             team.star = :nothing
             effected.push( team )
           end
