@@ -83,7 +83,7 @@ class PlayersController < ApplicationController
   end
 
   def if_game_end
-    @game.trigger( @player )
+    #@game.trigger( @player )
     @game.trigger_continuous_effect
     @game.check_over
   end

@@ -63,8 +63,15 @@ class Rule < ApplicationRecord
       when "ruletype"
         value["form"] == executing_rule.form && value["subform"] == executing_rule.subform
       when "rule"
-        value.any? do |rule|
-          rule == executing_rule.name
+        value.any? do |rule_name, condition|
+          event_list.where(rule: executing_rule).any? do |event|
+            result = rule_name == executing_rule.name
+            if condition.is_a?(Numeric) && event.effect["point"].is_a?(Numeric)
+              result &&= event.effect["point"] >= condition
+            else
+              result
+            end
+          end
         end
       when "executed"
         value.all? do |rule_name, rule_condition|
@@ -303,7 +310,9 @@ class Rule < ApplicationRecord
           entity.reduced( value )
         end
       when "win"
-        game.decide_winner( player.team )
+        if condition_test(game, player)
+          game.decide_winner( player.team )
+        end
       when "immune"
         # do nothing
       when "gain"

@@ -137,7 +137,6 @@ class Game < ApplicationRecord
     winners = teams.select do |team|
       team.life > 0
     end
-    #byebug
     if winners.count <= 1
       decide_winner( winners.first )
     end

@@ -52,6 +52,18 @@ class Player < ApplicationRecord
       target = rule.performed(self, cards_used, game) if rule.total_test(cards_used, game, self)
       set_phase( :draw ) unless target && target.annex[:showhand] || !rule.is_action?
     end
+    trigger(rule)
+  end
+
+  def trigger( last_rule )
+    # 避免無窮迴圈，先暫定最多觸發三次
+    3.times do
+      trigger_rules = Rule.all_fitted(game, self, :passive, last_rule)
+      trigger_rules.each do |rule|
+        rule.performed(self, [], game)
+        last_rule = rule
+      end
+    end
   end
 
   def select( target, cards_selected )

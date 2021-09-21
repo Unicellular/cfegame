@@ -155,8 +155,8 @@ RSpec.describe Rule, type: :model do
       expect( @player2.reload.team.life ).to eq( 161 )
     end
 
-    it "should fulfill the condition of summonning venus" do
-      expect( @venus_summon.condition_test( @game, @player1 ) ).to be true
+    it "should summon venus as well" do
+      expect(@player1.team.has_star?("venus")).to be true
     end
 
     context "after venus summon is executed" do
