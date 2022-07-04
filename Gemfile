@@ -20,6 +20,7 @@ group :production do
   gem 'rails_12factor'
 end
 
+gem 'sprockets-rails'
 gem 'sassc-rails', '~> 2.1'
 gem 'bootstrap-sass', '~> 3.4'
 gem 'uglifier', '>= 1.3.0'
