@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby "2.6.0"
+ruby "2.7.6"
 
 gem 'rails', '~> 5.2.0'
 
@@ -23,7 +23,7 @@ end
 gem 'sassc-rails', '~> 2.1'
 gem 'bootstrap-sass', '~> 3.4'
 gem 'uglifier', '>= 1.3.0'
-gem 'therubyracer'
+gem 'mini_racer'
 gem 'jquery-rails'
 gem 'jquery-turbolinks'
 gem 'turbolinks'
