@@ -283,4 +283,52 @@ RSpec.describe Rule, type: :model do
       end
     end
   end
+
+  context "when the seeker school is used" do
+    before(:each) do
+      @player1.annex["hero"] = "kind"
+      @rebirth = Rule.find_by_name("rebirth")
+      @all_cards = [
+        Card.new(element: :tree, level: 4),
+        Card.new(element: :tree, level: 5),
+        Card.new(element: :fire, level: 4),
+        Card.new(element: :earth, level: 1),
+        Card.new(element: :metal, level: 5),
+        Card.new(element: :water, level: 1)
+      ]
+    end
+
+    it "should pass combination test of rebirth with the right cards 1" do
+      right_cards = @all_cards[0..3]
+      expect(@rebirth.combination_test(right_cards)).to be_true
+    end
+
+    it "should pass combination test of rebirth with the right cards 2" do
+      right_cards = @all_cards[1..4]
+      expect(@rebirth.combination_test(right_cards)).to be_true
+    end
+
+    it "should not pass combination test of rebirth with the wrong cards 1" do
+      right_cards = @all_cards[3..5].push(@all_cards[0])
+      expect(@rebirth.combination_test(right_cards)).to be_false
+    end
+
+    it "should not pass combination test of rebirth with the wrong cards 2" do
+      right_cards = @all_cards[2..5]
+      expect(@rebirth.combination_test(right_cards)).to be_false
+    end
+
+    it "should pass all the test with the Kind" do
+      @player1.cards = @all_cards[0..3]
+      expect(@rebirth.total_test(@all_cards[0..3], @game, @player1)).to be_true
+    end
+
+    it "should recover 100 life after the Kind performing the rebirth" do
+      @player1.cards = @all_cards[0..3]
+      @player1.team.life = 20
+      @player1.perform(@rebirth, @all_cards[0..3])
+      @player1.reload
+      expect(@player1.team.life).to be(120)
+    end
+  end
 end
