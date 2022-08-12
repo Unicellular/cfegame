@@ -15,21 +15,16 @@ class Rule < ApplicationRecord
   GENERATE = %w( metal water tree fire earth )
   OVERCOME = %w( metal tree earth water fire )
 
-  def combination_test( cards )
-    sts = stats( cards )
+  def combination_test(cards)
+    sts = stats(cards)
     material.all? do |key, value|
       case key
       when "element", "level"
         value.all? do |k, v|
-          case k
-          when "generate", "overcome"
-            special_test( key, k, v, sts )
+          if v == "all"
+            sts[key][k] == cards.count
           else
-            if v == "all"
-              sts[key][k] == cards.count
-            else
-              sts[key][k] >= v
-            end
+            sts[key][k] >= v
           end
         end
       when "count"
@@ -136,31 +131,50 @@ class Rule < ApplicationRecord
     end
   end
 
-  # 4/5 generate or overcome elements are the same to 4/5 different elements
-  def special_test( outer, inner, value, sts )
-    elements_sorted = case inner
+  def unified_value(value)
+    if value.is_a?(Hash)
+      return value
+    else
+      return {"count"=> value, "total_level" => 0}
+    end
+  end
+
+  def find_biggest_sequence(stat, type)
+    result = 0
+    sorted_list = case type
     when "generate"
       GENERATE
     when "overcome"
       OVERCOME
     end
-    circle_end = value == 5 ? 0 : value - 1
-    (elements_sorted + elements_sorted[0,circle_end]).each_cons(value).any? do |elem_list|
-      elem_list.all? do |elem|
-        sts[outer][elem] == 1
+    (1..5).each do |sequence|
+      circle_end = sequence == 5 ? 0 : sequence - 1
+      (sorted_list + sorted_list[0,circle_end]).each_cons(sequence).each do |elem_list|
+        is_bigger = elem_list.all? do |elem|
+          stat["element"][elem] >= 1
+        end
+        if is_bigger 
+          result = sequence
+        end
       end
     end
+    return result
   end
 
-  def stats( cards )
+  def stats(cards)
     rs = {
       "element" => Hash.new(0),
       "level" => Hash.new(0)
     }
+    # 計算各行數量、同行數量
     GENERATE.each do |elem|
       rs["element"][elem] = cards.count{ |card| card.element == elem }
       rs["element"]["same"] = rs["element"][elem] if rs["element"][elem] > rs["element"]["same"]
     end
+    # 計算連續相生相剋數量
+    rs["element"]["generate"] = find_biggest_sequence(rs, "generate")
+    rs["element"]["overcome"] = find_biggest_sequence(rs, "overcome")
+    # 計算各等級、同等級數量
     (1..5).each do |level|
       rs["level"][level.to_s] = cards.count{ |card| card.level == level }
       rs["level"]["same"] = rs["level"][level.to_s] if rs["level"][level.to_s] > rs["level"]["same"]
