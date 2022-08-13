@@ -138,14 +138,6 @@ class Rule < ApplicationRecord
     end
   end
 
-  def unified_value(value)
-    if value.is_a?(Hash)
-      return value
-    else
-      return {"count"=> value, "total_level" => 0}
-    end
-  end
-
   def find_biggest_sequence(stat, type)
     result = 0
     sorted_list = case type
@@ -190,19 +182,6 @@ class Rule < ApplicationRecord
     rs["level"]["different"] = cards.uniq{ |card| card.level }.count
     rs["level"]["sum"] = cards.inject(0){ |sum, card| sum + card.level }
     rs
-  end
-
-  def count( cards, cond )
-    cards.count do |card|
-      cond.all? do |key, value|
-        case key
-        when :element
-          card.element == value.to_sym
-        when :level
-          card.level == value.to_i
-        end
-      end
-    end
   end
 
   def calculate( cards, option = {} )
