@@ -19,6 +19,13 @@ class Rule < ApplicationRecord
     sts = stats(cards)
     material.all? do |key, value|
       case key
+      when "and"
+        subrule_list = value.map do |submaterial|
+          subrule = Rule.create({"material": submaterial})
+        end
+        cards.combination(subrule_list[0].material["count"]).any? do |comb|
+          subrule_list[0].combination_test(comb) && subrule_list[1].combination_test(cards-comb)
+        end
       when "element", "level"
         value.all? do |k, v|
           if v == "all"

@@ -24,4 +24,4 @@ turth defense,道禦,／木＋同級牌／特殊攻擊，點數＝等級總和×
 transfer kind,轉職仁者,述道者／木９，擁有尋道者、述道者之能力,hero,"{ ""hero"": ""teller"", ""inherit"": false }",become,active,,"{ ""element"": { ""tree"": ""all"" }, ""total_level"": 9 }",,"{ ""become"": [ ""kind"", ""teller"", ""seeker"" ] }"
 tree resistance,木行抗性,／普通能力，對己木行傷害無效,hero,"{ ""hero"": ""kind"" }",power,continuous,,{},,"{ ""gain"": { ""tree_resistance"": { ""tree"": ""none"" } } }"
 turth source,道源,／普通能力，術式不受封印、幻印效果影響,hero,"{ ""hero"": ""kind"", ""ruletype"": { ""form"": ""spell"" } }",power,static,,{},,"{ ""free"": ""counter"" }"
-rebirth,轉生術,／木＋三張連續相生、等級總和１０以上之牌／主動術式，回復生命值，點數＝木×２５,hero,"{ ""hero"": ""kind"" }",spell,active,0,"[ { ""element"": { ""tree"": 2, ""generate"": { ""count"": 3, ""total_level"": 10 } }, ""count"": 4 }, { ""element"": { ""tree"": 1, ""generate"": { ""count"": 3, ""total_level"": 10 } }, ""count"": 4 } ]",tree * 25,"{ ""heal"": ""point"" }"
+rebirth,轉生術,／木＋三張連續相生、等級總和１０以上之牌／主動術式，回復生命值，點數＝木×２５,hero,"{ ""hero"": ""kind"" }",spell,active,0,"{ ""and"": [ { ""element"": { ""tree"": 1 }, ""count"": 1 }, { ""element"": { ""generate"": 3 }, ""count"": 3, ""total_level"": 10 } ] }",tree * 25,"{ ""heal"": ""point"" }"
