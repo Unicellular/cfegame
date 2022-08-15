@@ -286,7 +286,7 @@ RSpec.describe Rule, type: :model do
 
   context "when the seeker school is used" do
     before(:each) do
-      @player1.annex["hero"] = "kind"
+      @player1.annex[:hero] = "kind"
       @rebirth = Rule.find_by_name("rebirth")
       @all_cards = [
         Card.new(element: :tree, level: 4),
@@ -294,41 +294,55 @@ RSpec.describe Rule, type: :model do
         Card.new(element: :fire, level: 4),
         Card.new(element: :earth, level: 1),
         Card.new(element: :metal, level: 5),
-        Card.new(element: :water, level: 1)
+        Card.new(element: :water, level: 1),
+        Card.new(element: :earth, level: 2)
       ]
     end
 
-    it "should pass combination test of rebirth with the right cards 1" do
+    it "should pass combination test of rebirth with the right cards #1" do
       right_cards = @all_cards[0..3]
       expect(@rebirth.combination_test(right_cards)).to be_truthy
     end
 
-    it "should pass combination test of rebirth with the right cards 2" do
+    it "should pass combination test of rebirth with the right cards #2" do
       right_cards = @all_cards[1..4]
       expect(@rebirth.combination_test(right_cards)).to be_truthy
     end
 
-    it "should not pass combination test of rebirth with the wrong cards 1" do
+    it "should not pass combination test of rebirth with the wrong cards #1" do
       right_cards = @all_cards[3..5].push(@all_cards[0])
       expect(@rebirth.combination_test(right_cards)).to be_falsy
     end
 
-    it "should not pass combination test of rebirth with the wrong cards 2" do
+    it "should not pass combination test of rebirth with the wrong cards #2" do
       right_cards = @all_cards[2..5]
       expect(@rebirth.combination_test(right_cards)).to be_falsy
     end
 
     it "should pass all the test with the Kind" do
       @player1.cards = @all_cards[0..3]
+      expect(@rebirth.test_combination_with_mastery(@all_cards[0..3], @game, @player1)).to be_truthy
+      expect(@rebirth.condition_test(@game, @player1)).to be_truthy
+      expect(@rebirth.restrict_test(@player1, @all_cards[0..3])).to be_truthy
       expect(@rebirth.total_test(@all_cards[0..3], @game, @player1)).to be_truthy
     end
 
-    it "should recover 100 life after the Kind performing the rebirth" do
+    it "should recover 100 life after the Kind performing the rebirth #1" do
       @player1.cards = @all_cards[0..3]
-      @player1.team.life = 20
-      @player1.perform(@rebirth, @all_cards[0..3])
+      @player1.team.life = 1
+      @player1.save
+      @player1.perform(@rebirth, @player1.cards.to_a)
       @player1.reload
-      expect(@player1.team.life).to eq(120)
+      expect(@player1.team.life).to eq(101)
+    end
+
+    it "should recover 125 life after the Kind performing the rebirth #2" do
+      @player1.cards = @all_cards[1..2].push(@all_cards[0]).push(@all_cards[6])
+      @player1.team.life = 1
+      @player1.save
+      @player1.perform(@rebirth, @player1.cards.to_a)
+      @player1.reload
+      expect(@player1.team.life).to eq(126)
     end
   end
 end

@@ -24,7 +24,11 @@ class Rule < ApplicationRecord
           subrule = Rule.create({"material": submaterial})
         end
         cards.combination(subrule_list[0].material["count"]).any? do |comb|
-          subrule_list[0].combination_test(comb) && subrule_list[1].combination_test(cards-comb)
+          result = subrule_list[0].combination_test(comb) && subrule_list[1].combination_test(cards-comb)
+          if result
+            tag_combination(cards, comb)
+          end
+          result
         end
       when "element", "level"
         value.all? do |k, v|
@@ -138,6 +142,21 @@ class Rule < ApplicationRecord
     end
   end
 
+  def tag_combination(cards, combination)
+    combination.each do |c|
+      key = c.element.to_sym
+      if cards[-1].is_a?(Hash)
+        if cards[-1].has_key?(key)
+          cards[-1][key].push(c.level)
+        else
+          cards[-1][key] = [c.level]
+        end
+      else
+        cards.push(key => [c.level])
+      end
+    end
+  end
+
   def find_biggest_sequence(stat, type)
     result = 0
     sorted_list = case type
@@ -200,7 +219,7 @@ class Rule < ApplicationRecord
         temp = stack.pop(2)
         unit = temp[0].send(item, temp[1])
       else
-        unit = option[item.to_sym]
+        unit = option[item.to_sym].pop
       end
       stack.push(unit)
     end
@@ -237,7 +256,13 @@ class Rule < ApplicationRecord
     target = get_target( player, game )
     target_hand = target.cards.count unless target.nil? || target.respond_to?(:each)
     last_player = game.last_player
-    point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
+    # 抽出前面測試時tag的資料
+    if cards_used[-1].is_a?(Hash)
+      option = cards_used.pop.merge(target_hand: [target_hand])
+    else
+      option = {target_hand: [target_hand]}
+    end
+    point = calculate(cards_used, option) unless formula.nil?
     modify_effect( game, player, point )
     unless last_player.annex[:counter] == "spell" && form == "spell"
       if target.respond_to?(:each)
