@@ -96,7 +96,7 @@ GEM
       railties (>= 3.1.0)
       turbolinks
     jwt (2.3.0)
-    libv8 (3.16.14.19)
+    libv8-node (16.10.0.0)
     listen (3.7.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -109,6 +109,8 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     mini_portile2 (2.6.1)
+    mini_racer (0.6.2)
+      libv8-node (~> 16.10.0.0)
     minitest (5.14.4)
     msgpack (1.4.2)
     multi_json (1.15.0)
@@ -187,7 +189,6 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rdoc (6.3.3)
-    ref (2.0.0)
     rspec-core (3.10.1)
       rspec-support (~> 3.10.0)
     rspec-expectations (3.10.1)
@@ -232,9 +233,6 @@ GEM
       sprockets (>= 3.0.0)
     sqlite3 (1.3.13)
     temple (0.8.2)
-    therubyracer (0.12.3)
-      libv8 (~> 3.16.14.15)
-      ref
     thin (1.8.1)
       daemons (~> 1.0, >= 1.0.9)
       eventmachine (~> 1.0, >= 1.0.4)
@@ -269,6 +267,7 @@ DEPENDENCIES
   jquery-rails
   jquery-turbolinks
   listen (~> 3.0)
+  mini_racer
   omniauth
   omniauth-facebook
   omniauth-google-oauth2
@@ -282,14 +281,13 @@ DEPENDENCIES
   sdoc
   slim-rails
   sqlite3 (~> 1.3.0)
-  therubyracer
   thin
   turbolinks
   uglifier (>= 1.3.0)
   web-console
 
 RUBY VERSION
-   ruby 2.6.0p0
+   ruby 2.7.6p219
 
 BUNDLED WITH
-   1.17.2
+   2.3.17
