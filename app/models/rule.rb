@@ -15,21 +15,27 @@ class Rule < ApplicationRecord
   GENERATE = %w( metal water tree fire earth )
   OVERCOME = %w( metal tree earth water fire )
 
-  def combination_test( cards )
-    sts = stats( cards )
+  def combination_test(cards)
+    sts = stats(cards)
     material.all? do |key, value|
       case key
+      when "and"
+        subrule_list = value.map do |submaterial|
+          subrule = Rule.create({"material": submaterial})
+        end
+        cards.combination(subrule_list[0].material["count"]).any? do |comb|
+          result = subrule_list[0].combination_test(comb) && subrule_list[1].combination_test(cards-comb)
+          if result
+            tag_combination(cards, comb)
+          end
+          result
+        end
       when "element", "level"
         value.all? do |k, v|
-          case k
-          when "generate", "overcome"
-            special_test( key, k, v, sts )
+          if v == "all"
+            sts[key][k] == cards.count
           else
-            if v == "all"
-              sts[key][k] == cards.count
-            else
-              sts[key][k] >= v
-            end
+            sts[key][k] >= v
           end
         end
       when "count"
@@ -136,31 +142,57 @@ class Rule < ApplicationRecord
     end
   end
 
-  # 4/5 generate or overcome elements are the same to 4/5 different elements
-  def special_test( outer, inner, value, sts )
-    elements_sorted = case inner
+  def tag_combination(cards, combination)
+    combination.each do |c|
+      key = c.element.to_sym
+      if cards[-1].is_a?(Hash)
+        if cards[-1].has_key?(key)
+          cards[-1][key].push(c.level)
+        else
+          cards[-1][key] = [c.level]
+        end
+      else
+        cards.push(key => [c.level])
+      end
+    end
+  end
+
+  def find_biggest_sequence(stat, type)
+    result = 0
+    sorted_list = case type
     when "generate"
       GENERATE
     when "overcome"
       OVERCOME
     end
-    circle_end = value == 5 ? 0 : value - 1
-    (elements_sorted + elements_sorted[0,circle_end]).each_cons(value).any? do |elem_list|
-      elem_list.all? do |elem|
-        sts[outer][elem] == 1
+    (1..5).each do |sequence|
+      circle_end = sequence == 5 ? 0 : sequence - 1
+      (sorted_list + sorted_list[0,circle_end]).each_cons(sequence).each do |elem_list|
+        is_bigger = elem_list.all? do |elem|
+          stat["element"][elem] >= 1
+        end
+        if is_bigger 
+          result = sequence
+        end
       end
     end
+    return result
   end
 
-  def stats( cards )
+  def stats(cards)
     rs = {
       "element" => Hash.new(0),
       "level" => Hash.new(0)
     }
+    # 計算各行數量、同行數量
     GENERATE.each do |elem|
       rs["element"][elem] = cards.count{ |card| card.element == elem }
       rs["element"]["same"] = rs["element"][elem] if rs["element"][elem] > rs["element"]["same"]
     end
+    # 計算連續相生相剋數量
+    rs["element"]["generate"] = find_biggest_sequence(rs, "generate")
+    rs["element"]["overcome"] = find_biggest_sequence(rs, "overcome")
+    # 計算各等級、同等級數量
     (1..5).each do |level|
       rs["level"][level.to_s] = cards.count{ |card| card.level == level }
       rs["level"]["same"] = rs["level"][level.to_s] if rs["level"][level.to_s] > rs["level"]["same"]
@@ -169,19 +201,6 @@ class Rule < ApplicationRecord
     rs["level"]["different"] = cards.uniq{ |card| card.level }.count
     rs["level"]["sum"] = cards.inject(0){ |sum, card| sum + card.level }
     rs
-  end
-
-  def count( cards, cond )
-    cards.count do |card|
-      cond.all? do |key, value|
-        case key
-        when :element
-          card.element == value.to_sym
-        when :level
-          card.level == value.to_i
-        end
-      end
-    end
   end
 
   def calculate( cards, option = {} )
@@ -200,7 +219,7 @@ class Rule < ApplicationRecord
         temp = stack.pop(2)
         unit = temp[0].send(item, temp[1])
       else
-        unit = option[item.to_sym]
+        unit = option[item.to_sym].pop
       end
       stack.push(unit)
     end
@@ -237,7 +256,13 @@ class Rule < ApplicationRecord
     target = get_target( player, game )
     target_hand = target.cards.count unless target.nil? || target.respond_to?(:each)
     last_player = game.last_player
-    point = calculate( cards_used, target_hand: target_hand ) unless formula.nil?
+    # 抽出前面測試時tag的資料
+    if cards_used[-1].is_a?(Hash)
+      option = cards_used.pop.merge(target_hand: [target_hand])
+    else
+      option = {target_hand: [target_hand]}
+    end
+    point = calculate(cards_used, option) unless formula.nil?
     modify_effect( game, player, point )
     unless last_player.annex[:counter] == "spell" && form == "spell"
       if target.respond_to?(:each)
