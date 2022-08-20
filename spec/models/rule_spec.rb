@@ -95,18 +95,18 @@ RSpec.describe Rule, type: :model do
     end
 
     it "should copy what last player do" do
-      expect( @player2.team.life ).to eq( 193 )
-      expect( @player1.team.life ).to eq( 194 )
-      expect( @player2.annex[:element] ).to eq( "metal" )
+      expect(@player2.team.life).to eq(193)
+      expect(@player1.team.life).to eq(194)
+      expect(@player2.annex["element"]).to eq("metal")
     end
 
     it "should copy the original player do when it copy imitate" do
       @player2.set_phase(:end)
       @game.turn_end
-      @player1.perform( @imitate, @other_two_earthes )
-      expect( @player2.reload.annex[:element] ).to eq( "metal" )
-      expect( @player2.reload.team.life ).to eq( 188 )
-      expect( @player1.reload.annex[:element] ).to eq( "metal" )
+      @player1.perform(@imitate, @other_two_earthes)
+      expect(@player2.reload.annex["element"]).to eq("metal")
+      expect(@player2.reload.team.life).to eq(188)
+      expect(@player1.reload.annex["element"]).to eq("metal")
     end
   end
 
@@ -286,7 +286,7 @@ RSpec.describe Rule, type: :model do
 
   context "when the seeker school is used" do
     before(:each) do
-      @player1.annex[:hero] = "kind"
+      @player1.annex["hero"] = "kind"
       @rebirth = Rule.find_by_name("rebirth")
       @all_cards = [
         Card.new(element: :tree, level: 4),

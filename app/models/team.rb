@@ -3,7 +3,7 @@ class Team < ApplicationRecord
   has_many :players, dependent: :destroy
   has_many :users, through: :players
   enum star: { nothing: 0, venus: 1, jupiter: 2, mercury: 3, mars: 4, saturn: 5 }
-  serialize :annex, Hash
+  serialize :annex, JSON
 
   def position_available?
     members_amount < maximum

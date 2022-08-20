@@ -103,8 +103,8 @@ class Rule < ApplicationRecord
   end
 
   def restrict_test( player, cards )
-    return true if player.annex[:restrict].nil?
-    player.annex[:restrict].all? do |key, value|
+    return true if player.annex["restrict"].nil?
+    player.annex["restrict"].all? do |key, value|
       case key
       when "ruleset"
         if cards.any?{ |card| card.virtual }
@@ -125,7 +125,10 @@ class Rule < ApplicationRecord
   end
 
   def total_test( cards, game, player )
-    (attack? || spell? || become? || (active? && power?)) && test_combination_with_mastery(cards, game, player) && condition_test(game, player) && restrict_test(player, cards)
+    (attack? || spell? || become? || (active? && power?)) && 
+      test_combination_with_mastery(cards, game, player) && 
+      condition_test(game, player) && 
+      restrict_test(player, cards)
   end
 
   def get_mastery(game, player)
@@ -264,7 +267,9 @@ class Rule < ApplicationRecord
     end
     point = calculate(cards_used, option) unless formula.nil?
     modify_effect( game, player, point )
-    unless last_player.annex[:counter] == "spell" && form == "spell"
+    # 設定初始值
+    result_effect = {}
+    unless last_player.annex["counter"] == "spell" && form == "spell"
       if target.respond_to?(:each)
         target.each do |t|
           target, result_effect = implemented(game, player, t, last_player, effect, cards_used)
@@ -274,8 +279,8 @@ class Rule < ApplicationRecord
       end
     end
     if is_action?
-      last_player.annex.delete( :counter )
-      last_player.annex.delete( :hidden )
+      last_player.annex.delete("counter")
+      last_player.annex.delete("hidden")
       last_player.save
     end
     # 儲存原始點數
@@ -294,7 +299,7 @@ class Rule < ApplicationRecord
       when "heal"
         work_with_counter( player, target, last_player, :healed, value )
       when "counter"
-        player.attached( counter: value )
+        player.attached("counter" => value )
       when "copy"
         last_act = nil
         Turn.where(game: game, phase: :end).order(number: :desc).each do |turn|
@@ -319,9 +324,9 @@ class Rule < ApplicationRecord
       when "draw_extra"
         player.attached( draw_extra: value )
       when "showhand"
-        target.attached( showhand: value )
+        target.attached(showhand: value)
       when "hidden"
-        player.attached( hidden: :counter )
+        player.attached(hidden: "counter")
       when "obtain"
         player.obtain( cards_used, value )
       when "summon"
@@ -388,15 +393,15 @@ class Rule < ApplicationRecord
 
   def work_with_counter( player, target, last_player, action, point )
     # action可能是攻擊或被其他效果影響改成回復的攻擊，所以仍要判斷和反制效果的互動
-    if last_player.annex[:counter] == "attack" && form == "attack"
+    if last_player.annex["counter"] == "attack" && form == "attack"
       target.send( action, 0, subform )
-    elsif last_player.annex[:counter] == "split" && form == "attack"
+    elsif last_player.annex["counter"] == "split" && form == "attack"
       target.send( action, point.fdiv(2).ceil, subform )
       player.send( action, point.fdiv(2).ceil, subform )
     else
       target.send( action,  point, subform )
     end
-    player.attached( element: subform ) if GENERATE.include? subform
+    player.attached("element" => subform) if GENERATE.include? subform
   end
 
   def get_target( player, game )

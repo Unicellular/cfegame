@@ -4,13 +4,19 @@ class Player < ApplicationRecord
   has_many :cards, as: :cardholder, dependent: :destroy
   has_many :event
   serialize :star_history, Array
-  serialize :annex, Hash
+  serialize :annex, JSON
+
+  after_initialize :initialize_defaults, :if => :new_record?
+
+  def initialize_defaults
+      self.annex = {}
+  end
 
   def draw( amount )
     return nil unless is_phase?( :draw ) || ( is_phase?( :start ) && cards.count == 0 )
     deck = game.deck
     space = hand_limit-cards.count
-    amount = amount + annex[:draw_extra] unless annex[:draw_extra].nil?
+    amount = amount + annex["draw_extra"] unless annex["draw_extra"].nil?
     amount = space >= amount ? amount : space
     if deck.cards.count < amount + 1
       deck.shuffle
@@ -26,7 +32,7 @@ class Player < ApplicationRecord
     drawed_cards.each do |card|
       cards << card
     end
-    annex.delete( :draw_extra )
+    annex.delete("draw_extra")
     set_phase( :end )
     save
     dishand
@@ -40,7 +46,7 @@ class Player < ApplicationRecord
 
   def perform( rule, cards_used )
     return nil unless is_phase?( :start )
-    return nil unless annex[:freeze].nil?
+    return nil unless annex["freeze"].nil?
     return nil unless cards_used.all?{ |c| cards.include? c }
     ActiveRecord::Base.transaction do
       #puts "beginning"
@@ -50,7 +56,7 @@ class Player < ApplicationRecord
       end
       #puts "before perform"
       target = rule.performed(self, cards_used, game) if rule.total_test(cards_used, game, self)
-      set_phase( :draw ) unless target && target.annex[:showhand] || !rule.is_action?
+      set_phase(:draw) unless target && target.annex["showhand"] || !rule.is_action?
     end
     trigger(rule)
   end
@@ -68,12 +74,12 @@ class Player < ApplicationRecord
 
   def select( target, cards_selected )
     return nil unless is_phase?( :action )
-    return nil if ( target.annex[:remove] && target.annex[:remove] > cards_selected.count )
+    return nil if (target.annex["remove"] && target.annex["remove"] > cards_selected.count)
     if target.annex.has_key?( :remove )
-      cards_moved = target.removed( cards_selected.first( target.annex[:remove] ) )
+      cards_moved = target.removed(cards_selected.first(target.annex["remove"]))
     end
-    target.annex.delete( :remove )
-    target.annex.delete( :showhand )
+    target.annex.delete("remove")
+    target.annex.delete("showhand")
     target.save
     game.current_turn.events.create! player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
     set_phase( :draw )
@@ -92,10 +98,10 @@ class Player < ApplicationRecord
   end
 
   def turn_end
-    return nil unless is_phase?( :end ) || ( annex[:freeze] && is_phase?( :start ) )
+    return nil unless is_phase?(:end) || (annex["freeze"] && is_phase?(:start))
     if annex.has_key?( :freeze )
-      annex[:freeze] -= 1
-      if annex[:freeze] == 0
+      annex["freeze"] -= 1
+      if annex["freeze"] == 0
         annex.delete( :freeze )
       end
     end
@@ -107,7 +113,7 @@ class Player < ApplicationRecord
   end
 
   def turn_start
-    attached( element: nil )
+    deleted("element")
   end
 
   def set_phase( phase )
@@ -117,7 +123,7 @@ class Player < ApplicationRecord
 # happens in opponent's turn
   def attacked( point, kind=nil )
     if shield == 0
-      case Rule.interact( kind, annex[:element] )
+      case Rule.interact(kind, annex["element"])
       when :generate
         team.healed( point )
       when :overcome
@@ -150,7 +156,7 @@ class Player < ApplicationRecord
   end
 
   def healed( point, kind=nil )
-    case Rule.interact( kind, annex[:element] )
+    case Rule.interact( kind, annex["element"] )
     when :overcome
       team.healed( point * 2 )
     when :cancel
@@ -229,11 +235,11 @@ class Player < ApplicationRecord
 
   def is_hero?( hero, inherit=true )
     inherit = true if inherit.nil?
-    if annex.has_key?(:hero)
+    if annex.has_key?("hero")
       if inherit
-        annex[:hero].include?(hero)
+        annex["hero"].include?(hero)
       else
-        annex[:hero][0] == hero
+        annex["hero"][0] == hero
       end
     else
       false
@@ -244,13 +250,20 @@ class Player < ApplicationRecord
   def info( is_public )
     last_events = Event.joins( :turn ).where( player: self, rule: Rule.action, turn: game.turns ).order( Turn.arel_table[:number].desc ).first(2)
     last_player = game.last_player
+    if annex.nil?
+      v_annex = nil
+    else
+      v_annex = annex.select do |key, value|
+        key != annex["hidden"]
+      end
+    end
     as_json({
       except: [ :created_at, :updated_at, :annex ]
     }).merge({
       hands: hands( is_public ).as_json,
       last_acts: last_events.map do |event|
         # ( event.turn == game.last_turn || ( event.turn == current_turn && ( current_turn.start? || current_turn.action? ) ) )
-        if event.rule.passive? && !is_public && ( event.turn == game.current_turn || ( event.turn == game.last_turn && last_player.annex[:hidden] == :counter ) )
+        if event.rule.passive? && !is_public && ( event.turn == game.current_turn || ( event.turn == game.last_turn && last_player.annex["hidden"] == "counter" ) )
           { cards_count: event.cards_used.count }
         else
           event.as_json({
@@ -260,14 +273,12 @@ class Player < ApplicationRecord
           })
         end
       end,
-      annex: annex.select do |key, value|
-        key != annex[:hidden]
-      end
+      annex: v_annex
     })
   end
 
   def hands( is_public )
-    if is_public || annex[:showhand]
+    if is_public || annex["showhand"]
       return cards
     else
       return cards.count

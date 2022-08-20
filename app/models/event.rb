@@ -3,6 +3,6 @@ class Event < ApplicationRecord
   belongs_to :player
   belongs_to :target, class_name: "Player", optional: true
   belongs_to :rule, optional: true
-  serialize :cards_used, Array
+  serialize :cards_used, JSON
   serialize :effect, JSON
 end

@@ -6,13 +6,16 @@
 
 ## 開發環境
 
-* rails 5.2.6
-* ruby 2.6.0
+* rails 5.2.8.1
+* ruby 2.7.6
 
 ## 執行rspec
 
 [source,shell,numbered]
 ----
-rake db:reset RAILS_ENV=test # if you have change the db schema
+# if you have change the db schema
+rake db:reset
+rake db:seed RAILS_ENV=test
+# do the spec
 rake spec
 ----

@@ -3,6 +3,6 @@ class Card < ApplicationRecord
   enum element: Rule::GENERATE
 
   def to_hash
-    { element: element, level: level }
+    {"element" => element, "level" => level}
   end
 end
