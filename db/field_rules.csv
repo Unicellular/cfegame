@@ -9,7 +9,7 @@ earth neutralize,土和,土行傷害改為恢復目標之生命值,field,"{ ""fi
 tree suppress,木解,防禦、氣壁無效,field,"{ ""field"": ""metal"", ""rule"": { ""defense"": 0, ""shield"": 0 } }",power,static, ,{},,"{ ""modify"": ""counter"" }"
 tree overcome,木凌,木行攻擊雙倍,field,"{ ""field"": ""tree"", ""ruletype"": { ""form"": ""attack"", ""subform"": ""tree"" } }",power,static, ,{},,"{ ""modify"": ""double"" }"
 water neutralize,水和,水行傷害改為恢復目標之生命值,field,"{ ""field"": ""tree"", ""ruletype"": { ""form"": ""attack"", ""subform"": ""water"" } }",power,static, ,{},,"{ ""modify"": ""heal"" }"
-earth suppress,土解,幻化、混沌無效,field,"{ ""field"": ""tree"", ""rule"": { ""imitate"": 0, ""choas"": 0 } }",power,static, ,{},,"{ ""modify"": ""counter"" }"
+earth suppress,土解,幻化、混沌無效,field,"{ ""field"": ""tree"", ""rule"": { ""imitate"": 0, ""chaos"": 0 } }",power,static, ,{},,"{ ""modify"": ""counter"" }"
 water overcome,水凌,水行攻擊雙倍,field,"{ ""field"": ""water"", ""ruletype"": { ""form"": ""attack"", ""subform"": ""water"" } }",power,static, ,{},,"{ ""modify"": ""double"" }"
 metal neutralize,金和,金行傷害改為恢復目標之生命值,field,"{ ""field"": ""water"", ""ruletype"": { ""form"": ""attack"", ""subform"": ""metal"" } }",power,static, ,{},,"{ ""modify"": ""heal"" }"
 fire suppress,火解,反震、震暴無效,field,"{ ""field"": ""water"", ""rule"": { ""backfire"": 0, ""burst"": 0 } }",power,static, ,{},,"{ ""modify"": ""counter"" }"

@@ -70,23 +70,27 @@ class Rule < ApplicationRecord
         value["form"] == executing_rule.form && value["subform"] == executing_rule.subform
       when "rule"
         value.any? do |rule_name, condition|
-          event_list.where(rule: executing_rule).any? do |event|
-            result = rule_name == executing_rule.name
-            if condition.is_a?(Numeric) && event.effect["point"].is_a?(Numeric)
-              result &&= event.effect["point"] >= condition
+          # 當下正在執行的規則，所以不會在event裡
+          result = executing_rule == Rule.find_by_name(rule_name)
+          if condition.is_a?(Numeric) && condition >= 0
+            if executing_rule.effect["point"].is_a?(Numeric)
+              result &&= executing_rule.effect["point"] >= condition
             else
               result
             end
+          else
+            raise "rule[" + self.name + "] conditon wrong, should be a integer greater than 0"
           end
         end
       when "executed"
-        value.all? do |rule_name, rule_condition|
-          event_list.where( rule: Rule.find_by_name( rule_name ) ).any? do |event|
-            if rule_condition.is_a? Numeric
+        value.all? do |rule_name, condition|
+          event_list.where(rule: executing_rule).any? do |event|
+            result = rule_name == executing_rule.name
+            if condition.is_a?(Numeric) && event.effect["point"].is_a?(Numeric)
               # 陣法或能力的點數需符合條件。
-              event.effect["point"] >= rule_condition
+              result &&= event.effect["point"] >= condition
             else
-              true
+              result
             end
           end
         end

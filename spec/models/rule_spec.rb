@@ -258,10 +258,10 @@ RSpec.describe Rule, type: :model do
     end
 
     it "should make chaos loss its effect" do
-      @player1.perform( @chaos, [ @one_tree, @two_earth_one_metal ].flatten )
+      @player1.perform(@chaos, [@one_tree, @two_earth_one_metal].flatten)
       @player2.reload
-      expect( @player2.annex["showhand"] ).to be_nil
-      expect( @player2.annex["remove"] ).to be_nil
+      expect(@player2.annex["showhand"]).to be_nil
+      expect(@player2.annex["remove"]).to be_nil
     end
 
     context "performing void field" do
