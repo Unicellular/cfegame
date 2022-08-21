@@ -127,13 +127,13 @@ RSpec.describe Rule, type: :model do
     end
 
     it "should not counter opponenet's attack atfer next turn" do
-      expect( @player1.annex.has_key?( :counter ) ).to be false
+      expect(@player1.annex.has_key?("counter")).to be false
       @game.turn_end
       @game.turn_end
-      @player2.perform( @tree_attack, @one_tree )
+      @player2.perform(@tree_attack, @one_tree)
       @player1.reload
       @player2.reload
-      expect( @player1.team.life ).to eq( 195 )
+      expect(@player1.team.life).to eq(195)
     end
   end
 

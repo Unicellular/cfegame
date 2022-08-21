@@ -75,7 +75,7 @@ class Player < ApplicationRecord
   def select( target, cards_selected )
     return nil unless is_phase?( :action )
     return nil if (target.annex["remove"] && target.annex["remove"] > cards_selected.count)
-    if target.annex.has_key?( :remove )
+    if target.annex.has_key?("remove")
       cards_moved = target.removed(cards_selected.first(target.annex["remove"]))
     end
     target.annex.delete("remove")
@@ -99,14 +99,14 @@ class Player < ApplicationRecord
 
   def turn_end
     return nil unless is_phase?(:end) || (annex["freeze"] && is_phase?(:start))
-    if annex.has_key?( :freeze )
+    if annex.has_key?("freeze")
       annex["freeze"] -= 1
       if annex["freeze"] == 0
-        annex.delete( :freeze )
+        annex.delete("freeze")
       end
     end
-    if annex.has_key?( :restrict )
-      annex.delete( :restrict )
+    if annex.has_key?("restrict")
+      annex.delete("restrict")
     end
     save
     game.turn_end
