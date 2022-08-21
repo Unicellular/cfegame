@@ -21,7 +21,7 @@ class Rule < ApplicationRecord
       case key
       when "and"
         subrule_list = value.map do |submaterial|
-          subrule = Rule.create({"material": submaterial})
+          Rule.new({"material": submaterial})
         end
         cards.combination(subrule_list[0].material["count"]).any? do |comb|
           result = subrule_list[0].combination_test(comb) && subrule_list[1].combination_test(cards-comb)
