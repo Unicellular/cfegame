@@ -6,8 +6,8 @@
 
 ## 開發環境
 
-* rails 5.2.8.1
-* ruby 2.7.6
+* rails 7.0.4
+* ruby 3.1.2
 
 ## 執行rspec
 
