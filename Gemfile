@@ -4,7 +4,7 @@ ruby "2.7.6"
 gem 'rails', '~> 5.2.0'
 
 group :development, :test do
-  gem 'sqlite3', '~> 1.3.0'
+  gem 'sqlite3', '>= 1.3.0'
   gem 'rspec-rails'
   gem 'pry-rails'
   gem 'byebug'
@@ -16,7 +16,7 @@ group :development do
 end
 
 group :production do
-  gem 'pg', '~> 0.18'
+  gem 'pg', '>= 0.18'
   gem 'rails_12factor'
 end
 
