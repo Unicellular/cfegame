@@ -21,6 +21,7 @@ group :production do
 end
 
 gem 'sprockets-rails'
+gem 'importmap-rails'
 gem 'sassc-rails', '~> 2.1'
 gem 'bootstrap-sass', '~> 3.4'
 gem 'uglifier', '>= 1.3.0'
