@@ -1,4 +1,4 @@
-class GameField {
+export class GameField {
   constructor(){
     $("#player .action").on( "click", ".card", (e) => {
       app.card_selected( $(e.target), false );

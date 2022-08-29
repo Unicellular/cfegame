@@ -1,4 +1,6 @@
-class Game {
+import { GameField } from "games/game_field"
+
+export class Game {
   constructor() {
     //this.info = JSON.parse(JSON.stringify(info));
     //this.view = view;
