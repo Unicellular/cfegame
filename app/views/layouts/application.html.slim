@@ -8,29 +8,29 @@ html
     = javascript_include_tag "sprockets", "data-turbo-track" => "reload"
     = csrf_meta_tags
     = csp_meta_tag
-    meta name="viewport" content="width=device-width, initial-scale=1.0"
+    meta name="viewport" content="width=device-width, initial-scale=1"
   body
-    nav.navbar.navbar-inverse
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
       .container
-        .navbar-header
-          .navbar-brand
-            = link_to 'CFE', root_url
-        .collapse.navbar-collapse
-          ul.nav.navbar-nav
+        = link_to "CFE", root_url, class: 'navbar-brand'
+        button.navbar-toggler type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'
+          span class='navbar-toggler-icon'
+        .collapse.navbar-collapse id='navbarSupportedContent'
+          ul.navbar-nav.me-auto.mb-2.mb-lg-0
             - if user_signed_in?
-              li
+              li.nav-item
                 p.navbar-text
                   | Logged in as
                   = current_user.name
-              li
+              li.nav-item
                 = link_to 'Logout', signout_path
             - else
-              li
-                = link_to 'Login', signin_path
+              li.nav-item
+                = link_to 'Login', signin_path, class: 'nav-link', aria_current: 'page'
           - flash.each do |name, msg|
             - if msg.is_a?(String)
               li.alert class=( bootstrap_class_for(name) ) id=("flash_#{name}")
                 = msg
-    .container
+    .container.mt-4.pt-2
       = yield
       = console if Rails.env.development?

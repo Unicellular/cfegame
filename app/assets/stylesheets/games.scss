@@ -24,16 +24,16 @@ table {
 }
 
 #maincontainer {
-  background-color: $gray-lighter;
+  background-color: $gray-900;
   position: relative;
 }
 
 .primary {
-  @include make-md-column(10.5);
+  @include make-col(10.5);
 }
 
 .secondary {
-  @include make-md-column(1.5);
+  @include make-col(1.5);
   .card {
     margin: 10px auto;
     float: none;
@@ -42,7 +42,7 @@ table {
 
 .side {
   height: 100%;
-  background-color: $gray-light;
+  background-color: $gray-500;
 }
 
 .main {
@@ -183,7 +183,7 @@ table {
 .star_history {
   font-size: 28px;
   .star {
-    @include make-md-column(2.4);
+    @include make-col(2.4);
     padding: 0px;
     float: left;
   }
