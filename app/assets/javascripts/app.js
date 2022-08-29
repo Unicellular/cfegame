@@ -1,5 +1,5 @@
 var app;
-$(document).on( "turbolinks:load", function(){
+$(document).on( "turbo:load", function(){
   if ( $('#maincontainer').length ){
     app = new Game();
   } else if ( app && app.timerID ){
