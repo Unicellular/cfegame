@@ -296,6 +296,8 @@ class Rule < ApplicationRecord
     # initialize object for the one in block
     affected = nil
     result_effect = effect
+    # 排除不需處理的效果
+    not_process = ["point", "immune"]
     effect.each do |key, value|
       case key
       when "attack"
@@ -347,7 +349,7 @@ class Rule < ApplicationRecord
         if condition_test(game, player)
           game.decide_winner( player.team )
         end
-      when "immune"
+      when *not_process
         # do nothing
       when "gain"
         player.change_if(condition_test(game, player), value)
@@ -369,23 +371,24 @@ class Rule < ApplicationRecord
     target
   end
 
-  def modify_effect( game, player, point )
-    if !effect["immune"]
-      fits = Rule.all_fitted( game, player, :static, self )
-      fits.each do |rule|
-        case rule.effect["modify"]
-        when "double"
-          point = point * 2
-        when "heal"
-          effect["heal"] = effect.delete( "attack" )
-        when "counter"
-          effect.clear
-        else
-          raise "This effect [" + rule.name + "] is not implemented"
-        end
+  def modify_effect(game, player, point)
+    # 留存原始點數
+    patch = {"point" => point}
+    # 尋找會修改效果的規則
+    fits = Rule.all_fitted(game, player, :static, self)
+    fits.each do |rule|
+      case rule.effect["modify"]
+      when "double"
+        point = point * 2
+      when "heal"
+        effect["heal"] = effect.delete("attack")
+      when "counter"
+        effect.clear
+      else
+        raise "This effect [" + rule.name + "] is not implemented"
       end
     end
-    patch = {}
+    # 用實際的點數取代point
     effect.each do |key,value|
       if value == "point"
         patch[key] = point
