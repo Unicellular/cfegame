@@ -110,6 +110,32 @@ RSpec.describe Rule, type: :model do
     end
   end
 
+  context "when player perform seal" do
+    before(:each) do
+      two_water = [
+        Card.new(element: :water, level: 3),
+        Card.new(element: :water, level: 4)
+      ]
+      @player1.cards = two_water
+      @player2.cards = @two_earthes
+      @seal = Rule.find_by_name("seal")
+      @imitate = Rule.find_by_name("imitate")
+      @player1.perform(@seal, two_water)
+      @game.turn_end
+      @player1.reload
+    end
+
+    it "should keep counter effect after current turn end" do
+      expect(@player1.annex["counter"]).to eq("spell")
+    end
+
+    it "should counter opponent's spell at next turn" do
+      @player2.perform(@imitate, @two_earthes)
+      @player2.reload
+      expect(@player2.annex["counter"]).to eq(nil)
+    end
+  end
+
   context "when player perform defense" do
     before( :each ) do
       @player1.cards = [ @two_trees ].flatten
