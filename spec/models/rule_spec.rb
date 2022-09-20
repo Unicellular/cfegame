@@ -241,20 +241,44 @@ RSpec.describe Rule, type: :model do
 
   context "when perform azure dragon summon" do
     before( :each ) do
-      @three_trees = @game.deck.find_card( :tree, 3 ).first(3)
-      @player1.cards = [ @two_trees, @three_trees ].flatten
-      @azure_dragon = Rule.find_by_name( "azure dragon summon" )
-      @player1.perform( @azure_dragon, [ @two_trees, @three_trees ].flatten )
-      @game.reload
+      @azure_dragon_cards = [
+        Card.new(element: :tree, level: 1),
+        Card.new(element: :tree, level: 2),
+        Card.new(element: :tree, level: 3),
+        Card.new(element: :tree, level: 4),
+        Card.new(element: :tree, level: 5)
+      ]
+      @player1.cards = @azure_dragon_cards
+      @azure_dragon = Rule.find_by_name("azure dragon summon")
     end
 
     it "should change the field" do
-      expect( @game.field ).to eq( "tree" )
+      @player1.perform(@azure_dragon, @azure_dragon_cards)
+      @game.reload
+      expect(@game.field).to eq("tree")
     end
 
     it "should deal 81 damage to player2" do
+      @player1.perform(@azure_dragon, @azure_dragon_cards)
       @player2.reload
-      expect( @player2.team.life ).to eq( 119 )
+      expect(@player2.team.life).to eq(119)
+    end
+
+    it "should change the field and deal 81 damage against defense" do
+      @game.turn_end
+      defense = Rule.find_by_name("defense")
+      defense_cards = [
+        Card.new(element: :tree, level: 3),
+        Card.new(element: :tree, level: 4)
+      ]
+      @player2.cards = defense_cards
+      @player2.perform(defense, defense_cards)
+      @game.turn_end
+      @player1.perform(@azure_dragon, @azure_dragon_cards)
+      @game.reload
+      @player2.reload
+      expect(@game.field).to eq("tree")
+      expect(@player2.team.life).to eq(119)
     end
   end
 
