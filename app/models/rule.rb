@@ -67,7 +67,7 @@ class Rule < ApplicationRecord
       when "hero"
         player.is_hero?(value, condition["inherit"])
       when "ruletype"
-        value["form"] == executing_rule.form && value["subform"] == executing_rule.subform
+        value["form"] == executing_rule.form && (value["subform"].nil? || value["subform"] == executing_rule.subform)
       when "rule"
         value.any? do |rule_name, condition|
           # 當下正在執行的規則，所以不會在event裡
@@ -270,25 +270,21 @@ class Rule < ApplicationRecord
       option = {target_hand: [target_hand]}
     end
     point = calculate(cards_used, option) unless formula.nil?
-    modify_effect( game, player, point )
+    modify_effect(game, player, last_player, point)
     # 設定初始值
     result_effect = {}
-    unless last_player.annex["counter"] == "spell" && form == "spell"
-      if target.respond_to?(:each)
-        target.each do |t|
-          target, result_effect = implemented(game, player, t, last_player, effect, cards_used)
-        end
-      else
-        target, result_effect = implemented(game, player, target, last_player, effect, cards_used)
+    if target.respond_to?(:each)
+      target.each do |t|
+        target, result_effect = implemented(game, player, t, last_player, effect, cards_used)
       end
+    else
+      target, result_effect = implemented(game, player, target, last_player, effect, cards_used)
     end
     if is_action?
       last_player.annex.delete("counter")
       last_player.annex.delete("hidden")
       last_player.save
     end
-    # 儲存原始點數
-    result_effect["point"] = point
     return target, result_effect
   end
 
@@ -296,12 +292,18 @@ class Rule < ApplicationRecord
     # initialize object for the one in block
     affected = nil
     result_effect = effect
+    # 排除不需處理的效果
+    not_process = ["point", "immune"]
     effect.each do |key, value|
       case key
       when "attack"
-        work_with_counter( player, target, last_player, :attacked, value )
+        target.attacked(value, subform)
       when "heal"
-        work_with_counter( player, target, last_player, :healed, value )
+        target.healed(value, subform)
+      when "self_attack"
+        player.attacked(value, subform)
+      when "self_heal"
+        player.healed(value, subform)
       when "counter"
         player.attached("counter" => value )
       when "copy"
@@ -347,7 +349,7 @@ class Rule < ApplicationRecord
         if condition_test(game, player)
           game.decide_winner( player.team )
         end
-      when "immune"
+      when *not_process
         # do nothing
       when "gain"
         player.change_if(condition_test(game, player), value)
@@ -359,6 +361,8 @@ class Rule < ApplicationRecord
         raise "This effect [" + key + "] is not implemented"
       end
     end
+    # 處理完所有效果再來附加屬性，避免反震自傷時會再減半
+    player.attached("element" => subform) if GENERATE.include?(subform)
     [target, result_effect]
   end
 
@@ -369,23 +373,18 @@ class Rule < ApplicationRecord
     target
   end
 
-  def modify_effect( game, player, point )
-    if !effect["immune"]
-      fits = Rule.all_fitted( game, player, :static, self )
-      fits.each do |rule|
-        case rule.effect["modify"]
-        when "double"
-          point = point * 2
-        when "heal"
-          effect["heal"] = effect.delete( "attack" )
-        when "counter"
-          effect.clear
-        else
-          raise "This effect [" + rule.name + "] is not implemented"
-        end
-      end
+  def modify_effect(game, player, last_player, point)
+    # 留存原始點數
+    patch = {"point" => point}
+    # 尋找會修改效果的規則
+    fits = Rule.all_fitted(game, player, :static, self)
+    fits.each do |rule|
+      point = process_modify(rule, point) unless rule.effect["modify"].nil?
+      effect["immune"] = rule.effect["immune"] unless rule.effect["immune"].nil?
     end
-    patch = {}
+    # 處理反制效果
+    modify_with_counter(player, last_player, point)
+    # 用實際的點數取代point
     effect.each do |key,value|
       if value == "point"
         patch[key] = point
@@ -393,6 +392,39 @@ class Rule < ApplicationRecord
     end
     effect.merge!(patch)
     #return point
+  end
+
+  def modify_with_counter(player, last_player, point)
+    ["attack", "heal"].each do |action|
+      next unless effect.has_key?(action) && effect[action] == "point"
+      # action可能是攻擊或被其他效果影響改成回復的攻擊，所以仍要判斷和反制效果的互動
+      if last_player.annex["counter"] == "attack" && form == "attack" && !is_immune_from(last_player.annex["counter"])
+        effect[action] = 0
+      elsif last_player.annex["counter"] == "split" && form == "attack" && !is_immune_from(last_player.annex["counter"])
+        effect[action] = point.fdiv(2).ceil
+        effect["self_"+action] = point.fdiv(2).ceil
+      elsif last_player.annex["counter"] == "spell" && form == "spell" && !is_immune_from(last_player.annex["counter"])
+        effect.clear
+      end
+    end
+  end
+
+  def is_immune_from(counter)
+    effect.has_key?("immune") && effect["immune"].include?(counter)
+  end
+
+  def process_modify(rule, point)
+    case rule.effect["modify"]
+    when "double"
+      point = point * 2
+    when "heal"
+      effect["heal"] = effect.delete("attack")
+    when "counter"
+      effect.clear
+    else
+      raise "This effect [" + rule.effect["modify"] + "] of rule [" + rule.name + "] is not implemented"
+    end
+    point
   end
 
   def work_with_counter( player, target, last_player, action, point )

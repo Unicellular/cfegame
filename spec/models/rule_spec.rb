@@ -1,6 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe Rule, type: :model do
+  def player_perform_rule(player, rule_name, card_attrs)
+    used_cards = card_attrs.map do |attr|
+      Card.new(element: attr[0], level: attr[1])
+    end
+    rule = Rule.find_by_name(rule_name)
+    player.cards = used_cards
+    player.perform(rule, used_cards)
+  end
+
   before( :each ) do
     @metal_attack = Rule.find_by_name( "metal attack" )
     @tree_attack = Rule.find_by_name( "tree attack" )
@@ -110,6 +119,32 @@ RSpec.describe Rule, type: :model do
     end
   end
 
+  context "when player perform seal" do
+    before(:each) do
+      two_water = [
+        Card.new(element: :water, level: 3),
+        Card.new(element: :water, level: 4)
+      ]
+      @player1.cards = two_water
+      @player2.cards = @two_earthes
+      @seal = Rule.find_by_name("seal")
+      @imitate = Rule.find_by_name("imitate")
+      @player1.perform(@seal, two_water)
+      @game.turn_end
+      @player1.reload
+    end
+
+    it "should keep counter effect after current turn end" do
+      expect(@player1.annex["counter"]).to eq("spell")
+    end
+
+    it "should counter opponent's spell at next turn" do
+      @player2.perform(@imitate, @two_earthes)
+      @player2.reload
+      expect(@player2.annex["counter"]).to eq(nil)
+    end
+  end
+
   context "when player perform defense" do
     before( :each ) do
       @player1.cards = [ @two_trees ].flatten
@@ -137,6 +172,18 @@ RSpec.describe Rule, type: :model do
     end
   end
 
+  context "when player perform backfire" do
+    before(:each) do
+      player_perform_rule(@player1, "backfire", [[:fire, 1], [:fire, 5]])
+      @game.turn_end
+    end
+
+    it "should make opponent's attack deal half damage to both side" do
+      player_perform_rule(@player2, "water formation", [[:water, 1], [:water, 3], [:water, 5]])
+      expect(@player1.reload.team.life).to eq(186)
+      expect(@player2.reload.team.life).to eq(186)
+    end
+  end
   context "when player perform metal_formation" do
     before( :each ) do
       @player1.cards << [ @one_metal, @two_metal, @two_other_metal, @one_earth ].flatten
@@ -215,20 +262,44 @@ RSpec.describe Rule, type: :model do
 
   context "when perform azure dragon summon" do
     before( :each ) do
-      @three_trees = @game.deck.find_card( :tree, 3 ).first(3)
-      @player1.cards = [ @two_trees, @three_trees ].flatten
-      @azure_dragon = Rule.find_by_name( "azure dragon summon" )
-      @player1.perform( @azure_dragon, [ @two_trees, @three_trees ].flatten )
-      @game.reload
+      @azure_dragon_cards = [
+        Card.new(element: :tree, level: 1),
+        Card.new(element: :tree, level: 2),
+        Card.new(element: :tree, level: 3),
+        Card.new(element: :tree, level: 4),
+        Card.new(element: :tree, level: 5)
+      ]
+      @player1.cards = @azure_dragon_cards
+      @azure_dragon = Rule.find_by_name("azure dragon summon")
     end
 
     it "should change the field" do
-      expect( @game.field ).to eq( "tree" )
+      @player1.perform(@azure_dragon, @azure_dragon_cards)
+      @game.reload
+      expect(@game.field).to eq("tree")
     end
 
     it "should deal 81 damage to player2" do
+      @player1.perform(@azure_dragon, @azure_dragon_cards)
       @player2.reload
-      expect( @player2.team.life ).to eq( 119 )
+      expect(@player2.team.life).to eq(119)
+    end
+
+    it "should change the field and deal 81 damage against defense" do
+      @game.turn_end
+      defense = Rule.find_by_name("defense")
+      defense_cards = [
+        Card.new(element: :tree, level: 3),
+        Card.new(element: :tree, level: 4)
+      ]
+      @player2.cards = defense_cards
+      @player2.perform(defense, defense_cards)
+      @game.turn_end
+      @player1.perform(@azure_dragon, @azure_dragon_cards)
+      @game.reload
+      @player2.reload
+      expect(@game.field).to eq("tree")
+      expect(@player2.team.life).to eq(119)
     end
   end
 
@@ -317,6 +388,18 @@ RSpec.describe Rule, type: :model do
     it "should not pass combination test of rebirth with the wrong cards #2" do
       right_cards = @all_cards[2..5]
       expect(@rebirth.combination_test(right_cards)).to be_falsy
+    end
+
+    it "should ignoring counter effect while performing spell" do
+      @player2.annex["counter"] = "spell"
+      @player2.save
+      generate_cards = @all_cards[1..3]
+      @player1.cards = generate_cards
+      @player1.team.life = 15
+      @player1.team.save
+      @player1.perform(@generate, generate_cards)
+      @player1.reload
+      expect(@player1.team.life).to eq(45)
     end
 
     it "should pass all the test with the Kind" do
