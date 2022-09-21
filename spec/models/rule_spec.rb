@@ -1,6 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe Rule, type: :model do
+  def player_perform_rule(player, rule_name, card_attrs)
+    used_cards = card_attrs.map do |attr|
+      Card.new(element: attr[0], level: attr[1])
+    end
+    rule = Rule.find_by_name(rule_name)
+    player.cards = used_cards
+    player.perform(rule, used_cards)
+  end
+
   before( :each ) do
     @metal_attack = Rule.find_by_name( "metal attack" )
     @tree_attack = Rule.find_by_name( "tree attack" )
@@ -163,6 +172,18 @@ RSpec.describe Rule, type: :model do
     end
   end
 
+  context "when player perform backfire" do
+    before(:each) do
+      player_perform_rule(@player1, "backfire", [[:fire, 1], [:fire, 5]])
+      @game.turn_end
+    end
+
+    it "should make opponent's attack deal half damage to both side" do
+      player_perform_rule(@player2, "water formation", [[:water, 1], [:water, 3], [:water, 5]])
+      expect(@player1.reload.team.life).to eq(186)
+      expect(@player2.reload.team.life).to eq(186)
+    end
+  end
   context "when player perform metal_formation" do
     before( :each ) do
       @player1.cards << [ @one_metal, @two_metal, @two_other_metal, @one_earth ].flatten

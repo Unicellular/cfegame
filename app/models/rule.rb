@@ -298,10 +298,8 @@ class Rule < ApplicationRecord
       case key
       when "attack"
         target.attacked(value, subform)
-        player.attached("element" => subform) if GENERATE.include?(subform)
       when "heal"
         target.healed(value, subform)
-        player.attached("element" => subform) if GENERATE.include?(subform)
       when "self_attack"
         player.attacked(value, subform)
       when "self_heal"
@@ -363,6 +361,8 @@ class Rule < ApplicationRecord
         raise "This effect [" + key + "] is not implemented"
       end
     end
+    # 處理完所有效果再來附加屬性，避免反震自傷時會再減半
+    player.attached("element" => subform) if GENERATE.include?(subform)
     [target, result_effect]
   end
 
@@ -396,6 +396,7 @@ class Rule < ApplicationRecord
 
   def modify_with_counter(player, last_player, point)
     ["attack", "heal"].each do |action|
+      next unless effect.has_key?(action) && effect[action] == "point"
       # action可能是攻擊或被其他效果影響改成回復的攻擊，所以仍要判斷和反制效果的互動
       if last_player.annex["counter"] == "attack" && form == "attack" && !is_immune_from(last_player.annex["counter"])
         effect[action] = 0
