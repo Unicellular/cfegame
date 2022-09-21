@@ -369,6 +369,18 @@ RSpec.describe Rule, type: :model do
       expect(@rebirth.combination_test(right_cards)).to be_falsy
     end
 
+    it "should ignoring counter effect while performing spell" do
+      @player2.annex["counter"] = "spell"
+      @player2.save
+      generate_cards = @all_cards[1..3]
+      @player1.cards = generate_cards
+      @player1.team.life = 15
+      @player1.team.save
+      @player1.perform(@generate, generate_cards)
+      @player1.reload
+      expect(@player1.team.life).to eq(45)
+    end
+
     it "should pass all the test with the Kind" do
       @player1.cards = @all_cards[0..3]
       expect(@rebirth.test_combination_with_mastery(@all_cards[0..3], @game, @player1)).to be_truthy

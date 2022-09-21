@@ -67,7 +67,7 @@ class Rule < ApplicationRecord
       when "hero"
         player.is_hero?(value, condition["inherit"])
       when "ruletype"
-        value["form"] == executing_rule.form && value["subform"] == executing_rule.subform
+        value["form"] == executing_rule.form && (value["subform"].nil? || value["subform"] == executing_rule.subform)
       when "rule"
         value.any? do |rule_name, condition|
           # 當下正在執行的規則，所以不會在event裡
@@ -379,16 +379,8 @@ class Rule < ApplicationRecord
     # 尋找會修改效果的規則
     fits = Rule.all_fitted(game, player, :static, self)
     fits.each do |rule|
-      case rule.effect["modify"]
-      when "double"
-        point = point * 2
-      when "heal"
-        effect["heal"] = effect.delete("attack")
-      when "counter"
-        effect.clear
-      else
-        raise "This effect [" + rule.name + "] is not implemented"
-      end
+      point = process_modify(rule, point) unless rule.effect["modify"].nil?
+      effect["immune"] = rule.effect["immune"] unless rule.effect["immune"].nil?
     end
     # 處理反制效果
     modify_with_counter(player, last_player, point)
@@ -418,6 +410,20 @@ class Rule < ApplicationRecord
 
   def is_immune_from(counter)
     effect.has_key?("immune") && effect["immune"].include?(counter)
+  end
+
+  def process_modify(rule, point)
+    case rule.effect["modify"]
+    when "double"
+      point = point * 2
+    when "heal"
+      effect["heal"] = effect.delete("attack")
+    when "counter"
+      effect.clear
+    else
+      raise "This effect [" + rule.effect["modify"] + "] of rule [" + rule.name + "] is not implemented"
+    end
+    point
   end
 
   def work_with_counter( player, target, last_player, action, point )
