@@ -11,13 +11,7 @@ RSpec.describe Rule, type: :model do
   end
 
   before( :each ) do
-    @metal_attack = Rule.find_by_name( "metal attack" )
-    @tree_attack = Rule.find_by_name( "tree attack" )
-    #@defense = Rule.find_by_name( "defense" )
-    #@imitate = Rule.find_by_name( "imitate" )
-    @generate = Rule.find_by_name( "generating formation")
-    @overcome = Rule.find_by_name( "overcoming formation" )
-    @feao = Rule.find_by_name( "five element as one" )
+    # 測試前準備
     @game = Game.open( User.create )
     @game.join_with( User.create, @game.teams[1] )
     @game.begin( @game.players[0] )
@@ -26,17 +20,12 @@ RSpec.describe Rule, type: :model do
     @game.deck.cards << @player1.cards << @player2.cards
     @player1.reload
     @player2.reload
-    @one_metal = [ @game.deck.find_card( :metal, 3 ).first ]
-    @another_metal = [ @game.deck.find_card( :metal, 4 ).first ]
-    @one_tree = [ @game.deck.find_card( :tree, 1 ).first ]
-    @two_trees = @game.deck.find_card( :tree, 2 ).first(2)
-    @two_earthes = @game.deck.find_card( :earth, 4 ).first(2)
-    @other_two_earthes = @game.deck.find_card( :earth, 3 ).first(2)
-    @two_metal = @game.deck.find_card( :metal, 5 ).first(2)
-    @two_other_metal = @game.deck.find_card( :metal, 2 ).first(2)
-    @one_earth = @game.deck.find_card( :earth, 5 ).first
-    #@player1.cards = [ @one_metal, @two_trees, @other_two_earthes, @two_metal, @two_other_metal, @one_earth ].flatten
-    #@player2.cards = [ @two_earthes, @another_metal, @one_tree ].flatten
+    # 共用基礎陣法
+    @metal_attack = Rule.find_by_name("metal attack")
+    @generate = Rule.find_by_name("generating formation")
+    @overcome = Rule.find_by_name("overcoming formation")
+    @feao = Rule.find_by_name("five element as one")
+    @one_metal = [@game.deck.find_card(:metal, 3).first]
   end
 
   it "calculates right point" do
@@ -92,13 +81,11 @@ RSpec.describe Rule, type: :model do
 
   context "when player perform copy" do
     before( :each ) do
-      @player1.cards = [ @one_metal, @other_two_earthes ].flatten
-      @player2.cards = [ @two_earthes ].flatten
-      @imitate = Rule.find_by_name( "imitate" )
-      @player1.perform( @metal_attack, @one_metal )
+      @player1.cards = @one_metal
+      @player1.perform(@metal_attack, @one_metal)
       @player1.set_phase(:end)
       @game.turn_end
-      @player2.perform( @imitate, @two_earthes )
+      player_perform_rule(@player2, "imitate", [[:earth, 3], [:earth, 5]])
       @player1.reload
       @player2.reload
     end
@@ -112,7 +99,7 @@ RSpec.describe Rule, type: :model do
     it "should copy the original player do when it copy imitate" do
       @player2.set_phase(:end)
       @game.turn_end
-      @player1.perform(@imitate, @other_two_earthes)
+      player_perform_rule(@player1, "imitate", [[:earth, 2], [:earth, 4]])
       expect(@player2.reload.annex["element"]).to eq("metal")
       expect(@player2.reload.team.life).to eq(188)
       expect(@player1.reload.annex["element"]).to eq("metal")
@@ -121,15 +108,7 @@ RSpec.describe Rule, type: :model do
 
   context "when player perform seal" do
     before(:each) do
-      two_water = [
-        Card.new(element: :water, level: 3),
-        Card.new(element: :water, level: 4)
-      ]
-      @player1.cards = two_water
-      @player2.cards = @two_earthes
-      @seal = Rule.find_by_name("seal")
-      @imitate = Rule.find_by_name("imitate")
-      @player1.perform(@seal, two_water)
+      player_perform_rule(@player1, "seal", [[:water, 3], [:water, 4]])
       @game.turn_end
       @player1.reload
     end
@@ -139,7 +118,7 @@ RSpec.describe Rule, type: :model do
     end
 
     it "should counter opponent's spell at next turn" do
-      @player2.perform(@imitate, @two_earthes)
+      player_perform_rule(@player2, "imitate", [[:earth, 2], [:earth, 4]])
       @player2.reload
       expect(@player2.annex["counter"]).to eq(nil)
     end
@@ -147,25 +126,22 @@ RSpec.describe Rule, type: :model do
 
   context "when player perform defense" do
     before( :each ) do
-      @player1.cards = [ @two_trees ].flatten
-      @player2.cards = [ @another_metal, @one_tree ].flatten
-      @defense = Rule.find_by_name( "defense" )
-      @player1.perform( @defense, @two_trees )
+      player_perform_rule(@player1, "defense", [[:tree, 1], [:tree, 2]])
       @game.turn_end
-      @player2.perform( @metal_attack, @another_metal )
+      player_perform_rule(@player2, "metal attack", [[:metal, 5]])
       @player1.reload
       @player2.reload
     end
 
     it "should counter opponent's attack at next turn" do
-      expect( @player1.team.life ).to eq( @player1.team.life_limit )
+      expect(@player1.team.life).to eq(@player1.team.life_limit)
     end
 
     it "should not counter opponenet's attack atfer next turn" do
       expect(@player1.annex.has_key?("counter")).to be false
       @game.turn_end
       @game.turn_end
-      @player2.perform(@tree_attack, @one_tree)
+      player_perform_rule(@player2, "tree attack", [[:tree, 1]])
       @player1.reload
       @player2.reload
       expect(@player1.team.life).to eq(195)
@@ -184,22 +160,14 @@ RSpec.describe Rule, type: :model do
       expect(@player2.reload.team.life).to eq(186)
     end
   end
+
   context "when player perform metal_formation" do
     before( :each ) do
-      @player1.cards << [ @one_metal, @two_metal, @two_other_metal, @one_earth ].flatten
-      #puts "before playing metal formation"
-      #pp @player1.cards
-      @metal_formation = Rule.find_by_name( "metal formation" )
-      @venus_attack = Rule.find_by_name( "venus attack" )
-      @venus_formation = Rule.find_by_name( "venus formation" )
-      @venus_summon = Rule.find_by_name( "venus summon" )
-      @player1.perform( @metal_formation, [ @one_metal, @two_metal ].flatten )
-      #puts "after playing metal formation"
-      #pp @player1.cards
+      player_perform_rule(@player1, "metal formation", [[:metal, 5], [:metal, 4], [:metal, 4]])
     end
 
     it "should damage opponent" do
-      expect( @player2.reload.team.life ).to eq( 161 )
+      expect(@player2.reload.team.life).to eq(161)
     end
 
     it "should summon venus as well" do
@@ -207,46 +175,34 @@ RSpec.describe Rule, type: :model do
     end
 
     context "after venus summon is executed" do
-      before( :each ) do
-        @venus_summon.performed(@player1, [], @game)
-      end
-
-      it "should summon venus" do
-        expect( @player1.team.has_star?( "venus" ) ).to be true
-      end
-
       it "should make venus attack avaliable" do
-        expect( @venus_attack.condition_test( @game, @player1 ) ).to be true
+        @venus_attack = Rule.find_by_name("venus attack")
+        expect(@venus_attack.condition_test(@game, @player1)).to be true
       end
 
       it "should remove venus after performing venus formation" do
         @game.turn_end
         @game.turn_end
         @player1.reload
-        #puts "before playing venus formation"
-        #pp @player1.cards
-        @player1.perform( @venus_formation, [ @two_other_metal, @one_earth ].flatten )
-        expect( @player1.reload.team.has_star?( "venus" ) ).to be false
+        player_perform_rule(@player1, "venus formation", [[:metal, 1], [:metal, 1], [:earth, 2]])
+        expect(@player1.reload.team.has_star?("venus")).to be false
       end
     end
-  end
 
-  context "when void star is performed" do
-    before( :each ) do
-      @void_star = Rule.find_by_name( "void star" )
-      @player1.team.star = :jupiter
-      @player1.save
-      @game.reload
-      @void_star.performed(@player1, [], @game)
-      @player1.team.reload
-    end
+    context "when void star is performed" do
+      before(:each)  do
+        @game.turn_end
+        player_perform_rule(@player2, "void star", [[:water, 1], [:metal, 1], [:earth, 1]])
+        @player1.team.reload
+      end
 
-    it "should eject all stars" do
-      expect( @player1.team.star ).to eq("nothing")
-    end
+      it "should eject all stars" do
+        expect(@player1.team.star).to eq("nothing")
+      end
 
-    it "should reduece life to whose star is ejected" do
-      expect( @player1.team.life ).to eq(180)
+      it "should reduece life to whose star is ejected" do
+        expect(@player1.team.life).to eq(180)
+      end
     end
   end
 
@@ -261,45 +217,30 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when perform azure dragon summon" do
-    before( :each ) do
-      @azure_dragon_cards = [
-        Card.new(element: :tree, level: 1),
-        Card.new(element: :tree, level: 2),
-        Card.new(element: :tree, level: 3),
-        Card.new(element: :tree, level: 4),
-        Card.new(element: :tree, level: 5)
-      ]
-      @player1.cards = @azure_dragon_cards
-      @azure_dragon = Rule.find_by_name("azure dragon summon")
+    before(:each) do
+      player_perform_rule(@player1, "azure dragon summon", [[:tree, 1], [:tree, 2], [:tree, 3], [:tree, 4], [:tree, 5]])
     end
 
     it "should change the field" do
-      @player1.perform(@azure_dragon, @azure_dragon_cards)
       @game.reload
       expect(@game.field).to eq("tree")
     end
 
     it "should deal 81 damage to player2" do
-      @player1.perform(@azure_dragon, @azure_dragon_cards)
       @player2.reload
       expect(@player2.team.life).to eq(119)
     end
+  end
 
-    it "should change the field and deal 81 damage against defense" do
+  context "when perform azure dragon summon against defense" do
+    it "should change the field and deal 81 damage" do
+      player_perform_rule(@player1, "defense", [[:tree, 3], [:tree, 4]])
       @game.turn_end
-      defense = Rule.find_by_name("defense")
-      defense_cards = [
-        Card.new(element: :tree, level: 3),
-        Card.new(element: :tree, level: 4)
-      ]
-      @player2.cards = defense_cards
-      @player2.perform(defense, defense_cards)
-      @game.turn_end
-      @player1.perform(@azure_dragon, @azure_dragon_cards)
+      player_perform_rule(@player2, "azure dragon summon", [[:tree, 1], [:tree, 2], [:tree, 3], [:tree, 4], [:tree, 5]])
       @game.reload
-      @player2.reload
+      @player1.reload
       expect(@game.field).to eq("tree")
-      expect(@player2.team.life).to eq(119)
+      expect(@player1.team.life).to eq(119)
     end
   end
 
@@ -307,50 +248,44 @@ RSpec.describe Rule, type: :model do
     before( :each ) do
       @game.field = :tree
       @game.save!
-      @one_water = [ Card.new( element: :water, level: 3 ) ]
-      @two_earth_one_metal = [ Card.new( element: :metal, level: 2 ), Card.new( element: :earth, level: 2 ), Card.new( element: :earth, level: 2 ) ]
-      @player1.cards = [@one_tree, @one_water, @two_earth_one_metal].flatten
-      @water_attack = Rule.find_by_name("water attack")
-      @chaos = Rule.find_by_name("chaos")
     end
 
     it "should make tree-attack deal double damage" do
-      @player1.perform( @tree_attack, @one_tree )
+      player_perform_rule(@player1, "tree attack", [[:tree, 1]])
       @player2.reload
-      expect( @player2.team.life ).to eq( 190 )
+      expect(@player2.team.life).to eq(190)
     end
 
-    it "should make water-attack heal player2" do
+    it "should make water-attack heal opponent" do
       @player2.team.life = 150
       @player2.team.save!
-      @player1.perform( @water_attack, @one_water )
+      player_perform_rule(@player1, "water attack", [[:water, 3]])
       @player2.reload
-      expect( @player2.team.life ).to eq( 157 )
+      expect(@player2.team.life).to eq(157)
     end
 
     it "should make chaos loss its effect" do
-      @player1.perform(@chaos, [@one_tree, @two_earth_one_metal].flatten)
+      player_perform_rule(@player1, "chaos", [[:earth, 3], [:earth, 2], [:tree, 1], [:metal, 4]])
       @player2.reload
       expect(@player2.annex["showhand"]).to be_nil
       expect(@player2.annex["remove"]).to be_nil
     end
 
     context "performing void field" do
-      before( :each ) do
-        @void_field = Rule.find_by_name( "void field" )
-        @player1.perform( @void_field, @two_earth_one_metal )
+      before(:each) do
+        player_perform_rule(@player1, "void field", [[:water, 2], [:metal, 2], [:fire, 2]])
         @game.reload
         @player1.reload
         @player2.reload
       end
 
       it "should make field disappear" do
-        expect( @game.field ).to eq( "nothing" )
+        expect(@game.field ).to eq("nothing")
       end
 
       it "should make both team lost 20 life" do
-        expect( @player1.team.life ).to eq( 180 )
-        expect( @player2.team.life ).to eq( 180 )
+        expect(@player1.team.life).to eq(180)
+        expect(@player2.team.life).to eq(180)
       end
     end
   end
