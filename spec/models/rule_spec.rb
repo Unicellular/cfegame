@@ -1,16 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Rule, type: :model do
-  def player_perform_rule(player, rule_name, card_attrs)
-    used_cards = card_attrs.map do |attr|
-      Card.new(element: attr[0], level: attr[1])
-    end
-    rule = Rule.find_by_name(rule_name)
-    player.cards = used_cards
-    player.perform(rule, used_cards)
-  end
-
-  before( :each ) do
+  before(:each) do
     # 測試前準備
     @game = Game.open( User.create )
     @game.join_with( User.create, @game.teams[1] )
@@ -55,7 +46,7 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when perform attack" do
-    before ( :each ) do
+    before(:each) do
       @player1.cards = [ @one_metal ].flatten
     end
 
@@ -80,7 +71,7 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when player perform copy" do
-    before( :each ) do
+    before(:each) do
       @player1.cards = @one_metal
       @player1.perform(@metal_attack, @one_metal)
       @player1.set_phase(:end)
@@ -125,7 +116,7 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when player perform defense" do
-    before( :each ) do
+    before(:each) do
       player_perform_rule(@player1, "defense", [[:tree, 1], [:tree, 2]])
       @game.turn_end
       player_perform_rule(@player2, "metal attack", [[:metal, 5]])
@@ -162,7 +153,7 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when player perform metal_formation" do
-    before( :each ) do
+    before(:each) do
       player_perform_rule(@player1, "metal formation", [[:metal, 5], [:metal, 4], [:metal, 4]])
     end
 
@@ -207,7 +198,7 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when an effect doesn't implemented" do
-    before( :each ) do
+    before(:each) do
       @new_rule = Rule.new( name: "new rule", effect: JSON.parse( "{ \"hello\": \"world\" }" ) )
     end
 
@@ -245,7 +236,7 @@ RSpec.describe Rule, type: :model do
   end
 
   context "when the field is tree" do
-    before( :each ) do
+    before(:each) do
       @game.field = :tree
       @game.save!
     end
