@@ -53,4 +53,30 @@ RSpec.describe Player, type: :model do
     @game.reload
     expect(@game.field).to eq("tree")
   end
+
+  context "when player obtain a card" do
+    before(:each) do
+      # todo
+    end
+
+    it "should get a virtual card with the modified value" do
+      old_card = [Card.new(element: :fire, level: 1)]
+      @player1.obtain(old_card, element: :earth)
+      @player1.reload
+      expect(@player1.cards.where(element: "earth", level: 1, virtual: true).count).to eq(1)
+    end
+
+    it "should get a virtual card with the modified value when not using any card" do
+      @player1.obtain([], element: :earth, level: 4)
+      @player1.reload
+      expect(@player1.cards.where(element: "earth", level: 4, virtual: true).count).to eq(1)
+    end
+
+    it "should get a virtual card with the modified value when using random 2 cards" do
+      old_card = [Card.new(element: :water, level: 5), Card.new(element: :earth, level: 3)]
+      @player1.obtain(old_card, element: :fire, level: 2)
+      @player1.reload
+      expect(@player1.cards.where(element: "fire", level: 2, virtual: true).count).to eq(1)
+    end
+  end
 end
