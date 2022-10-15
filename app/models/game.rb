@@ -74,6 +74,8 @@ class Game < ApplicationRecord
   def deal_cards
     players.each do |player|
       player.cards << deck.cards.first(player.hand_limit)
+      # 不加這行測試會報錯
+      deck.reload
     end
   end
 
