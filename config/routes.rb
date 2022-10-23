@@ -25,6 +25,7 @@ Rails.application.routes.draw do
         get 'possible_moves'
         get 'perform'
         get 'select'
+        get 'craft'
       end
     end
   end

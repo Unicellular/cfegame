@@ -71,6 +71,12 @@ class PlayersController < ApplicationController
     render json: @game.reload.info(@player)
   end
 
+  def craft
+    crafted = {element: params[:element], level: params[:level]}
+    @player.craft(crafted)
+    render json: @game.reload.info(@player)
+  end
+
   private
 
   # player must be in his turn at that game.

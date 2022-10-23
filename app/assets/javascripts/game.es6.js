@@ -103,7 +103,7 @@ class Game {
       return;
     }
     // 如果是在產生虛擬牌，則進入選牌流程
-    if (this.current_action == 'craft_element' || this.current_action == 'craft_level') {
+    if (this.current_action == 'craft_card' || this.current_action == 'craft_level') {
       this.select_card_attr(selected_cards);
       return;
     }
@@ -245,8 +245,9 @@ class Game {
         self.select_cards(data['opponent']['members'][0]['hands']);
         return;
       }
-      if (data['current_action'] == 'craft') {
-        self.craft_card('element');
+      if (data.current.members[0].annex.craft) {
+        // 只能有card、element、level
+        self.craft_card(data.current.members[0].annex.craft);
         return;
       }
       self.draw_cards();
@@ -290,15 +291,19 @@ class Game {
 
   craft_card(attr_type, attr) {
     // 因為toggle_choice是看物件的id，所以在新增虛擬卡的選項時要加上id
-    if (attr_type == 'element') {
+    if (attr_type == 'card') {
       this.info['choices'] = ['metal', 'tree', 'water', 'fire', 'earth'].map((element, index) => {
         return {'id': 'choice-' + index, 'element': element, 'level': 1};
       });
-      this.current_action = 'craft_element';
+      this.current_action = 'craft_card';
     }
-    if (attr_type == 'level' && attr['element']) {
+    if (attr_type == 'level') {
+      let element = 'metal';
+      if (attr['element']) {
+        element = attr['element'];
+      }
       this.info['choices'] = [1, 2, 3, 4, 5].map((level, index) => {
-        return {'id': 'choice-' + index, 'element': attr['element'], 'level': level};
+        return {'id': 'choice-' + index, 'element': element, 'level': level};
       });
       this.current_action = 'craft_level';
     }
@@ -310,7 +315,7 @@ class Game {
   select_card_attr(selected_cards) {
     console.log(selected_cards);
     var crafted = {};
-    if (this.current_action == 'craft_element') {
+    if (this.current_action == 'craft_card') {
       crafted['element'] = selected_cards[0]['element'];
       this.craft_card('level', crafted);
       return;
@@ -328,6 +333,8 @@ class Game {
         console.log("card crafted");
         console.info(data);
         self.update_status(data);
+        self.current_action = null;
+        $('#choose').modal('hide');
       })
       return;
     }

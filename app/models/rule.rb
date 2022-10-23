@@ -124,6 +124,9 @@ class Rule < ApplicationRecord
             series != value
           end
         end
+      when "rule"
+        # 預設value為array
+        cards.any? {|card| card.virtual} && value.any? {|rule_name| name == rule_name}
       end
     end
   end
@@ -357,6 +360,8 @@ class Rule < ApplicationRecord
         player.attached(hero: value)
       when "self_reduce"
         player.reduced(value)
+      when "craft"
+        player.attached(craft: value)
       else
         raise "This effect [" + key + "] is not implemented"
       end
