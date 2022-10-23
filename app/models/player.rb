@@ -129,7 +129,8 @@ class Player < ApplicationRecord
     new_card = obtain(cards_used, modified)
     deleted("craft")
     # 將組好的新卡寫入事件中
-    event.effect = event.effect.merge!(crafted: new_card)
+    # 將等級寫進point裡，以利後續判斷精研，因為規則上是小於，所以要是負的
+    event.effect = event.effect.merge!(crafted: new_card, point: -new_card.level)
     event.save!
   end
 
