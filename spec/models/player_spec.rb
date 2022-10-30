@@ -80,4 +80,25 @@ RSpec.describe Player, type: :model do
       expect(@player1.cards.where(element: "fire", level: 2, virtual: true).count).to eq(1)
     end
   end
+
+  context "when a player craft a card" do
+    before(:each) do
+      @game.current_turn.events.create(player: @player1, cards_used: [{element: :fire, level: 1}], effect: {}, rule: Rule.find_by_name("craft"))
+      @player1.attached(craft: "card")
+      @player1.craft(element: :water, level: 3)
+    end
+
+    it "should get a virtual card with the modified value" do
+      expect(@player1.cards.where(element: "water", level: 3, virtual: true).count).to eq(1)
+    end
+
+    it "should modified the event causing this crafting effect" do
+      event = @game.current_turn.events.joins(:rule).where(rules: {form: :power, subform: :active}).order(created_at: :desc).first
+      #byebug
+      expect(event.effect["crafted"]["element"]).to eq("water")
+      expect(event.effect["crafted"]["level"]).to eq(3)
+      expect(event.effect["crafted"]["virtual"]).to eq(true)
+      expect(event.effect["point"]).to eq(-3)
+    end
+  end
 end
