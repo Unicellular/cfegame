@@ -91,16 +91,26 @@ class Game {
     this.request_possible_moves( action );
   }
 
-  confirm_choice(){
-    var selected_ids = this.collect_cards( this.info['choices'], "selected" );
-    if ( this.info['opponent']['members'][0]['annex']['showhand'] ) {
-      this.select_opponent_hands( selected_ids );
-    } else {
-      this.fill_self_hands( selected_ids );
+  confirm_choice() {
+    var selected_cards = this.collect_cards(this.info['choices'], "selected");
+    // 選擇實體牌時，只需回傳牌的id
+    let selected_ids = selected_cards.map((card, i) => {
+      return card.id;
+    });
+    // 如果還看得到對手的牌，就先選擇對手的牌
+    if (this.info['opponent']['members'][0]['annex']['showhand']) {
+      this.select_opponent_hands(selected_ids);
+      return;
     }
+    // 如果是在產生虛擬牌，則進入選牌流程
+    if (this.current_action == 'craft_card' || this.current_action == 'craft_level') {
+      this.select_card_attr(selected_cards);
+      return;
+    }
+    this.fill_self_hands(selected_ids);
   }
 
-  fill_self_hands( selected_ids ){
+  fill_self_hands(selected_ids) {
     if ( selected_ids.length > 1 ) {
       console.log( "discard too manay!" );
       return;
@@ -131,7 +141,7 @@ class Game {
     });
   }
 
-  select_opponent_hands( selected_ids ){
+  select_opponent_hands(selected_ids) {
     console.log( selected_ids );
     let url = [
       this.info['id'],
@@ -173,22 +183,21 @@ class Game {
     });
   }
 
-  collect_cards( action, condition = null ){
+  collect_cards(action, condition = null) {
     let filtered = action;
-    if ( condition != null ){
-      filtered = filtered.filter( ( card, index ) => {
+    if (condition != null) {
+      filtered = action.filter((card, index) => {
         return card[condition];
       });
     }
-    let card_ids = filtered.map( ( card, index ) => {
-      return card.id;
-    });
-    return card_ids;
+    return filtered;
   }
 
   request_possible_moves( action ) {
     console.log( "request possible moves" );
-    let card_ids = this.collect_cards( action );
+    let card_ids = this.collect_cards(action).map((card, i) => {
+      return card.id;
+    });
     let url = [
       this.info['id'],
       "players",
@@ -213,7 +222,9 @@ class Game {
 
   perform_rule( rule ){
     let action = this.info['current']['action'];
-    let card_ids = this.collect_cards( action );
+    let card_ids = this.collect_cards(action).map((card, i) => {
+      return card.id;
+    });
     console.log( rule.data("id") );
     let url = [
       this.info['id'],
@@ -226,15 +237,20 @@ class Game {
       type: "GET",
       url: url,
       data: { cards: card_ids, rule: rule.data("id") }
-    }).done( (data) => {
+    }).done((data) => {
       console.log("rule performed");
       console.log(data);
-      self.update_status( data );
-      if ( data['opponent']['members'][0]['annex']['showhand'] ) {
-        self.select_cards( data['opponent']['members'][0]['hands'] );
-      } else {
-        self.draw_cards();
+      self.update_status(data);
+      if (data['opponent']['members'][0]['annex']['showhand']) {
+        self.select_cards(data['opponent']['members'][0]['hands']);
+        return;
       }
+      if (data.current.members[0].annex.craft) {
+        // 只能有card、element、level
+        self.craft_card(data.current.members[0].annex.craft);
+        return;
+      }
+      self.draw_cards();
     });
   }
 
@@ -273,6 +289,57 @@ class Game {
     $('#choose').modal('show');
   }
 
+  craft_card(attr_type, attr) {
+    // 因為toggle_choice是看物件的id，所以在新增虛擬卡的選項時要加上id
+    if (attr_type == 'card') {
+      this.info['choices'] = ['metal', 'tree', 'water', 'fire', 'earth'].map((element, index) => {
+        return {'id': 'choice-' + index, 'element': element, 'level': 1};
+      });
+      this.current_action = 'craft_card';
+    }
+    if (attr_type == 'level') {
+      let element = 'metal';
+      if (attr['element']) {
+        element = attr['element'];
+      }
+      this.info['choices'] = [1, 2, 3, 4, 5].map((level, index) => {
+        return {'id': 'choice-' + index, 'element': element, 'level': level};
+      });
+      this.current_action = 'craft_level';
+    }
+    console.log(this.info);
+    this.view.update_view(this.info);
+    $('#choose').modal('show');
+  }
+
+  select_card_attr(selected_cards) {
+    console.log(selected_cards);
+    var crafted = {};
+    if (this.current_action == 'craft_card') {
+      crafted['element'] = selected_cards[0]['element'];
+      this.craft_card('level', crafted);
+      return;
+    }
+    if (this.current_action == 'craft_level') {
+      // 讓遊戲物件在block裡可見
+      var self = this;
+      crafted = selected_cards[0];
+      // 傳送回後端賦與id
+      $.ajax({
+        type: "GET",
+        url: this.generate_url("craft"),
+        data: crafted
+      }).done((data) => {
+        console.log("card crafted");
+        console.info(data);
+        self.update_status(data);
+        self.current_action = null;
+        $('#choose').modal('hide');
+      })
+      return;
+    }
+  }
+
   toggle_choice( clicked ){
     this.info['choices'] = this.info['choices'].map( ( card, index ) => {
       if ( card.id == clicked.data('id') ){
@@ -301,4 +368,13 @@ class Game {
     });
   }
 
+  generate_url(action) {
+    // 基本url在/games/
+    return [
+      this.info['id'],
+      "players",
+      this.info['current']['members'][0]['id'],
+      action
+    ].join("/");
+  }
 }

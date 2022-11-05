@@ -120,6 +120,20 @@ class Player < ApplicationRecord
     game.current_turn.update( phase: phase )
   end
 
+  def craft(modified)
+    # 找到本回合最近使用發動能力的事件
+    event = game.current_turn.events.joins(:rule).where(rules: {form: :power, subform: :active}).order(created_at: :desc).first
+    cards_used = event.cards_used.map do |attr|
+      Card.new(attr)
+    end
+    new_card = obtain(cards_used, modified)
+    deleted("craft")
+    # 將組好的新卡寫入事件中
+    # 將等級寫進point裡，以利後續判斷精研，因為規則上是小於，所以要是負的
+    event.effect = event.effect.merge!(crafted: new_card, point: -new_card.level)
+    event.save!
+  end
+
 # happens in opponent's turn
   def attacked( point, kind=nil )
     if shield == 0
@@ -213,11 +227,12 @@ class Player < ApplicationRecord
     deck.cards << cards_selected
   end
 
-  def obtain( used_cards, modified )
+  def obtain(used_cards, modified)
     old_card = used_cards.first
     card_attrs = { level: old_card.level, element: old_card.element, virtual: true }.merge( modified )
     new_card = Card.new( card_attrs )
     cards << new_card
+    new_card
   end
 
   def summon( entity )
