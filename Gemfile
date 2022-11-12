@@ -25,6 +25,7 @@ gem 'importmap-rails'
 gem 'sassc-rails', '~> 2.1'
 gem 'bootstrap', '~> 5.2'
 gem 'terser'
+gem 'mini_racer'
 gem 'turbo-rails'
 gem 'jbuilder', '~> 2.6'
 gem 'slim-rails'
@@ -37,10 +38,6 @@ gem 'omniauth'
 gem 'omniauth-google-oauth2'
 gem 'omniauth-facebook'
 gem 'omniauth-rails_csrf_protection'
-
-install_if -> { RUBY_PLATFORM =~ /x86_64-linux-?(?!.*musl).*/ } do
-  gem 'mini_racer'
-end
 
 group :doc do
   # bundle exec rake doc:rails generates the API under doc/api.
