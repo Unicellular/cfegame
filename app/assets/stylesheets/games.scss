@@ -24,7 +24,7 @@ table {
 }
 
 #maincontainer {
-  background-color: $gray-900;
+  background-color: #eeeeee;
   position: relative;
 }
 
@@ -42,7 +42,7 @@ table {
 
 .side {
   height: 100%;
-  background-color: $gray-500;
+  background-color: #777777;
 }
 
 .main {
@@ -120,13 +120,13 @@ table {
 }
 
 .life {
-  font-size: 5em;
+  font-size: 60px;
   color: red;
   text-align: center;
 }
 
 .shield {
-  font-size: 48px;
+  font-size: 36px;
   color: blue;
   text-align: center;
 }

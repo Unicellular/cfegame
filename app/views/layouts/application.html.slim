@@ -16,17 +16,14 @@ html
         button.navbar-toggler type='button' data-bs-toggle='collapse' data-bs-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'
           span class='navbar-toggler-icon'
         .collapse.navbar-collapse id='navbarSupportedContent'
-          ul.navbar-nav.me-auto.mb-2.mb-lg-0
+          .navbar-nav
             - if user_signed_in?
-              li.nav-item
-                p.navbar-text
-                  | Logged in as
-                  = current_user.name
-              li.nav-item
-                = link_to 'Logout', signout_path
+              .navbar-text.nav-item
+                span> Logged in as
+                = current_user.name
+              = link_to 'Logout', signout_path, class: 'nav-link nav-item'
             - else
-              li.nav-item
-                = link_to 'Login', signin_path, class: 'nav-link', aria_current: 'page'
+              = link_to 'Login', signin_path, class: 'nav-link nav-item', aria_current: 'page'
           - flash.each do |name, msg|
             - if msg.is_a?(String)
               li.alert class=( bootstrap_class_for(name) ) id=("flash_#{name}")

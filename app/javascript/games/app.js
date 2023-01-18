@@ -6,4 +6,5 @@ export function run(app){
   } else if ( app && app.timerID ){
     clearInterval( app.timerID );
   }
+  return app;
 }

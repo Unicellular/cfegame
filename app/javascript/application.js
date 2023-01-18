@@ -7,10 +7,10 @@ import "bootstrap"
 import "popper"
 import { run, hidden_alert } from "games"
 
-var app
+export var app
 
 $(document).on("turbo:load", () => {
-  run(app)
+  app = run(app)
 })
 
 $(document).bind("page:load ready", () => {

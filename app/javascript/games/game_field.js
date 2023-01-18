@@ -1,3 +1,4 @@
+import { app } from "application"
 export class GameField {
   constructor(){
     $("#player .action").on( "click", ".card", (e) => {
