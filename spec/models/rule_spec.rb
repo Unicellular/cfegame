@@ -262,6 +262,21 @@ RSpec.describe Rule, type: :model do
       expect(@player2.annex["remove"]).to be_nil
     end
 
+    context "performing tree formation" do
+      before(:each) do
+        player_perform_rule(@player1, "tree formation", [[:tree, 2], [:tree, 1], [:tree, 2]])
+      end
+
+      it "should deal double damage" do
+        @player2.reload
+        expect(@player2.team.life).to eq(170)
+      end
+
+      it "should not summon jupiter" do
+        expect(@player1.team.has_star?("jupiter")).to be false
+      end
+    end
+
     context "performing void field" do
       before(:each) do
         player_perform_rule(@player1, "void field", [[:water, 2], [:metal, 2], [:fire, 2]])

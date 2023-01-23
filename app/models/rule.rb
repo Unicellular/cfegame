@@ -273,7 +273,7 @@ class Rule < ApplicationRecord
       option = {target_hand: [target_hand]}
     end
     point = calculate(cards_used, option) unless formula.nil?
-    modify_effect(game, player, last_player, point)
+    modify_effect(game, player, last_player, point, cards_used)
     # 設定初始值
     result_effect = {}
     if target.respond_to?(:each)
@@ -296,7 +296,7 @@ class Rule < ApplicationRecord
     affected = nil
     result_effect = effect
     # 排除不需處理的效果
-    not_process = ["point", "immune"]
+    not_process = ["point", "immune", "modified_point"]
     effect.each do |key, value|
       case key
       when "attack"
@@ -378,38 +378,35 @@ class Rule < ApplicationRecord
     target
   end
 
-  def modify_effect(game, player, last_player, point)
+  def modify_effect(game, player, last_player, point, cards)
     # 留存原始點數
-    patch = {"point" => point}
+    effect["point"] = point
+    effect["modified_point"] = point
     # 尋找會修改效果的規則
     fits = Rule.all_fitted(game, player, :static, self)
     fits.each do |rule|
-      point = process_modify(rule, point) unless rule.effect["modify"].nil?
+      process_modify(rule) unless rule.effect["modify"].nil?
       effect["immune"] = rule.effect["immune"] unless rule.effect["immune"].nil?
     end
     # 處理反制效果
-    modify_with_counter(player, last_player, point)
-    # 用實際的點數取代point
-    effect.each do |key,value|
-      if value == "point"
-        patch[key] = point
-      end
-    end
-    effect.merge!(patch)
+    modify_with_counter(player, last_player)
+    effect
     #return point
   end
 
-  def modify_with_counter(player, last_player, point)
-    ["attack", "heal"].each do |action|
+  def modify_with_counter(player, last_player)
+    ["attack", "heal", "shield", "deshield"].each do |action|
       next unless effect.has_key?(action) && effect[action] == "point"
       # action可能是攻擊或被其他效果影響改成回復的攻擊，所以仍要判斷和反制效果的互動
       if last_player.annex["counter"] == "attack" && form == "attack" && !is_immune_from(last_player.annex["counter"])
         effect[action] = 0
       elsif last_player.annex["counter"] == "split" && form == "attack" && !is_immune_from(last_player.annex["counter"])
-        effect[action] = point.fdiv(2).ceil
-        effect["self_"+action] = point.fdiv(2).ceil
+        effect[action] = effect["modified_point"].fdiv(2).ceil
+        effect["self_"+action] = effect["modified_point"].fdiv(2).ceil
       elsif last_player.annex["counter"] == "spell" && form == "spell" && !is_immune_from(last_player.annex["counter"])
         effect.clear
+      else
+        effect[action] = effect["modified_point"]
       end
     end
   end
@@ -418,10 +415,10 @@ class Rule < ApplicationRecord
     effect.has_key?("immune") && effect["immune"].include?(counter)
   end
 
-  def process_modify(rule, point)
+  def process_modify(rule)
     case rule.effect["modify"]
     when "double"
-      point = point * 2
+      effect["modified_point"] = effect["modified_point"] * 2
     when "heal"
       effect["heal"] = effect.delete("attack")
     when "counter"
@@ -429,7 +426,6 @@ class Rule < ApplicationRecord
     else
       raise "This effect [" + rule.effect["modify"] + "] of rule [" + rule.name + "] is not implemented"
     end
-    point
   end
 
   def work_with_counter( player, target, last_player, action, point )
