@@ -12,12 +12,16 @@ class Player < ApplicationRecord
       self.annex = {}
   end
 
-  def draw( amount )
+  def draw(amount)
     return nil unless is_phase?( :draw ) || ( is_phase?( :start ) && cards.count == 0 )
     deck = game.deck
-    space = hand_limit-cards.count
+    space = hand_limit - cards.count
     amount = amount + annex["draw_extra"] unless annex["draw_extra"].nil?
     amount = space >= amount ? amount : space
+    amount = 0 if annex["draw"] == "none"
+    if amount == 0
+      return []
+    end
     if deck.cards.count < amount + 1
       deck.shuffle
     end

@@ -153,17 +153,12 @@ class Rule < ApplicationRecord
   end
 
   def tag_combination(cards, combination)
+    # 基本上只是把combination移到array的後面，以利push進stack後會在最頂端
     combination.each do |c|
-      key = c.element.to_sym
-      if cards[-1].is_a?(Hash)
-        if cards[-1].has_key?(key)
-          cards[-1][key].push(c.level)
-        else
-          cards[-1][key] = [c.level]
-        end
-      else
-        cards.push(key => [c.level])
+      rearranged = cards.index do |card|
+        card.element == c.element && card.level == c.level
       end
+      cards.push(cards.delete_at(rearranged))
     end
   end
 
@@ -197,6 +192,7 @@ class Rule < ApplicationRecord
     # 計算各行數量、同行數量
     GENERATE.each do |elem|
       rs["element"][elem] = cards.count{ |card| card.element == elem }
+      rs["element"]["!" + elem] = cards.count{ |card| card.element != elem }
       rs["element"]["same"] = rs["element"][elem] if rs["element"][elem] > rs["element"]["same"]
     end
     # 計算連續相生相剋數量
@@ -205,6 +201,7 @@ class Rule < ApplicationRecord
     # 計算各等級、同等級數量
     (1..5).each do |level|
       rs["level"][level.to_s] = cards.count{ |card| card.level == level }
+      rs["level"]["!" + level.to_s] = cards.count{ |card| card.level != level }
       rs["level"]["same"] = rs["level"][level.to_s] if rs["level"][level.to_s] > rs["level"]["same"]
     end
     rs["element"]["different"] = cards.uniq{ |card| card.element }.count
@@ -262,16 +259,25 @@ class Rule < ApplicationRecord
     write_attribute(:formula, postfix)
   end
 
+  def extract_calculation_option(cards, target)
+    target_hand = target.cards.count unless target.nil? || target.respond_to?(:each)
+    option = {target_hand: [target_hand]}
+    option_cards = {}
+    cards.each do |card|
+      key = card.element.to_sym
+      if option_cards.has_key?(key)
+        option_cards[key].push(card.level)
+      else
+        option_cards[key] = [card.level]
+      end
+    end
+    option.merge!(option_cards)
+  end
+
   def executed( player, cards_used, game )
     target = get_target( player, game )
-    target_hand = target.cards.count unless target.nil? || target.respond_to?(:each)
     last_player = game.last_player
-    # 抽出前面測試時tag的資料
-    if cards_used[-1].is_a?(Hash)
-      option = cards_used.pop.merge(target_hand: [target_hand])
-    else
-      option = {target_hand: [target_hand]}
-    end
+    option = extract_calculation_option(cards_used, target)
     point = calculate(cards_used, option) unless formula.nil?
     modify_effect(game, player, last_player, point, cards_used)
     # 設定初始值
@@ -362,6 +368,10 @@ class Rule < ApplicationRecord
         player.reduced(value)
       when "craft"
         player.attached(craft: value)
+      when "invalid"
+        player.attached(invalid: value)
+      when "draw"
+        player.attached(draw: value)
       else
         raise "This effect [" + key + "] is not implemented"
       end
@@ -382,6 +392,8 @@ class Rule < ApplicationRecord
     # 留存原始點數
     effect["point"] = point
     effect["modified_point"] = point
+    # 專精能力修改效果
+    modify_with_mastery(game, player, cards)
     # 尋找會修改效果的規則
     fits = Rule.all_fitted(game, player, :static, self)
     fits.each do |rule|
@@ -394,7 +406,19 @@ class Rule < ApplicationRecord
     #return point
   end
 
+  def modify_with_mastery(game, player, cards)
+    mastery_rules = get_mastery(game, player)
+    mastery_rules.each do |rule|
+      effect["point"] = effect["point"] + rule.effect["point"] unless effect["point"].nil? || rule.effect["point"].nil?
+      effect["modified_point"] = effect["point"]
+      effect["invalid"] = rule.effect["invalid"] unless rule.effect["invalid"].nil?
+    end
+  end
+
   def modify_with_counter(player, last_player)
+    if player.annex["invalid"] == name
+      effect.clear
+    end
     ["attack", "heal", "shield", "deshield"].each do |action|
       next unless effect.has_key?(action) && effect[action] == "point"
       # action可能是攻擊或被其他效果影響改成回復的攻擊，所以仍要判斷和反制效果的互動
@@ -423,6 +447,8 @@ class Rule < ApplicationRecord
       effect["heal"] = effect.delete("attack")
     when "counter"
       effect.clear
+    when "invalid"
+      effect.delete("invalid")
     else
       raise "This effect [" + rule.effect["modify"] + "] of rule [" + rule.name + "] is not implemented"
     end
