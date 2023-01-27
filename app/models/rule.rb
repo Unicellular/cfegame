@@ -407,7 +407,9 @@ class Rule < ApplicationRecord
   end
 
   def modify_with_mastery(game, player, cards)
-    mastery_rules = get_mastery(game, player)
+    mastery_rules = get_mastery(game, player).select do |rule|
+      rule.combination_test(cards)
+    end
     mastery_rules.each do |rule|
       effect["point"] = effect["point"] + rule.effect["point"] unless effect["point"].nil? || rule.effect["point"].nil?
       effect["modified_point"] = effect["point"]

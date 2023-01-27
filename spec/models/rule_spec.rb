@@ -389,13 +389,28 @@ RSpec.describe Rule, type: :model do
         player_perform_rule(@player1, "tree formation", [[:tree, 5], [:tree, 4], [:water, 3]])
         @player2.reload
       end
-      
-      it "should subtract 6 point formation initial calculation" do
+
+      it "should subtract 6 point from initial calculation" do
         expect(@player2.team.life).to eq(170)
       end
 
       it "should not summon jupiter" do
-        expect(@player2.team.has_star?("jupiter")).to be false
+        expect(@player1.team.has_star?("jupiter")).to be false
+      end
+    end
+
+    context "when the archmage perform tree formation without mastery power" do
+      before(:each) do
+        player_perform_rule(@player1, "tree formation", [[:tree, 5], [:tree, 4], [:tree, 3]])
+        @player2.team.reload
+      end
+      
+      it "should keep the point of initial calculation" do
+        expect(@player2.team.life).to eq(164)
+      end
+
+      it "should summon jupiter" do
+        expect(@player1.team.has_star?("jupiter")).to be true
       end
     end
 
