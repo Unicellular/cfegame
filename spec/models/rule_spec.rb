@@ -299,6 +299,8 @@ RSpec.describe Rule, type: :model do
   context "when the seeker school is used" do
     before(:each) do
       @player1.annex["hero"] = "kind"
+      @player1.team.life = 1
+      @player1.save
       @rebirth = Rule.find_by_name("rebirth")
       @all_cards = [
         Card.new(element: :tree, level: 4),
@@ -336,11 +338,9 @@ RSpec.describe Rule, type: :model do
       @player2.save
       generate_cards = @all_cards[1..3]
       @player1.cards = generate_cards
-      @player1.team.life = 15
-      @player1.team.save
       @player1.perform(@generate, generate_cards)
       @player1.reload
-      expect(@player1.team.life).to eq(45)
+      expect(@player1.team.life).to eq(31)
     end
 
     it "should pass all the test with the Kind" do
@@ -353,8 +353,6 @@ RSpec.describe Rule, type: :model do
 
     it "should recover 100 life after the Kind performing the rebirth #1" do
       @player1.cards = @all_cards[0..3]
-      @player1.team.life = 1
-      @player1.save
       @player1.perform(@rebirth, @player1.cards.to_a)
       @player1.reload
       expect(@player1.team.life).to eq(101)
@@ -362,11 +360,75 @@ RSpec.describe Rule, type: :model do
 
     it "should recover 125 life after the Kind performing the rebirth #2" do
       @player1.cards = @all_cards[1..2].push(@all_cards[0]).push(@all_cards[6])
-      @player1.team.life = 1
-      @player1.save
       @player1.perform(@rebirth, @player1.cards.to_a)
       @player1.reload
       expect(@player1.team.life).to eq(126)
+    end
+
+    it "should recover 100 life after the Kind performing the rebirth #3" do
+      player_perform_rule(@player1, "rebirth", [[:tree, 4], [:tree, 5], [:fire, 3], [:earth, 3]])
+      @player1.reload
+      expect(@player1.team.life).to eq(101)
+    end
+
+    it "should recover 125 life after the Kind performing the rebirth #4" do
+      player_perform_rule(@player1, "rebirth", [[:tree, 5], [:tree, 4], [:fire, 3], [:earth, 3]])
+      @player1.reload
+      expect(@player1.team.life).to eq(126)
+    end
+  end
+
+  context "when the mage school is used" do
+    before(:each) do
+      @player1.annex["hero"] = ["archmage", "mage"]
+      @player2.annex["hero"] = ["wise", "archmage", "mage"]
+    end
+
+    context "when the archmage perform tree formation with mastery power" do
+      before(:each) do
+        player_perform_rule(@player1, "tree formation", [[:tree, 5], [:tree, 4], [:water, 3]])
+        @player2.reload
+      end
+      
+      it "should subtract 6 point formation initial calculation" do
+        expect(@player2.team.life).to eq(170)
+      end
+
+      it "should not summon jupiter" do
+        expect(@player2.team.has_star?("jupiter")).to be false
+      end
+    end
+
+    context "when the wise perform tree formation with mastery power" do
+      before(:each) do
+        @game.turn_end
+        player_perform_rule(@player2, "tree formation", [[:tree, 5], [:tree, 4], [:water, 3]])
+        @player1.reload
+      end
+      
+      it "should subtract 6 point formation initial calculation" do
+        expect(@player1.team.life).to eq(170)
+      end
+
+      it "should summon jupiter" do
+        expect(@player1.team.has_star?("jupiter")).to be false
+      end
+    end
+
+    context "when the wise perform magic flash" do
+      before(:each) do
+        @game.turn_end
+        player_perform_rule(@player2, "magic flash", [[:fire, 5], [:fire, 4], [:water, 3], [:tree, 2]])
+        @player1.reload
+      end
+
+      it "should damage the opponent by 100 point" do
+        expect(@player1.team.life).to eq(100)
+      end
+
+      it "should not draw any card" do
+        expect(@player2.draw(2).count).to eq(0)
+      end
     end
   end
 end
