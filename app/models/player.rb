@@ -28,16 +28,22 @@ class Player < ApplicationRecord
     deck.cards.order(:position).first(amount+1)
   end
 
-  def discard( amount, dishand )
-    drawed_cards = draw( amount )
-    return nil unless drawed_cards.include? dishand
-    drawed_cards.delete( dishand )
-    game.discarded( dishand )
-    drawed_cards.each do |card|
-      cards << card
+  def discard(amount, dishand)
+    drawed_cards = draw(amount)
+    # 檢查捨棄的牌是否在抽起來的牌中
+    return nil unless drawed_cards.include?(dishand) || (dishand.nil? && drawed_cards.empty?)
+    unless dishand.nil?
+      drawed_cards.delete(dishand)
+      game.discarded(dishand)
+    end
+    unless drawed_cards.empty?
+      drawed_cards.each do |card|
+        cards << card
+      end
     end
     annex.delete("draw_extra")
-    set_phase( :end )
+    annex.delete("draw")
+    set_phase(:end)
     save
     dishand
   end

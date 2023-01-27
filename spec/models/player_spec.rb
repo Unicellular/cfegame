@@ -35,17 +35,38 @@ RSpec.describe Player, type: :model do
     end
   end
 
-  it "should not have draw_extra effect after discard" do
-    # 清空手牌
-    @game.deck.cards << @player1.cards
-    @game.current_turn.draw!
-    @player1.annex["draw_extra"] = 2
-    @player1.save
-    drawed_cards = @player1.draw(2)
-    dishand = @player1.discard(2, drawed_cards[0])
-    @player1.reload
-    expect(@player1.cards.count).to eq(4)
-    expect(@player1.annex["draw_extra"]).to be_nil
+  context "when a player draw cards" do
+    before(:each) do
+      # 清空手牌
+      @game.deck.cards << @player1.cards
+      @game.current_turn.draw!
+    end
+
+    it "should not have draw_extra effect after discard" do
+      @player1.annex["draw_extra"] = 2
+      @player1.save
+      drawed_cards = @player1.draw(2)
+      dishand = @player1.discard(2, drawed_cards[0])
+      @player1.reload
+      expect(@player1.cards.count).to eq(4)
+      expect(@player1.annex["draw_extra"]).to be_nil
+    end
+
+    it "should not show any cards when draw 0 card" do
+      drawed_cards = @player1.draw(0)
+      expect(drawed_cards.empty?).to be true
+      discard = @player1.discard(0, drawed_cards[0])
+      expect(discard).to be_nil
+      expect(@player1.is_phase?(:end)).to be true
+    end
+
+    it "should not draw none effect atter discard" do
+      @player1.annex["draw"] = "none"
+      @player1.save
+      drawed_cards = @player1.draw(2)
+      discard = @player1.discard(2, drawed_cards[0])
+      expect(@player1.annex["draw"]).to be_nil
+    end
   end
 
   it "shold change the field after summon tree field" do
