@@ -300,6 +300,7 @@ class Rule < ApplicationRecord
   def implemented( game, player, target, last_player, effect, cards_used )
     # initialize object for the one in block
     affected = nil
+    affected_way = nil
     result_effect = effect
     # 排除不需處理的效果
     not_process = ["point", "immune", "modified_point"]
@@ -361,7 +362,7 @@ class Rule < ApplicationRecord
       when *not_process
         # do nothing
       when "gain"
-        player.change_if(condition_test(game, player), value)
+        affected_way = player.change_if(condition_test(game, player), value)
       when "become"
         player.attached(hero: value)
       when "self_reduce"
@@ -378,13 +379,15 @@ class Rule < ApplicationRecord
     end
     # 處理完所有效果再來附加屬性，避免反震自傷時會再減半
     player.attached("element" => subform) if GENERATE.include?(subform)
+    result_effect["affected_way"] = affected_way unless affected_way.nil?
     [target, result_effect]
   end
 
   def performed( player, cards_used, game )
     target, result_effect = executed( player, cards_used, game )
     turn = game.current_turn
-    turn.events.create! player: player, target: target, rule: self, cards_used: cards_used.map { |c| c.to_hash }, effect: result_effect
+    # 除非持續效果沒有影響，否則都需寫一個event
+    turn.add_event(player, target, self, cards_used, result_effect) unless continuous? && !result_effect["affected_way"]
     target
   end
 

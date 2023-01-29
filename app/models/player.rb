@@ -203,16 +203,18 @@ class Player < ApplicationRecord
   end
 
   def change_if( condition, effect )
+    affected_way = nil
     effect.each do |key, value|
-      if condition
-        unless annex.has_key?(key)
-          annex[key] = value
-        end
-      else
+      if condition && !annex.has_key?(key)
+        annex[key] = value
+        affected_way = "gain"
+      elsif !condition && annex.has_key?(key)
         annex.delete(key)
+        affected_way = "remove"
       end
     end
     save
+    affected_way
   end
 
   def shielded( value )
