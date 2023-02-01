@@ -20,4 +20,4 @@ transform earth,火化土,組合基礎規則陣法時，可以將一張火行牌
 saturn attack,鎮星星擊,／土／土行攻擊，點數＝１０,star,"{ ""star"": { ""saturn"": ""mine"" } }",attack,earth,-1,"{ ""element"": { ""earth"": 1 }, ""count"": 1 }",10,"{ ""attack"": ""point"" }"
 saturn formation,鎮星堪天陣,／土土火／土行攻擊，點數＝等級總和×３，本回合抽牌＋１，破除土星‧鎮星,star,"{ ""star"": { ""saturn"": ""mine"" } }",attack,earth,-1,"{ ""element"": { ""earth"": 2, ""fire"": 1 }, ""count"": 3 }",sum * 3,"{ ""attack"": ""point"", ""draw_extra"": 1, ""eject"": { ""star"": ""saturn"" } }"
 void star,虛空破星術,／三張同級牌／主動術式，破除所有星辰，星辰被破除方扣除２０點生命,star,{},spell,active,,"{ ""level"": { ""same"": 3 }, ""count"": 3 }",,"{ ""eject"": { ""star"": ""all"" }, ""reduce_affected"": 20 }"
-star connection,五星連珠,／召喚過全部五顆星辰／直接獲得勝利,star,"{ ""history"": [ ""venus"", ""jupiter"", ""mercury"", ""mars"", ""saturn"" ] }",power,passive,,{},,"{ ""win"": true }"
+star connection,五星連珠,／召喚過全部五顆星辰／直接獲得勝利,star,"{""history"": [""venus"", ""jupiter"", ""mercury"", ""mars"", ""saturn""], ""effect"": {""summon"": ""star""}}",power,passive,,{},,"{""win"": true}"

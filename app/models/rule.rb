@@ -100,6 +100,12 @@ class Rule < ApplicationRecord
           stars.delete( star )
         end
         stars.empty?
+      when "effect"
+        value.all? do |ekey, evalue|
+          event_list.where(rule: executing_rule).any? do |event|
+            event.effect.has_key?(ekey) && event.effect[ekey].has_key?(evalue)
+          end
+        end
       else
         true
       end
@@ -356,9 +362,7 @@ class Rule < ApplicationRecord
           entity.reduced( value )
         end
       when "win"
-        if condition_test(game, player)
-          game.decide_winner( player.team )
-        end
+        game.decide_winner(player.team)
       when *not_process
         # do nothing
       when "gain"

@@ -197,6 +197,26 @@ RSpec.describe Rule, type: :model do
     end
   end
 
+  context "when a player summon the last star" do
+    before(:each) do
+      @player1.star_history = ["jupiter", "venus", "mercury", "mars"]
+      player_perform_rule(@player1, "earth formation", [[:earth, 5], [:earth, 4], [:earth, 4]])
+      @game.reload
+    end
+
+    it "should make current player have all 5 starts" do
+      expect(@player1.star_history).to match_array(["venus", "jupiter", "mercury", "mars", "saturn"])
+    end
+
+    it "should make current player win" do
+      expect(@game.winner).to eq(@game.teams.index(@player1.team))
+    end
+
+    it "should make game be over" do
+      expect(@game.over?).to be true
+    end
+  end
+
   context "when an effect doesn't implemented" do
     before(:each) do
       @new_rule = Rule.new( name: "new rule", effect: JSON.parse( "{ \"hello\": \"world\" }" ) )
