@@ -7,15 +7,15 @@
 ## 開發環境
 
 * rails 7.0.4
-* ruby 3.1.2
+* ruby 3.2.0
 
 ## 執行rspec
 
 [source,shell,numbered]
 ----
 # if you have change the db schema
-rake db:reset
-rake db:seed RAILS_ENV=test
+rails db:reset
+rails db:seed RAILS_ENV=test
 # do the spec
-rake spec
+rails spec
 ----
