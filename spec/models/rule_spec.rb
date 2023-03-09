@@ -466,4 +466,68 @@ RSpec.describe Rule, type: :model do
       end
     end
   end
+
+  context "when the windwalker school is used" do
+    before(:each) do
+      @player1.annex["hero"] = ["martial", "shadowalker", "windwalker"]
+    end
+
+    context "player1 perform any attack whose point is below 15 while opponent had split counter" do
+      before(:each) do
+        @player2.annex["counter"] = "split"
+        @player2.save!
+        player_perform_rule(@player1, "tree attack", [[:tree, 5]])
+      end
+
+      it "should damage opponent by full point" do
+        expect(@player2.reload.team.life).to eq(191)
+      end
+
+      it "should not damage itself" do
+        expect(@player1.reload.team.life).to eq(200)
+      end
+    end
+
+    context "player1 perform shadow escape" do
+      before(:each) do
+        @player2.shield = 100
+        player_perform_rule(@player1, "shadow escape", [[:tree, 5]])
+      end
+
+      it "should reduce opponent's life" do
+        expect(@player2.reload.team.life).to eq(190)
+      end
+
+      it "should ignore opponent's shield" do
+        expect(@player2.shield).to eq(100)
+      end
+    end
+
+    context "player2 perform chaos" do
+      before(:each) do
+        @game.turn_end
+        player_perform_rule(@player2, "chaos", [[:tree, 4], [:earth, 4], [:earth, 2], [:metal, 1]])
+      end
+
+      it "should not affect player1 #1" do
+        expect(@player1.reload.annex["showhand"]).not_to be_truthy
+      end
+
+      it "should not affect player1 #2" do
+        expect(@player1.reload.annex["remove"]).not_to eq(2)
+      end
+    end
+
+    context "player1 perform shadow slash" do
+      before(:each) do
+        @player2.team.life = 191
+        @player2.team.save
+        player_perform_rule(@player1, "shadow slash", [[:earth, 3], [:earth, 4], [:earth, 3]])
+      end
+
+      it "should cut the opponent's life in half" do
+        expect(@player2.reload.team.life).to eq(95)
+      end
+    end
+  end
 end
