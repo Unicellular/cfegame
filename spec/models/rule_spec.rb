@@ -470,6 +470,7 @@ RSpec.describe Rule, type: :model do
   context "when the windwalker school is used" do
     before(:each) do
       @player1.annex["hero"] = ["martial", "shadowalker", "windwalker"]
+      @game.trigger_continuous_effect
     end
 
     context "player1 perform any attack whose point is below 15 while opponent had split counter" do
@@ -488,10 +489,10 @@ RSpec.describe Rule, type: :model do
       end
     end
 
-    context "player1 perform shadow escape" do
+    context "player1 perform shadow cut" do
       before(:each) do
         @player2.shield = 100
-        player_perform_rule(@player1, "shadow escape", [[:tree, 5]])
+        player_perform_rule(@player1, "shadow cut", [[:tree, 5]])
       end
 
       it "should reduce opponent's life" do

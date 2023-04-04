@@ -285,7 +285,7 @@ class Rule < ApplicationRecord
     last_player = game.last_player
     option = extract_calculation_option(cards_used, target)
     point = calculate(cards_used, option) unless formula.nil?
-    modify_effect(game, player, last_player, point, cards_used)
+    modify_effect(game, player, last_player, target, point, cards_used)
     # 設定初始值
     result_effect = {}
     if target.respond_to?(:each)
@@ -369,6 +369,8 @@ class Rule < ApplicationRecord
         affected_way = player.change_if(condition_test(game, player), value)
       when "become"
         player.attached(hero: value)
+      when "reduce"
+        target.reduced(value)
       when "self_reduce"
         player.reduced(value)
       when "craft"
@@ -395,7 +397,7 @@ class Rule < ApplicationRecord
     target
   end
 
-  def modify_effect(game, player, last_player, point, cards)
+  def modify_effect(game, player, last_player, target, point, cards)
     # 留存原始點數
     effect["point"] = point
     effect["modified_point"] = point
@@ -407,6 +409,8 @@ class Rule < ApplicationRecord
       process_modify(rule) unless rule.effect["modify"].nil?
       effect["immune"] = rule.effect["immune"] unless rule.effect["immune"].nil?
     end
+    # 處理與目標的互動
+    modify_with_target(target)
     # 處理反制效果
     modify_with_counter(player, last_player)
     effect
@@ -425,21 +429,33 @@ class Rule < ApplicationRecord
   end
 
   def modify_with_counter(player, last_player)
-    if player.annex["invalid"] == name
+    if player.annex["invalid"] == name || (last_player.annex["counter"] == "spell" && form == "spell" && !is_immune_from(last_player.annex["counter"]))
       effect.clear
+      return nil
     end
-    ["attack", "heal", "shield", "deshield"].each do |action|
-      next unless effect.has_key?(action) && effect[action] == "point"
+    ["attack", "heal", "shield", "deshield", "reduce"].each do |action|
+      if effect.has_key?(action) && effect[action] == "point"
+        effect[action] = effect["modified_point"]
+      end
+    end
+    ["attack", "heal"].each do |action|
       # action可能是攻擊或被其他效果影響改成回復的攻擊，所以仍要判斷和反制效果的互動
+      next unless effect.has_key?(action)
       if last_player.annex["counter"] == "attack" && form == "attack" && !is_immune_from(last_player.annex["counter"])
         effect[action] = 0
       elsif last_player.annex["counter"] == "split" && form == "attack" && !is_immune_from(last_player.annex["counter"])
         effect[action] = effect["modified_point"].fdiv(2).ceil
         effect["self_"+action] = effect["modified_point"].fdiv(2).ceil
-      elsif last_player.annex["counter"] == "spell" && form == "spell" && !is_immune_from(last_player.annex["counter"])
+      end
+    end
+  end
+
+  def modify_with_target(target)
+    return nil if target.nil?
+    # copy（幻化）的效果最後還是會找到被複製的規則，所以用原規則的名字來判斷即可
+    target.annex.each do |k, v|
+      if v.respond_to?(:has_key?) && v.has_key?("escape") && v["escape"]["rule"].include?(name)
         effect.clear
-      else
-        effect[action] = effect["modified_point"]
       end
     end
   end

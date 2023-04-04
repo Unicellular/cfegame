@@ -27,7 +27,9 @@ class Team < ApplicationRecord
   end
 
   def reduced( point )
-    if life > point
+    if point == "half"
+      update(life: life.fdiv(2).floor)
+    elsif life > point
       update( life: life - point )
     else
       update( life: 0 )
