@@ -531,4 +531,20 @@ RSpec.describe Rule, type: :model do
       end
     end
   end
+
+  context "when the beginner class is used" do
+    before(:each) do
+      @player1.annex["hero"] = ["beginner"]
+    end
+
+    it "should become mage by using one level1 card" do
+      player_perform_rule(@player1, "transfer mage", [[:earth, 1]])
+      expect(@player1.reload.annex["hero"]).to eq(["mage"])
+    end
+
+    it "should become mars by using one level1 card and metal cards" do
+      player_perform_rule(@player1, "transfer mars", [[:tree, 1], [:metal, 2], [:metal, 5]])
+      expect(@player1.reload.annex["hero"]).to eq(["mars", "warrior"])
+    end
+  end
 end
