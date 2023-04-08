@@ -260,16 +260,20 @@ class Player < ApplicationRecord
     save
   end
 
-  def is_hero?( hero, inherit=true )
+  def in_hero_list?(hero_list, inherit=true)
+    return false unless annex.has_key?("hero")
     inherit = true if inherit.nil?
-    if annex.has_key?("hero")
-      if inherit
-        annex["hero"].include?(hero)
-      else
-        annex["hero"][0] == hero
-      end
+    return is_hero?(hero_list, inherit) unless hero_list.respond_to?(:each)
+    hero_list.any? do |hero|
+      is_hero?(hero, inherit)
+    end
+  end
+
+  def is_hero?(hero, inherit=true)
+    if inherit
+      annex["hero"].include?(hero)
     else
-      false
+      annex["hero"][0] == hero
     end
   end
 

@@ -65,7 +65,7 @@ class Rule < ApplicationRecord
       when "field"
         game.field == value
       when "hero"
-        player.is_hero?(value, condition["inherit"])
+        player.in_hero_list?(value, condition["inherit"])
       when "ruletype"
         value["form"] == executing_rule.form && (value["subform"].nil? || value["subform"] == executing_rule.subform)
       when "rule"
@@ -206,7 +206,9 @@ class Rule < ApplicationRecord
     # 計算各等級、同等級數量
     (1..5).each do |level|
       rs["level"][level.to_s] = cards.count{ |card| card.level == level }
-      rs["level"]["!" + level.to_s] = cards.count{ |card| card.level != level }
+      %i[!= > < >= <=].each do |opsym|
+        rs["level"][opsym.to_s + level.to_s] = cards.count{ |card| card.level.send(opsym, level) }
+      end
       rs["level"]["same"] = rs["level"][level.to_s] if rs["level"][level.to_s] > rs["level"]["same"]
     end
     rs["element"]["different"] = cards.uniq{ |card| card.element }.count

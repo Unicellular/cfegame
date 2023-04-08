@@ -547,4 +547,27 @@ RSpec.describe Rule, type: :model do
       expect(@player1.reload.annex["hero"]).to eq(["mars", "warrior"])
     end
   end
+
+  context "when the celestial class is used" do
+    before(:each) do
+      @player1.annex["hero"] = ["celestial"]
+    end
+
+    it "should become celestial when player1 was archmage" do
+      @player1.annex["hero"] = ["archmage"]
+      player_perform_rule(@player1, "transfer celestial", [[:earth, 5], [:metal, 5], [:tree, 5]])
+      expect(@player1.annex["hero"]).to eq(["celestial"])
+    end
+
+    it "should become celestial when player1 was operator" do
+      @player1.annex["hero"] = ["operator"]
+      player_perform_rule(@player1, "transfer celestial", [[:tree, 5], [:fire, 5], [:water, 5]])
+      expect(@player1.annex["hero"]).to eq(["celestial"])
+    end
+
+    it "should draw one extra card after using meditate" do
+      player_perform_rule(@player1, "meditate", [[:tree, 5]])
+      expect(@player1.annex["draw_extra"]).to eq(1)
+    end
+  end
 end
