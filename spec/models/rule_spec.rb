@@ -565,9 +565,19 @@ RSpec.describe Rule, type: :model do
       expect(@player1.annex["hero"]).to eq(["celestial"])
     end
 
-    it "should draw one extra card after using meditate" do
-      player_perform_rule(@player1, "meditate", [[:tree, 5]])
-      expect(@player1.annex["draw_extra"]).to eq(1)
+    context "after using meditate" do
+      before(:each)do
+        player_perform_rule(@player1, "meditate", [[:tree, 5]])
+      end
+
+      it "should draw one extra card" do
+        expect(@player1.annex["draw_extra"]).to eq(1)
+      end
+
+      it "should draw two extra card after perform shine" do
+        player_perform_rule(@player1, "shine", [[:metal, 1], [:metal, 2], [:fire, 3], [:water, 4]])
+        expect(@player1.annex["draw_extra"]).to eq(2)
+      end
     end
   end
 end

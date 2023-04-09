@@ -83,7 +83,7 @@ class Rule < ApplicationRecord
           end
         end
       when "executed"
-        value.all? do |rule_name, condition|
+        value.any? do |rule_name, condition|
           event_list.where(rule: executing_rule).any? do |event|
             result = rule_name == executing_rule.name
             if condition.is_a?(Numeric) && event.effect["point"].is_a?(Numeric)
@@ -345,7 +345,7 @@ class Rule < ApplicationRecord
       when "exchange"
         game.exchange
       when "draw_extra"
-        player.attached( draw_extra: value )
+        player.set_extra_draw(value)
       when "showhand"
         target.attached(showhand: value)
       when "hidden"

@@ -277,6 +277,14 @@ class Player < ApplicationRecord
     end
   end
 
+  def set_extra_draw(amount)
+    if annex["draw_extra"].nil?
+      attached(draw_extra: amount)
+    else
+      annex["draw_extra"] += amount
+    end
+  end
+
 # request information, not updated anything
   def info( is_public )
     last_events = Event.joins( :turn ).where( player: self, rule: Rule.action, turn: game.turns ).order( Turn.arel_table[:number].desc ).first(2)
