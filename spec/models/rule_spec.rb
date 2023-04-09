@@ -556,13 +556,13 @@ RSpec.describe Rule, type: :model do
     it "should become celestial when player1 was archmage" do
       @player1.annex["hero"] = ["archmage"]
       player_perform_rule(@player1, "transfer celestial", [[:earth, 5], [:metal, 5], [:tree, 5]])
-      expect(@player1.annex["hero"]).to eq(["celestial"])
+      expect(@player1.reload.annex["hero"]).to eq(["celestial"])
     end
 
     it "should become celestial when player1 was operator" do
       @player1.annex["hero"] = ["operator"]
       player_perform_rule(@player1, "transfer celestial", [[:tree, 5], [:fire, 5], [:water, 5]])
-      expect(@player1.annex["hero"]).to eq(["celestial"])
+      expect(@player1.reload.annex["hero"]).to eq(["celestial"])
     end
 
     context "after using meditate" do
@@ -571,12 +571,12 @@ RSpec.describe Rule, type: :model do
       end
 
       it "should draw one extra card" do
-        expect(@player1.annex["draw_extra"]).to eq(1)
+        expect(@player1.reload.annex["draw_extra"]).to eq(1)
       end
 
       it "should draw two extra card after perform shine" do
         player_perform_rule(@player1, "shine", [[:metal, 1], [:metal, 2], [:fire, 3], [:water, 4]])
-        expect(@player1.annex["draw_extra"]).to eq(2)
+        expect(@player1.reload.annex["draw_extra"]).to eq(2)
       end
     end
   end

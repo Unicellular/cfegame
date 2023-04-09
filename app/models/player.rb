@@ -283,6 +283,7 @@ class Player < ApplicationRecord
     else
       annex["draw_extra"] += amount
     end
+    save
   end
 
 # request information, not updated anything
