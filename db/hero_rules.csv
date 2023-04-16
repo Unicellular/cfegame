@@ -75,5 +75,5 @@ breakthrough operator,突破幻術師,初行客／１＋水６,hero,"{""hero"": 
 transfer celestial,轉職仙者,戰神、影行者、法導、述道者或幻靈使／５５５,hero,"{""hero"": [""mars"", ""shadowalker"", ""archmage"", ""teller"", ""operator""], ""inherit"": false }",become,active,,"{""level"": {""5"": 3}, ""count"": 3}",,"{""become"": [""celestial""]}"
 celestial act,仙術,／普通能力，施展光芒、氣壁、歸元、震暴、混沌時，本回合抽牌＋１,hero,"{""hero"": ""celestial"", ""executed"": {""shine"": 0, ""shield"": 0, ""recover"": 0, ""burst"": 0, ""chaos"": 0}}",power,passive,,{},,"{""draw_extra"": 1}"
 meditate,冥思,／發動能力，捨棄一張４級以上之牌，本回合抽牌＋１,hero,"{""hero"": ""celestial""}",power,active,,"{""level"": {"">=4"": 1}, ""count"": 1}",,"{""draw_extra"": 1}"
-concentrated breaking arrow,凝華斷空箭,／三張同級牌／特殊攻擊，點數＝２０，本回合抽牌＋２,hero,"{""hero"": ""celestial""}",attack,special,,"{""level"": {""same"": 3}, ""count"": 3}",20,"{""attack"": ""point"", ""draw_extra"": 2}"
-heaven bow roar,天弓嘯,／５５５／特殊攻擊，點數＝６０,hero,"{""hero"": ""celestial""}",attack,special,,"{""level"": {""5"": 3}, ""count"": 3}",60,"{""attack"": ""point""}"
+concentrated breaking arrow,凝華斷空箭,／三張同級牌／特殊攻擊，點數＝２０，本回合抽牌＋２,hero,"{""hero"": ""celestial""}",attack,special,-1,"{""level"": {""same"": 3}, ""count"": 3}",20,"{""attack"": ""point"", ""draw_extra"": 2}"
+heaven bow roar,天弓嘯,／５５５／特殊攻擊，點數＝６０,hero,"{""hero"": ""celestial""}",attack,special,-1,"{""level"": {""5"": 3}, ""count"": 3}",60,"{""attack"": ""point""}"
