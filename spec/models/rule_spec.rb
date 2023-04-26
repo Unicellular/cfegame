@@ -580,4 +580,58 @@ RSpec.describe Rule, type: :model do
       end
     end
   end
+
+  context "when the saint class is used" do
+    before(:each) do
+      @player1.annex["hero"] = ["saint"]
+    end
+
+    it "should pass combination test of shine with only one metal" do
+      expect(Rule.find_by_name("shine").test_combination_with_mastery(get_cards([[:metal, 5], [:fire, 3], [:water, 4]]), @game, @player1)).to be_truthy
+    end
+
+    context "last player has an hidden spell" do
+      before(:each) do
+        @player2.annex["hidden"] = "counter"
+        player_perform_rule(@player1, "enlight", [])
+      end
+
+      it "should disclose hidden spell after using enlight" do
+        expect(@player2.reload.annex.has_key?("hidden")).to be_falsy
+      end
+
+      it "should not pass combination test of shine with only one metal" do
+        expect(Rule.find_by_name("shine").test_combination_with_mastery(get_cards([[:metal, 5], [:fire, 3], [:water, 4]]), @game, @player1)).to be_falsy
+      end
+    end
+
+    context "performs saint light break" do
+      before(:each) do
+        player_perform_rule(@player1, "saint light break", [[:water, 2]])
+        @game.turn_end
+        player_perform_rule(@player2, "backfire", [[:fire, 2], [:fire, 3]])
+      end
+
+      it "should reveal next player's hidden spell" do
+        expect(@player2.reload.annex.has_key?("hidden")).to be_falsy
+      end
+    end
+
+    context "performed saint wind" do
+      before(:each) do
+        player_perform_rule(@player2, "saint wind", [[:fire, 4], [:water, 4], [:tree, 4]])
+        @game.turn_end
+        @game.current_turn.draw!
+        @player2.reload.cards.clear
+      end
+
+      it "should reduce next player life by 20" do
+        expect(@player2.team.life).to eq(180)
+      end
+
+      it "should make next player not draw nothing" do
+        expect(@player2.draw(2)).to be_empty
+      end
+    end
+  end
 end
