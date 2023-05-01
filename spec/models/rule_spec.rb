@@ -619,7 +619,7 @@ RSpec.describe Rule, type: :model do
 
     context "performed saint wind" do
       before(:each) do
-        player_perform_rule(@player2, "saint wind", [[:fire, 4], [:water, 4], [:tree, 4]])
+        player_perform_rule(@player1, "saint wind", [[:fire, 4], [:water, 4], [:tree, 4]])
         @game.turn_end
         @game.current_turn.draw!
         @player2.reload.cards.clear

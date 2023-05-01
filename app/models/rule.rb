@@ -132,14 +132,15 @@ class Rule < ApplicationRecord
         end
       when "rule"
         # 預設value為array
-        cards.any? {|card| card.virtual} && value.any? {|rule_name| name == rule_name}
+        # (手牌沒有虛擬牌 且 施展的陣法不在value裡) 或 (出的牌中有虛擬牌 且 施展的陣法在value裡)
+        (player.cards.all?{|card| !card.virtual} && !value.include?(name)) || (cards.any? {|card| card.virtual} && value.include?(name))
       end
     end
   end
 
   def total_test( cards, game, player )
-    (attack? || spell? || become? || (active? && power?)) && 
-      test_combination_with_mastery(cards, game, player) && 
+    (attack? || spell? || become? || (active? && power?)) &&
+      test_combination_with_mastery(cards, game, player) &&
       restrict_test(player, cards)
   end
 
@@ -153,7 +154,7 @@ class Rule < ApplicationRecord
     mastery_rules = get_mastery(game, player)
     all_rules = condition_test(game, player) ? mastery_rules.push(self) : mastery_rules
     test_result = all_rules.any? do |rule|
-      rule.combination_test(cards)
+      rule.combination_test(cards) && rule.restrict_test(player, cards)
     end
   end
 
@@ -211,6 +212,8 @@ class Rule < ApplicationRecord
       end
       rs["level"]["same"] = rs["level"][level.to_s] if rs["level"][level.to_s] > rs["level"]["same"]
     end
+    rs["level"]["even"] = cards.count{|card| card.level.even?}
+    rs["level"]["odd"] = cards.count{|card| card.level.odd?}
     rs["element"]["different"] = cards.uniq{ |card| card.element }.count
     rs["level"]["different"] = cards.uniq{ |card| card.level }.count
     rs["level"]["sum"] = cards.inject(0){ |sum, card| sum + card.level }
@@ -379,7 +382,9 @@ class Rule < ApplicationRecord
       when "invalid"
         player.attached(invalid: value)
       when "draw"
-        player.attached(draw: value)
+        set_draw_status(player, target, value)
+      when "reveal"
+        target.deleted(:hidden)
       else
         raise "This effect [" + key + "] is not implemented"
       end
@@ -433,6 +438,9 @@ class Rule < ApplicationRecord
     if player.annex["invalid"] == name || (last_player.annex["counter"] == "spell" && form == "spell" && !is_immune_from(last_player.annex["counter"]))
       effect.clear
       return nil
+    end
+    if last_player.annex["counter"] == "reveal"
+      effect.delete("hidden")
     end
     ["attack", "heal", "shield", "deshield", "reduce"].each do |action|
       if effect.has_key?(action) && effect[action] == "point"
@@ -491,6 +499,14 @@ class Rule < ApplicationRecord
       target.send( action,  point, subform )
     end
     player.attached("element" => subform) if GENERATE.include? subform
+  end
+
+  def set_draw_status(player, target, draw_status)
+    if draw_status["target"]
+      target.attached(draw: draw_status["target"])
+    else
+      player.attached(draw: draw_status)
+    end
   end
 
   def get_target( player, game )
