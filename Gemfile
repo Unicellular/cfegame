@@ -7,7 +7,9 @@ group :development, :test do
   gem 'sqlite3', '>= 1.3.0'
   gem 'rspec-rails'
   gem 'pry-rails'
-  gem 'byebug'
+  gem 'debug', '>= 1.0.0', require: false
+  gem 'ruby-debug-ide'
+  gem 'debase', '0.2.2'
   gem 'listen', '~> 3.0'
 end
 
