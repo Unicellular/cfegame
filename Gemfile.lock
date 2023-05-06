@@ -319,7 +319,7 @@ DEPENDENCIES
   bootsnap
   bootstrap (~> 5.2)
   debase (= 0.2.2)
-  debug (>= 1.0.0)
+  debug (~> 1.7)
   importmap-rails
   jbuilder (~> 2.6)
   listen (~> 3.0)
