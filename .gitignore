@@ -24,3 +24,6 @@ yarn.lock
 
 # Ignore production assets in public.
 /public/assets/
+
+# for docker in local env variable
+.env
