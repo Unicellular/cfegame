@@ -26,4 +26,6 @@ yarn.lock
 /public/assets/
 
 # for docker in local env variable
-.env
+.env.local
+
+/config/master.key

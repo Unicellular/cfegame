@@ -7,6 +7,8 @@ COPY Gemfile.lock /app/Gemfile.lock
 ENV RAILS_ENV production
 RUN bundle install
 COPY . /app
+ARG MASTER_KEY
+ENV RAILS_MASTER_KEY=${MASTER_KEY}
 # Get stuff running
 COPY docker-entrypoint.sh /usr/bin/
 RUN chmod +x /usr/bin/docker-entrypoint.sh
