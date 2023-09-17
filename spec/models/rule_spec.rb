@@ -634,4 +634,50 @@ RSpec.describe Rule, type: :model do
       end
     end
   end
+
+  context "when void hero is performed" do
+    before(:each) do
+      @player1.annex["hero"] = ["wise", "archmage", "mage"]
+      @player1.annex["lengendary"] = true
+      @player2.annex["hero"] = ["mars"]
+    end
+
+    context "with cards which level < 3" do
+      before(:each) do
+        player_perform_rule(@player1, "void hero", [[:fire, 1], [:water, 1], [:tree, 1]])
+      end
+
+      it "should deal 20 damage to the player performed void hero" do
+        expect(@player1.team.life).to be(180)
+      end
+
+      it "should remove hero which is not lengendary" do
+        expect(@player2["hero"]).to be_nil
+      end
+
+      it "should not remove hero which is lengendary" do
+        expect(@player1["hero"]).to contain_exactly("wise", "archmage", "mage")
+        expect(@player1["lengendary"]).to be_truthy
+      end
+    end
+
+    context "with cards which level >= 3" do
+      before(:each) do
+        player_perform_rule(@player1, "void hero", [[:fire, 4], [:water, 4], [:tree, 4]])
+      end
+
+      it "should deal 20 damage to the player performed void hero" do
+        expect(@player1.team.life).to be(180)
+      end
+
+      it "should remove hero which is not lengendary" do
+        expect(@player2["hero"]).to be_nil
+      end
+
+      it "should not remove hero which is lengendary" do
+        expect(@player1["hero"]).to be_nil
+        expect(@player1["lengendary"]).to be_falsy
+      end
+    end
+  end
 end
