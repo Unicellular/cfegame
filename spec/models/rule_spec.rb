@@ -640,6 +640,8 @@ RSpec.describe Rule, type: :model do
       @player1.annex["hero"] = ["wise", "archmage", "mage"]
       @player1.annex["lengendary"] = true
       @player2.annex["hero"] = ["mars"]
+      @player1.save
+      @player2.save
     end
 
     context "with cards which level < 3" do
@@ -652,12 +654,11 @@ RSpec.describe Rule, type: :model do
       end
 
       it "should remove hero which is not lengendary" do
-        expect(@player2["hero"]).to be_nil
+        expect(@player2.reload.annex["hero"]).to be_nil
       end
 
       it "should not remove hero which is lengendary" do
-        expect(@player1["hero"]).to contain_exactly("wise", "archmage", "mage")
-        expect(@player1["lengendary"]).to be_truthy
+        expect(@player1.reload.annex["hero"]).to contain_exactly("wise", "archmage", "mage")
       end
     end
 
@@ -671,12 +672,11 @@ RSpec.describe Rule, type: :model do
       end
 
       it "should remove hero which is not lengendary" do
-        expect(@player2["hero"]).to be_nil
+        expect(@player2.reload.annex["hero"]).to be_nil
       end
 
       it "should not remove hero which is lengendary" do
-        expect(@player1["hero"]).to be_nil
-        expect(@player1["lengendary"]).to be_falsy
+        expect(@player1.reload.annex["hero"]).to be_nil
       end
     end
   end

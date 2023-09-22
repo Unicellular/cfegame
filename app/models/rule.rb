@@ -358,7 +358,8 @@ class Rule < ApplicationRecord
       when "summon"
         player.summon( value )
       when "eject"
-        affected = game.eject( value )
+        rank = get_rank(cards_used)
+        affected = game.eject(value, rank)
       when "restrict"
         player.attached( restrict: value )
       when "reduce_affected"
@@ -524,6 +525,15 @@ class Rule < ApplicationRecord
 
   def is_action?
     attack? || spell? || become?
+  end
+
+  def get_rank(cards)
+    sts = stats(cards)
+    (1..5).each do |level|
+      if sts["level"]["same"] == sts["level"][level.to_s]
+        return level
+      end
+    end
   end
 
   def self.interact( element1, element2 )

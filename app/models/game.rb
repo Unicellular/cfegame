@@ -152,7 +152,7 @@ class Game < ApplicationRecord
     end
   end
 
-  def eject( entity )
+  def eject(entity, rank)
     effected = []
     entity.each do |key, value|
       case key
@@ -169,7 +169,9 @@ class Game < ApplicationRecord
         nothing!
       when "hero"
         players.each do |player|
-          player.deleted(:hero)
+          if rank >= 3 || !player.lengendary?
+            player.deleted("hero")
+          end
         end
       end
     end

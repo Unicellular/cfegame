@@ -277,6 +277,10 @@ class Player < ApplicationRecord
     end
   end
 
+  def lengendary?
+    annex["lengendary"]
+  end
+
   def set_extra_draw(amount)
     if annex["draw_extra"].nil?
       attached(draw_extra: amount)
