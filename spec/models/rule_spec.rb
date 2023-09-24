@@ -678,6 +678,12 @@ RSpec.describe Rule, type: :model do
       it "should not remove hero which is lengendary" do
         expect(@player1.reload.annex["hero"]).to be_nil
       end
+
+      it "should remove lengendary after triggering continuous effect" do
+        @game.reload
+        @game.trigger_continuous_effect
+        expect(@player1.reload.annex["lengendary"]).to be_falsy
+      end
     end
   end
 end
