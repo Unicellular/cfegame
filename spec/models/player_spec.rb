@@ -69,7 +69,7 @@ RSpec.describe Player, type: :model do
     end
   end
 
-  it "shold change the field after summon tree field" do
+  it "should change the field after summon tree field" do
     @player1.summon({"field" => "tree"})
     @game.reload
     expect(@game.field).to eq("tree")
@@ -115,11 +115,70 @@ RSpec.describe Player, type: :model do
 
     it "should modified the event causing this crafting effect" do
       event = @game.current_turn.events.joins(:rule).where(rules: {form: :power, subform: :active}).order(created_at: :desc).first
-      #byebug
       expect(event.effect["crafted"]["element"]).to eq("water")
       expect(event.effect["crafted"]["level"]).to eq(3)
       expect(event.effect["crafted"]["virtual"]).to eq(true)
       expect(event.effect["point"]).to eq(-3)
+    end
+  end
+
+  context "about to be removed cards" do
+    before(:each) do
+      @player1.attached({"remove": 2, "showhand": true})
+    end
+
+    context "has more than 2 cards" do
+      before(:each) do
+        @player1_hands = get_cards([[:metal, 1], [:tree, 2], [:water, 3]])
+        @player1.cards = @player1_hands
+        @player1.save
+      end
+
+      context "when be removed 2 cards" do
+        before(:each) do
+          @player1.removed(@player1_hands[1..2])
+        end
+
+        it "should lose 2 cards" do
+          expect(@player1.reload.cards).to contain_exactly(@player1_hands[0])
+        end
+
+        it "should put removed cards on the top of the deck" do
+          expect(@game.deck.reload.cards[0..1]).to match_array(@player1_hands[1..2])
+        end
+
+        it "should delete remove and showhand annex" do
+          expect(@player1.annex["remove"]).to be_falsy
+          expect(@player1.annex["showhand"]).to be_falsy
+        end
+      end
+    end
+
+    context "has only 1 cards" do
+      before(:each) do
+        @player1_hands = get_cards([[:water, 3]])
+        @player1.cards = @player1_hands
+        @player1.save
+      end
+
+      context "when be removed 2 cards" do
+        before(:each) do
+          @player1.removed(@player1_hands + get_cards([[:tree, 2]]))
+        end
+
+        it "should not lose any cards" do
+          expect(@player1.reload.cards).to contain_exactly(@player1_hands[0])
+        end
+
+        it "should not put removed cards on the top of the deck" do
+          expect(@game.deck.reload.cards[0,1]).not_to contain_exactly(@player1_hands[0])
+        end
+
+        it "should keep remove and showhand annex" do
+          expect(@player1.annex["remove"]).to eq(2)
+          expect(@player1.annex["showhand"]).to be_truthy
+        end
+      end
     end
   end
 end
