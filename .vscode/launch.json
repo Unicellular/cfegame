@@ -6,9 +6,19 @@
     "configurations": [
         {
             "type": "rdbg",
-            "name": "Debug current file with rdbg",
+            "name": "Debug rspec",
             "request": "launch",
+            "command": "rspec",
             "script": "${file}",
+            "args": [],
+            "askParameters": true
+        },
+        {
+            "type": "rdbg",
+            "name": "Debug rails server",
+            "request": "launch",
+            "command": "bin/rails",
+            "script": "server",
             "args": [],
             "askParameters": true
         },
