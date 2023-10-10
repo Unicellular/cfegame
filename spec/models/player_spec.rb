@@ -161,6 +161,23 @@ RSpec.describe Player, type: :model do
         @player1.save
       end
 
+      context "player2 select 1 cards to remove" do
+        before(:each) do
+          @game.turn_end
+          @player2.set_phase(:action)
+          @player2.select(@player1, @player1_hands)
+        end
+
+        it "should remove the card" do
+          expect(@player1.reload.cards).to be_empty
+        end
+
+        it "should delete remove and showhand annex" do
+          expect(@player1.annex["remove"]).to be_falsy
+          expect(@player1.annex["showhand"]).to be_falsy
+        end
+      end
+
       context "when be removed 2 cards" do
         before(:each) do
           @player1.removed(@player1_hands + get_cards([[:tree, 2]]))

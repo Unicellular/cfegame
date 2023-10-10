@@ -84,11 +84,16 @@ class Player < ApplicationRecord
 
   def select( target, cards_selected )
     return nil unless is_phase?( :action )
-    return nil if (target.annex["remove"] && target.annex["remove"] > cards_selected.count)
+    return nil if target.not_removable?(cards_selected)
     cards_moved = target.removed(cards_selected.first(target.annex["remove"]))
     target.save
     game.current_turn.events.create! player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
     set_phase( :draw )
+  end
+
+  def not_removable?(cards_selected)
+    # 如果要預計移除的牌數多於選擇的數量，且目標的手牌數大於預計移除數
+    annex["remove"] && annex["remove"] > cards_selected.count && cards.count >= annex["remove"]
   end
 
   def using( card_ids )
