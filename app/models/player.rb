@@ -85,7 +85,8 @@ class Player < ApplicationRecord
   def select( target, cards_selected )
     return nil unless is_phase?( :action )
     return nil if target.not_removable?(cards_selected)
-    cards_moved = target.removed(cards_selected.first(target.annex["remove"]))
+    cards_moved = target.removed(cards_selected)
+    target.annex.delete("showhand")
     target.save
     game.current_turn.events.create! player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
     set_phase( :draw )
@@ -233,13 +234,16 @@ class Player < ApplicationRecord
   def removed(cards_selected)
     return nil unless cards_selected.all?{ |c| cards.include? c }
     return nil unless annex.has_key?("remove")
+    remove_number = annex["remove"]
+    if annex["remove"].nil?
+      remove_number = 0
+    end
     deck = game.deck
     decktop = deck.cards.minimum(:position)
-    cards_selected.each_with_index do |c, i|
+    cards_selected.first(remove_number).each_with_index do |c, i|
       c.update(position: decktop - 1 - i)
     end
     annex.delete("remove")
-    annex.delete("showhand")
     deck.cards << cards_selected
   end
 

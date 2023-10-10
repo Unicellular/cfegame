@@ -122,12 +122,12 @@ RSpec.describe Player, type: :model do
     end
   end
 
-  context "about to be removed cards" do
+  context "put some of hands on top of deck" do
     before(:each) do
       @player1.attached({"remove": 2, "showhand": true})
     end
 
-    context "has more than 2 cards" do
+    context "target has more than 2 cards" do
       before(:each) do
         @player1_hands = get_cards([[:metal, 1], [:tree, 2], [:water, 3]])
         @player1.cards = @player1_hands
@@ -147,14 +147,13 @@ RSpec.describe Player, type: :model do
           expect(@game.deck.reload.cards[0..1]).to match_array(@player1_hands[1..2])
         end
 
-        it "should delete remove and showhand annex" do
+        it "should delete remove annex" do
           expect(@player1.annex["remove"]).to be_falsy
-          expect(@player1.annex["showhand"]).to be_falsy
         end
       end
     end
 
-    context "has only 1 cards" do
+    context "target has only 1 cards" do
       before(:each) do
         @player1_hands = get_cards([[:water, 3]])
         @player1.cards = @player1_hands
@@ -172,9 +171,8 @@ RSpec.describe Player, type: :model do
           expect(@player1.reload.cards).to be_empty
         end
 
-        it "should delete remove and showhand annex" do
+        it "should delete remove annex" do
           expect(@player1.annex["remove"]).to be_falsy
-          expect(@player1.annex["showhand"]).to be_falsy
         end
       end
 
@@ -196,6 +194,18 @@ RSpec.describe Player, type: :model do
           expect(@player1.annex["showhand"]).to be_truthy
         end
       end
+    end
+  end
+
+  context "after viewing target's hand" do
+    before(:each) do
+      @player2.attached({"freeze": 2, "showhand": true})
+      @player1.set_phase(:action)
+      @player1.select(@player2, [])
+    end
+
+    it "should delete the showhand effect" do
+      expect(@player2.reload.annex["showhand"]).to be_falsy
     end
   end
 end

@@ -566,7 +566,7 @@ RSpec.describe Rule, type: :model do
     end
 
     context "after using meditate" do
-      before(:each)do
+      before(:each) do
         player_perform_rule(@player1, "meditate", [[:tree, 5]])
       end
 
