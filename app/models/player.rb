@@ -35,6 +35,7 @@ class Player < ApplicationRecord
     unless dishand.nil?
       drawed_cards.delete(dishand)
       game.discarded(dishand)
+      game.current_turn.add_event(self, nil, nil, [], {discard: dishand.to_hash, draw: drawed_cards.count})
     end
     unless drawed_cards.empty?
       drawed_cards.each do |card|

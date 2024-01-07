@@ -69,4 +69,39 @@ RSpec.describe Game, type: :model do
       expect(@game.current_turn.events.where(rule: Rule.find_by_name("tree resistance")).count).to eq(0)
     end
   end
+
+  context "when game export a list of events" do
+    it "should return a list of one turn" do
+      expect(@game.event_list.count).to eq(1)
+    end
+
+    it "should return a list that contained an empty turn" do
+      expect(@game.event_list[0]).to eq({turn: 0, events: []})
+    end
+
+    context "when there are serveral events happened" do
+      before(:each) do
+        @dishand = []
+        @player1 = @game.players[0]
+        @player2 = @game.players[1]
+        player_perform_rule(@player1, "metal attack", [[:metal, 3]])
+        drawed = @player1.draw(2)
+        @dishand.push(@player1.discard(2, drawed[0]))
+        @player1.turn_end
+        player_perform_rule(@player2, "fire attack", [[:fire, 4]])
+        drawed = @player2.draw(2)
+        @dishand.push(@player2.discard(2, drawed[0]))
+        @game.reload
+      end
+
+      it "the first item on the list should be the newest turn" do
+        expect(@game.event_list[0][:turn]).to eq(@game.turn)
+      end
+
+      it "the first item on the list should contain latest action" do
+        expect(@game.event_list[0][:events][0]).to include(cards_used: [{"element" => "fire", "level" => 4}], rule: "fire attack", effect: {"point" => 8, "attack" => 8, "modified_point" => 8})
+        expect(@game.event_list[0][:events][1]).to include(effect: {"draw" => 2, "discard" => @dishand[1].to_hash})
+      end
+    end
+  end
 end

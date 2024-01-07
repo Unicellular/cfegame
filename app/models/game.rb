@@ -187,4 +187,16 @@ class Game < ApplicationRecord
       cards << card
     end
   end
+
+  def event_list()
+    turns.reverse.map do |turn|
+      {
+        turn: turn.number,
+        events: turn.events.left_outer_joins(:rule).map { |event|
+          rule_name = event.rule ? event.rule.name : nil
+          {cards_used: event.cards_used.map{|c| c.to_hash}, rule: rule_name, effect: event.effect}
+        }
+      }
+    end
+  end
 end
