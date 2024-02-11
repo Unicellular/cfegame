@@ -102,6 +102,38 @@ RSpec.describe Game, type: :model do
         expect(@game.event_list[0][:events][0]).to include(cards_used: [{"element" => "fire", "level" => 4}], rule: "fire attack", effect: {"point" => 8, "attack" => 8, "modified_point" => 8})
         expect(@game.event_list[0][:events][1]).to include(effect: {"draw" => 2, "discard" => @dishand[1].to_hash})
       end
+
+      context "when secret event happend" do
+        before(:each) do
+          @player2.turn_end
+          @game.reload
+          @player1.reload
+          player_perform_rule(@player1, "defense", [[:tree, 1], [:tree, 2]])
+          drawed = @player1.draw(2)
+          @dishand.push(@player1.discard(2, drawed[0]))
+          @player1.turn_end
+          @game.reload
+        end
+
+        it "should only show the number of cards used" do
+          event_list = @game.event_list(@player2)
+          expect(event_list[0][:events][0]).to include(cards_used: 2, rule: null)
+        end
+
+        context "after player 2 performing action" do
+          before(:each) do
+            @player2.reload
+            player_perform_rule(@player2, "weapon", [[:metal, 4], [:metal, 3]])
+            drawed = @player2.draw(2)
+            @dishand.push(@player2.discard(2, drawed[0]))
+            @game.reload
+          end
+
+          it "should show the detail of secret event" do
+            expect(@game.event_list(@player2)[1][:events][0]).to include(cards_used: [{"element" => "tree", "level" => 1}, {"element" => "tree", "level" => 2}], rule: "defense")
+          end
+        end
+      end
     end
   end
 end
