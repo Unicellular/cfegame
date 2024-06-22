@@ -17,4 +17,10 @@ class GamesController < ApplicationController
       redirect_to signin_path
     end
   end
+
+  def event_list
+    @game = Game.find(params[:game_id])
+    @player = Player.find(params[:id])
+    head :forbidden unless current_player?(@player, @game)
+  end
 end

@@ -17,7 +17,7 @@ RSpec.describe GamesController, type: :controller do
       @game = Game.open(@user1)
       @game.join_with(@user2, @game.teams[1])
       @player2 = @game.players.find_by(user: @user2)
-      get :event_list, params: { id: @game.id, player_id: @player2.id }
+      get :event_list, params: { game_id: @game.id, id: @player2.id }
       expect(response).to have_http_status(:forbidden)
     end
   end

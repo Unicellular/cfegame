@@ -26,6 +26,7 @@ Rails.application.routes.draw do
         get 'perform'
         get 'select'
         get 'craft'
+        get 'event_list', to: "games#event_list"
       end
     end
   end
