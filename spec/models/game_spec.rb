@@ -76,7 +76,7 @@ RSpec.describe Game, type: :model do
     end
 
     it "should return a list that contained an empty turn" do
-      expect(@game.event_list(@game.players[0])[0]).to eq({turn: 0, events: []})
+      expect(@game.event_list(@game.players[0])[0]).to eq({turn: {player: @game.players[0].id, number: @game.turn}, events: []})
     end
 
     context "when there are serveral events happened" do
@@ -96,7 +96,7 @@ RSpec.describe Game, type: :model do
 
       it "the first item on the list should be the newest turn" do
         event_list = @game.event_list(@player1)
-        expect(event_list[0][:turn]).to eq(@game.turn)
+        expect(event_list[0][:turn]).to eq({player: @player1.id, number: @game.turn})
       end
 
       it "the first item on the list should contain latest action" do

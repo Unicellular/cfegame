@@ -21,6 +21,10 @@ class GamesController < ApplicationController
   def event_list
     @game = Game.find(params[:game_id])
     @player = Player.find(params[:id])
-    head :forbidden unless current_player?(@player, @game)
+    if current_player?(@player, @game)
+      render json: @game.event_list(@player)
+    else
+      head :forbidden
+    end
   end
 end
