@@ -97,7 +97,7 @@ class Game < ApplicationRecord
   end
 
   def generate_turn
-    turns.create number: turn
+    turns.create!(number: turn, player: turn_player)
   end
 
   def current_turn

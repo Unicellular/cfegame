@@ -43,7 +43,7 @@ export class GameField {
     var visible;
     var action_cards;
     var used_cards;
-    var hero = data.members[0].annex.hero ? data.members[0].annex.hero : "無職業";
+    var hero = data.members[0]?.annex?.hero ?? "無職業";
     // 防止對手尚未出現時，opponent物件不存在的問題。
     if ( !data.members[0] ){
       data.members[0] = { "last_acts": [], "hands": [], "shield": 0, "star_history": [] };

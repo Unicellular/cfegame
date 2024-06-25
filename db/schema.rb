@@ -15,8 +15,8 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.string "provider"
     t.string "uid"
     t.integer "user_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "cards", force: :cascade do |t|
@@ -26,15 +26,15 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.integer "position"
     t.integer "cardholder_id"
     t.string "cardholder_type"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["cardholder_id"], name: "index_cards_on_cardholder_id"
   end
 
   create_table "decks", force: :cascade do |t|
     t.integer "game_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["game_id"], name: "index_decks_on_game_id"
   end
 
@@ -45,8 +45,8 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.integer "target_id"
     t.integer "turn_id"
     t.integer "rule_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["player_id"], name: "index_events_on_player_id"
     t.index ["rule_id"], name: "index_events_on_rule_id"
     t.index ["target_id"], name: "index_events_on_target_id"
@@ -62,8 +62,8 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.integer "first", default: 0
     t.boolean "equal_member", default: true
     t.integer "winner"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
   create_table "players", force: :cascade do |t|
@@ -74,8 +74,8 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.integer "sequence"
     t.integer "user_id"
     t.integer "team_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["team_id"], name: "index_players_on_team_id"
     t.index ["user_id"], name: "index_players_on_user_id"
   end
@@ -93,8 +93,8 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.string "formula"
     t.string "effect"
     t.integer "rule_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["rule_id"], name: "index_rules_on_rule_id"
   end
 
@@ -105,8 +105,8 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.string "annex"
     t.integer "maximum", default: 1
     t.integer "game_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["game_id"], name: "index_teams_on_game_id"
   end
 
@@ -114,16 +114,18 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.integer "number"
     t.integer "phase", default: 0
     t.integer "game_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.integer "player_id"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
     t.index ["game_id"], name: "index_turns_on_game_id"
+    t.index ["player_id"], name: "index_turns_on_player_id"
   end
 
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "email"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
   end
 
 end
