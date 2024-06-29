@@ -191,13 +191,13 @@ class Game < ApplicationRecord
   def event_list(viewer)
     turns.reverse.map do |turn|
       {
-        turn: {number: turn.number, player: viewer.id},
+        turn: {number: turn.number, player: turn.player.id},
         events: turn.events.left_outer_joins(:rule).map { |event|
           rule_name = event.rule ? event.rule.name : nil
           if event.player != viewer && event.player.annex["hidden"] == "counter"
-            {cards_used: event.cards_used.count, player: viewer.id}
+            {cards_used: event.cards_used.count, player: event.player.id}
           else
-            {cards_used: event.cards_used.map{|c| c.to_hash}, rule: rule_name, effect: event.effect, player: viewer.id}
+            {cards_used: event.cards_used.map{|c| c.to_hash}, rule: rule_name, effect: event.effect, player: event.player.id}
           end
         }
       }

@@ -96,7 +96,7 @@ RSpec.describe Game, type: :model do
 
       it "the first item on the list should be the newest turn" do
         event_list = @game.event_list(@player1)
-        expect(event_list[0][:turn]).to eq({player: @player1.id, number: @game.turn})
+        expect(event_list[0][:turn]).to eq({player: @player2.id, number: @game.turn})
       end
 
       it "the first item on the list should contain latest action" do
@@ -120,6 +120,11 @@ RSpec.describe Game, type: :model do
         it "should only show the number of cards used" do
           event_list = @game.event_list(@player2)
           expect(event_list[1][:events][0]).to include(cards_used: 2)
+        end
+
+        it "should the owner of last turn is oppoenet" do
+          event_list = @game.event_list(@player2)
+          expect(event_list[1][:turn][:player]).to eq(@player1.id)
         end
 
         context "after player 2 performing action" do
