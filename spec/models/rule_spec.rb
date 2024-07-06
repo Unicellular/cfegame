@@ -686,4 +686,20 @@ RSpec.describe Rule, type: :model do
       end
     end
   end
+
+  context "the effect changing card's element of star should work with mastery" do
+    before(:each) do
+      @player1.attached(hero: ["mars","warrior"])
+      @player1.summon({"star": "mercury"})
+      @player1.attached(restrict: {"ruleset": "basic"})
+    end
+
+    it "should compose burst" do
+      expect {
+        player_perform_rule(@player1, "burst", [[:fire, 4], [:fire, 4], [:water, 4, true], [:tree, 4]])
+      }.to change {
+        @player2.reload.team.life
+      }.by(-64)
+    end
+  end
 end

@@ -153,8 +153,8 @@ class Rule < ApplicationRecord
   def test_combination_with_mastery( cards, game, player )
     mastery_rules = get_mastery(game, player)
     all_rules = condition_test(game, player) ? mastery_rules.push(self) : mastery_rules
-    test_result = all_rules.any? do |rule|
-      rule.combination_test(cards) && rule.restrict_test(player, cards)
+    all_rules.any? do |rule|
+      rule.combination_test(cards)
     end
   end
 
