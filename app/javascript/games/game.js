@@ -46,26 +46,14 @@ export class Game {
 
   find_opponent() {
     console.log( "find_opponent" );
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "find_opponent"
-    ].join("/");
-    fetch( url )
+    fetch(this.generate_url("find_opponent"))
       .then( (response) => response.json() )
       .then( this.update_status );
   }
 
   request_status() {
     console.log( "requesting status" );
-    let url = [
-      $("#maincontainer").data( "game_id" ),
-      "players",
-      $("#player").data( "id" ),
-      "info"
-    ].join("/");
-    fetch( url )
+    fetch(this.generate_url("info", $("#maincontainer").data("game_id"), $("#player").data("id")) )
       .then( (response) => response.json() )
       .then( this.update_status );
   }
@@ -118,16 +106,10 @@ export class Game {
       return;
     }
     console.log( selected_ids );
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "discard"
-    ].join("/");
     var self = this;
     $.ajax({
       type: "GET",
-      url: url,
+      url: this.generate_url("discard"),
       data: { cards: selected_ids[0] }
     }).done( ( data ) => {
       console.log("discard !");
@@ -145,16 +127,10 @@ export class Game {
 
   select_opponent_hands(selected_ids) {
     console.log( selected_ids );
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "select"
-    ].join("/");
     var self = this;
     $.ajax({
       type: "GET",
-      url: url,
+      url: this.generate_url("select"),
       data: { cards: selected_ids, opponent: this.info['opponent']['members'][0]['id'] }
     }).done( ( data ) => {
       console.log("discard !");
@@ -168,16 +144,10 @@ export class Game {
   }
 
   turn_end(){
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "turn_end"
-    ].join("/");
     var self = this;
     $.ajax({
       type: "GET",
-      url: url
+      url: this.generate_url("turn_end")
     }).done( (data) => {
       console.log("turn end");
       console.log(data);
@@ -200,16 +170,10 @@ export class Game {
     let card_ids = this.collect_cards(action).map((card, i) => {
       return card.id;
     });
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "possible_moves"
-    ].join("/");
     var self = this;
     $.ajax({
       type: "GET",
-      url: url,
+      url: this.generate_url("possible_moves"),
       data: { cards: card_ids }
     }).done( ( data ) => {
       console.log("possible_moves:");
@@ -228,16 +192,10 @@ export class Game {
       return card.id;
     });
     console.log( rule.data("id") );
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "perform"
-    ].join("/");
     var self = this;
     $.ajax({
       type: "GET",
-      url: url,
+      url: this.generate_url("perform"),
       data: { cards: card_ids, rule: rule.data("id") }
     }).done((data) => {
       console.log("rule performed");
@@ -257,16 +215,10 @@ export class Game {
   }
 
   draw_cards(){
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "draw"
-    ].join("/");
     var self = this;
     $.ajax({
       type: "GET",
-      url: url,
+      url: this.generate_url("draw"),
       dataType: "json"
     }).done( (data) => {
       console.log("card drawed");
@@ -352,16 +304,10 @@ export class Game {
   }
 
   recycle( card ){
-    let url = [
-      this.info['id'],
-      "players",
-      this.info['current']['members'][0]['id'],
-      "recycle"
-    ].join("/");
     var self = this;
     $.ajax({
       type: "GET",
-      url: url,
+      url: this.generate_url("recycle"),
       data: { cards: card.data("id") }
     }).done( (data) => {
       console.log("recycled");
@@ -370,12 +316,12 @@ export class Game {
     });
   }
 
-  generate_url(action) {
+  generate_url(action, game_id = this.info['id'], player_id = this.info['current']['members'][0]['id']) {
     // 基本url在/games/
     return [
-      this.info['id'],
+      game_id,
       "players",
-      this.info['current']['members'][0]['id'],
+      player_id,
       action
     ].join("/");
   }
