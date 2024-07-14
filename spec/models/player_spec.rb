@@ -46,7 +46,7 @@ RSpec.describe Player, type: :model do
       @player1.annex["draw_extra"] = 2
       @player1.save
       drawed_cards = @player1.draw(2)
-      dishand = @player1.discard(2, drawed_cards[0])
+      @player1.discard(2, drawed_cards[0])
       @player1.reload
       expect(@player1.cards.count).to eq(4)
       expect(@player1.annex["draw_extra"]).to be_nil
@@ -64,7 +64,7 @@ RSpec.describe Player, type: :model do
       @player1.annex["draw"] = "none"
       @player1.save
       drawed_cards = @player1.draw(2)
-      discard = @player1.discard(2, drawed_cards[0])
+      @player1.discard(2, drawed_cards[0])
       expect(@player1.annex["draw"]).to be_nil
     end
   end
@@ -124,7 +124,7 @@ RSpec.describe Player, type: :model do
 
   context "put some of hands on top of deck" do
     before(:each) do
-      @player1.attached({"remove": 2, "showhand": true})
+      @player1.attached({"remove": {"amount": 2, "to": "deck"}, "showhand": true})
     end
 
     context "target has more than 2 cards" do
@@ -136,7 +136,7 @@ RSpec.describe Player, type: :model do
 
       context "when be removed 2 cards" do
         before(:each) do
-          @player1.removed(@player1_hands[1..2])
+          @player1.removed(@player1_hands[1..2], @player1)
         end
 
         it "should lose 2 cards" do
@@ -178,7 +178,7 @@ RSpec.describe Player, type: :model do
 
       context "when be removed 2 cards" do
         before(:each) do
-          @player1.removed(@player1_hands + get_cards([[:tree, 2]]))
+          @player1.removed(@player1_hands + get_cards([[:tree, 2]]), @player1)
         end
 
         it "should not lose any cards" do
@@ -190,7 +190,7 @@ RSpec.describe Player, type: :model do
         end
 
         it "should keep remove and showhand annex" do
-          expect(@player1.annex["remove"]).to eq(2)
+          expect(@player1.annex["remove"]["amount"]).to eq(2)
           expect(@player1.annex["showhand"]).to be_truthy
         end
       end

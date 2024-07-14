@@ -12,40 +12,52 @@ class Player < ApplicationRecord
       self.annex = {}
   end
 
-  def draw(amount)
+  def draw(amount, discard = 1)
     return nil unless is_phase?( :draw ) || ( is_phase?( :start ) && cards.count == 0 )
+    amount = amount + annex["draw_extra"] unless annex["draw_extra"].nil?
+    amount = 0 if annex["draw"] == "none"
+    look(amount, discard)
+  end
+
+  def look(amount, discard)
     deck = game.deck
     space = hand_limit - cards.count
-    amount = amount + annex["draw_extra"] unless annex["draw_extra"].nil?
     amount = space >= amount ? amount : space
-    amount = 0 if annex["draw"] == "none"
     if amount == 0
       return []
     end
-    if deck.cards.count < amount + 1
+    if deck.cards.count < amount + discard
       deck.shuffle
     end
-    deck.cards.order(:position).first(amount+1)
+    deck.cards.order(:position).first(amount + discard)
   end
 
-  def discard(amount, dishand)
-    drawed_cards = draw(amount)
+  def discard(amount, dishand, discard = 1)
+    drawed_cards = draw(amount, discard)
     # 檢查捨棄的牌是否在抽起來的牌中
     return nil unless drawed_cards.include?(dishand) || (dishand.nil? && drawed_cards.empty?)
-    unless dishand.nil?
-      drawed_cards.delete(dishand)
-      game.discarded(dishand)
-    end
-    unless drawed_cards.empty?
-      drawed_cards.each do |card|
-        cards << card
-      end
-    end
+    take(drawed_cards, [dishand])
     annex.delete("draw_extra")
     annex.delete("draw")
     set_phase(:end)
     save
     dishand
+  end
+
+  def take(looked_cards, dishand_list)
+    return nil unless dishand_list.all?{ |card| looked_cards.include?(card)} || (dishand_list.empty? && looked_cards.empty?)
+    unless dishand_list.empty?
+      dishand_list.each do |card|
+        looked_cards.delete(card)
+        game.discarded(card)
+      end
+    end
+    unless looked_cards.empty?
+      looked_cards.each do |card|
+        cards << card
+      end
+    end
+    save
   end
 
   def recycle( card )
@@ -82,19 +94,26 @@ class Player < ApplicationRecord
     end
   end
 
+  # 行動階段專用的搶牌
   def select( target, cards_selected )
     return nil unless is_phase?( :action )
-    return nil if target.not_removable?(cards_selected)
-    cards_moved = target.removed(cards_selected)
+    choose(target, cards_selected)
     target.annex.delete("showhand")
     target.save
-    game.current_turn.events.create! player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
     set_phase( :draw )
+  end
+
+  def choose(target, cards_selected)
+    raise "the cards of target #{target.name} is not removable." if target.not_removable?(cards_selected)
+    cards_moved = target.removed(cards_selected, self)
+    game.current_turn.events.create! player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
   end
 
   def not_removable?(cards_selected)
     # 如果要預計移除的牌數多於選擇的數量，且目標的手牌數大於預計移除數
-    annex["remove"] && annex["remove"] > cards_selected.count && cards.count >= annex["remove"]
+    return false unless annex["remove"] 
+    amount = annex["remove"]["amount"]
+    amount > cards_selected.count && cards.count >= amount
   end
 
   def using( card_ids )
@@ -231,20 +250,29 @@ class Player < ApplicationRecord
     end
   end
 
-  def removed(cards_selected)
+  def removed(cards_selected, reciever)
     return nil unless cards_selected.all?{ |c| cards.include? c }
     return nil unless annex.has_key?("remove")
-    remove_number = annex["remove"]
+    remove_number = annex["remove"]["amount"]
     if annex["remove"].nil?
       remove_number = 0
     end
-    deck = game.deck
-    decktop = deck.cards.minimum(:position)
-    cards_selected.first(remove_number).each_with_index do |c, i|
-      c.update(position: decktop - 1 - i)
+    condition_match = true
+    remaining_cards = cards - cards_selected
+    if annex["remove"]["condition"] && annex["remove"]["condition"]["level"] == "max"
+      condition_match = remaining_cards.all?{|c| cards_selected.all?{|cs| cs.level >= c.level}}
+    end
+    return nil unless condition_match
+    move_to = reciever
+    if annex["remove"]["to"] == "deck"
+      move_to = game.deck
+      top_position = move_to.cards.minimum(:position)
+      cards_selected.first(remove_number).each_with_index do |c, i|
+        c.update(position: top_position - 1 - i)
+      end
     end
     annex.delete("remove")
-    deck.cards << cards_selected
+    move_to.cards << cards_selected
   end
 
   def obtain(used_cards, modified)

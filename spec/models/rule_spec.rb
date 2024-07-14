@@ -590,18 +590,26 @@ RSpec.describe Rule, type: :model do
       expect(Rule.find_by_name("shine").test_combination_with_mastery(get_cards([[:metal, 5], [:fire, 3], [:water, 4]]), @game, @player1)).to be_truthy
     end
 
-    context "last player has an hidden spell" do
+    context "enlight would draw a card of 3 from deck" do
       before(:each) do
-        @player2.annex["hidden"] = "counter"
-        player_perform_rule(@player1, "enlight", [])
+        player_perform_rule(@player1, "enlight", [[:earth, 5]])
       end
 
-      it "should disclose hidden spell after using enlight" do
-        expect(@player2.reload.annex.has_key?("hidden")).to be_falsy
+      it "should look 3 cards from deck" do
+        expect(@player1.reload.annex["look"]["amount"]).to eq(1)
+        expect(@player1.reload.annex["look"]["of"].count).to eq(3)
       end
 
-      it "should not pass combination test of shine with only one metal" do
-        expect(Rule.find_by_name("shine").test_combination_with_mastery(get_cards([[:metal, 5], [:fire, 3], [:water, 4]]), @game, @player1)).to be_falsy
+      context "player should choose 1 cards to add to hand" do
+        before(:each) do
+          look_cards = @player1.look(1, 2)
+          @get_cards = look_cards[0]
+          @player1.take(look_cards, look_cards[1..2])
+        end
+      
+        it "should add the chosen card to player's hand" do
+          expect(@player1.reload.cards).to include(@get_cards)
+        end
       end
     end
 
@@ -619,18 +627,31 @@ RSpec.describe Rule, type: :model do
 
     context "performed saint wind" do
       before(:each) do
+        @player2.cards = get_cards([[:fire, 5], [:water, 4], [:tree, 3]])
         player_perform_rule(@player1, "saint wind", [[:fire, 4], [:water, 4], [:tree, 4]])
-        @game.turn_end
-        @game.current_turn.draw!
-        @player2.reload.cards.clear
+        @player2.reload
       end
 
       it "should reduce next player life by 20" do
         expect(@player2.team.life).to eq(180)
       end
 
-      it "should make next player not draw nothing" do
-        expect(@player2.draw(2)).to be_empty
+      it "should make next player remove one hand" do
+        expect(@player2.annex["remove"]).to eq({"amount"=> 1, "to"=> "hand", "condition"=>{"level"=> "max"}})
+      end
+
+      context "player could choose only the highest level card" do
+        it "choosing cards other than the highest level card is not effective" do
+          card = @player2.cards[2]
+          @player1.choose(@player2, [card])
+          expect(@player2.reload.cards).to include(card)
+        end
+
+        it "choosing the highest level card should get the card" do
+          card = @player2.cards[0]
+          @player1.choose(@player2, [card])
+          expect(@player1.reload.cards).to include(card)
+        end
       end
     end
   end
