@@ -387,7 +387,7 @@ class Rule < ApplicationRecord
       when "reveal"
         target.deleted(:hidden)
       when "take"
-        player.attached(look: {amount: value["amount"], of: player.look(value["amount"], value["of"] - value["amount"])})
+        player.attached(take: {amount: value["amount"], of: player.look(value["amount"], value["of"] - value["amount"])})
       else
         raise "This effect [" + key + "] is not implemented"
       end

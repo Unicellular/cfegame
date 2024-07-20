@@ -26,6 +26,7 @@ Rails.application.routes.draw do
         get 'perform'
         get 'select'
         get 'craft'
+        get 'take'
       end
     end
   end

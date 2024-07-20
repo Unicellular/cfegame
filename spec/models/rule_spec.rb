@@ -596,8 +596,8 @@ RSpec.describe Rule, type: :model do
       end
 
       it "should look 3 cards from deck" do
-        expect(@player1.reload.annex["look"]["amount"]).to eq(1)
-        expect(@player1.reload.annex["look"]["of"].count).to eq(3)
+        expect(@player1.reload.annex["take"]["amount"]).to eq(1)
+        expect(@player1.reload.annex["take"]["of"].count).to eq(3)
       end
 
       context "player should choose 1 cards to add to hand" do

@@ -77,6 +77,12 @@ class PlayersController < ApplicationController
     render json: @game.reload.info(@player)
   end
 
+  def take
+    looked_cards = @player.annex["take"]["of"]
+    selecteds = Card.find(params[:cards] || [])
+    render json: @player.take(looked_cards, looked_cards - selecteds)
+  end
+
   private
 
   # player must be in his turn at that game.
