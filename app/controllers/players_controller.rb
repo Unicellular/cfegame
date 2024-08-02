@@ -78,9 +78,10 @@ class PlayersController < ApplicationController
   end
 
   def take
-    looked_cards = @player.annex["take"]["of"]
+    looked_cards = Card.find(@player.annex["take"]["of"].map{|card_hash| card_hash["id"]})
     selecteds = Card.find(params[:cards] || [])
-    render json: @player.take(looked_cards, looked_cards - selecteds)
+    @player.take(looked_cards, looked_cards - selecteds)
+    render json: {hands: @player.cards}
   end
 
   private

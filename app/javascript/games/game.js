@@ -97,6 +97,10 @@ export class Game {
       this.select_card_attr(selected_cards);
       return;
     }
+    if (this.info.current.members[0].annex.take) {
+      this.get_selected_cards(selected_ids);
+      return;
+    }
     this.fill_self_hands(selected_ids);
   }
 
@@ -121,6 +125,22 @@ export class Game {
       $('#choose').one('hidden.bs.modal', (e) => {
         self.turn_end();
       });
+      $('#choose').modal('hide');
+    });
+  }
+
+  get_selected_cards(selected_ids) {
+    console.log("get selected cards");
+    var self = this;
+    $.ajax({
+      type: "GET",
+      url: this.generate_url("take"),
+      data: {cards: selected_ids}
+    }).done((data) => {
+      console.log("take cards");
+      console.log(data);
+      self.info.current.members[0].hands = data.hands;
+      self.update_status(self.info);
       $('#choose').modal('hide');
     });
   }
@@ -208,6 +228,10 @@ export class Game {
       if (data.current.members[0].annex.craft) {
         // 只能有card、element、level
         self.craft_card(data.current.members[0].annex.craft);
+        return;
+      }
+      if (data.current.members[0].annex.take) {
+        self.select_cards(data.current.members[0].annex.take.of);
         return;
       }
       self.draw_cards();

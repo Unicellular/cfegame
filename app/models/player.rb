@@ -57,6 +57,8 @@ class Player < ApplicationRecord
         cards << card
       end
     end
+    annex.delete("look")
+    annex.delete("take")
     save
   end
 
