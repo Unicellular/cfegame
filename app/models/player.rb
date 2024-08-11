@@ -99,23 +99,38 @@ class Player < ApplicationRecord
   # 行動階段專用的搶牌
   def select( target, cards_selected )
     return nil unless is_phase?( :action )
-    choose(target, cards_selected)
+    if !target.annex["remove"].nil?
+      choose(target, cards_selected)
+    end
     target.annex.delete("showhand")
     target.save
     set_phase( :draw )
   end
 
   def choose(target, cards_selected)
-    raise "the cards of target #{target.name} is not removable." if target.not_removable?(cards_selected)
     cards_moved = target.removed(cards_selected, self)
     game.current_turn.events.create! player: self, target: target, rule: nil, cards_used: [], effect: { cards_moved: cards_moved, target_hand: target.cards }
   end
 
-  def not_removable?(cards_selected)
-    # 如果要預計移除的牌數多於選擇的數量，且目標的手牌數大於預計移除數
-    return false unless annex["remove"] 
+  def removable?(cards_selected)
+    # 目標需有移除註記
+    return false unless annex["remove"]
+    # 目標需持有所有待移除的牌
+    return false unless cards_selected.all?{ |c| cards.include? c } 
+    # 若有設定條件，則需符合條件
+    condition_match = true
+    remaining_cards = cards - cards_selected
+    if annex["remove"]["condition"] && annex["remove"]["condition"]["level"] == "max"
+      condition_match = remaining_cards.all?{|c| cards_selected.all?{|cs| cs.level >= c.level}}
+    end
+    return false unless condition_match
+    # 如果目標的手牌足夠，則要儘可能多的移除
     amount = annex["remove"]["amount"]
-    amount > cards_selected.count && cards.count >= amount
+    if cards.count >= amount
+      amount == cards_selected.count
+    else
+      cards.count == cards_selected.count
+    end
   end
 
   def using( card_ids )
@@ -253,18 +268,8 @@ class Player < ApplicationRecord
   end
 
   def removed(cards_selected, reciever)
-    return nil unless cards_selected.all?{ |c| cards.include? c }
-    return nil unless annex.has_key?("remove")
+    raise "the cards of target #{id} is not removable." unless removable?(cards_selected)
     remove_number = annex["remove"]["amount"]
-    if annex["remove"].nil?
-      remove_number = 0
-    end
-    condition_match = true
-    remaining_cards = cards - cards_selected
-    if annex["remove"]["condition"] && annex["remove"]["condition"]["level"] == "max"
-      condition_match = remaining_cards.all?{|c| cards_selected.all?{|cs| cs.level >= c.level}}
-    end
-    return nil unless condition_match
     move_to = reciever
     if annex["remove"]["to"] == "deck"
       move_to = game.deck

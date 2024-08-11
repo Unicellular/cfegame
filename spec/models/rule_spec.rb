@@ -643,7 +643,9 @@ RSpec.describe Rule, type: :model do
       context "player could choose only the highest level card" do
         it "choosing cards other than the highest level card is not effective" do
           card = @player2.cards[2]
-          @player1.choose(@player2, [card])
+          expect {
+            @player1.choose(@player2, [card])
+          }.to raise_exception
           expect(@player2.reload.cards).to include(card)
         end
 

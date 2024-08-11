@@ -142,6 +142,9 @@ export class Game {
       self.info.current.members[0].hands = data.hands;
       self.update_status(self.info);
       $('#choose').modal('hide');
+    }).fail((data) => {
+      console.log("take cars fails!");
+      $("#choose .modal-body").prepend($("span").text("無法拿牌，請重新試一次。"));
     });
   }
 
@@ -156,10 +159,16 @@ export class Game {
       console.log("discard !");
       console.log( data );
       self.update_status( data );
-      $('#choose').one('hidden.bs.modal', (e) => {
-        self.draw_cards();
-      });
+      // 目前沒傳回合階段，應該已階段判斷是否該抽牌。
+      if (!data.opponent.members[0].annex.showhand) {
+        $('#choose').one('hidden.bs.modal', (e) => {
+          self.draw_cards();
+        });
+      }
       $('#choose').modal('hide');
+    }).fail((data) => {
+      console.log("take cars fails!");
+      $("#choose .modal-body").prepend($("<div>").text("無法拿牌，請重新試一次。"));
     });
   }
 
