@@ -645,7 +645,7 @@ RSpec.describe Rule, type: :model do
           card = @player2.cards[2]
           expect {
             @player1.choose(@player2, [card])
-          }.to raise_exception
+          }.to raise_exception("the cards of target 2 is not removable.")
           expect(@player2.reload.cards).to include(card)
         end
 

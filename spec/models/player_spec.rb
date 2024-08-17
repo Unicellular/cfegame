@@ -179,7 +179,7 @@ RSpec.describe Player, type: :model do
       it "should raise exception when be removed 2 cards" do
         expect {
           @player1.removed(@player1_hands + get_cards([[:tree, 2]]), @player1)
-        }.to raise_exception
+        }.to raise_exception("the cards of target 1 is not removable.")
         expect(@player1.reload.cards).to contain_exactly(@player1_hands[0])
         expect(@game.deck.reload.cards[0,1]).not_to contain_exactly(@player1_hands[0])
         expect(@player1.annex["remove"]["amount"]).to eq(2)
@@ -197,6 +197,20 @@ RSpec.describe Player, type: :model do
 
     it "should delete the showhand effect" do
       expect(@player2.reload.annex["showhand"]).to be_falsy
+    end
+  end
+
+  context "player take more than 1 cards" do
+    before(:each) do
+      @player1.annex["take"] = {"amount" => 1, "of" => @player1.look(1, 3)}
+      @player1.cards = get_cards([[:fire, 1]])
+      @look_cards = @player1.look(1, 3)
+    end
+
+    it "should raise exception" do
+      expect {
+        @player1.take(@look_cards, @look_cards[1..2])
+      }.to raise_exception("the amount of taking cards is wrong")
     end
   end
 end
