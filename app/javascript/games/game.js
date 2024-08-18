@@ -143,8 +143,8 @@ export class Game {
       self.update_status(self.info);
       $('#choose').modal('hide');
     }).fail((data) => {
-      console.log("take cars fails!");
-      $("#choose .modal-body").prepend($("span").text("無法拿牌，請重新試一次。"));
+      console.log("take card fails!");
+      $("#choose .modal-body").prepend($("<div>").text("無法拿牌，請重新試一次。"));
     });
   }
 
