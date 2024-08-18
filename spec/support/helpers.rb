@@ -8,7 +8,7 @@ module Helpers
 
   def get_cards(card_attrs)
     card_attrs.map do |attr|
-      Card.new(element: attr[0], level: attr[1])
+      Card.new(element: attr[0], level: attr[1], virtual: attr[2])
     end
   end
 end

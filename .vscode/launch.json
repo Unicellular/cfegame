@@ -9,8 +9,7 @@
             "name": "Debug rspec",
             "request": "launch",
             "command": "rspec",
-            "script": "${file}",
-            "args": [],
+            "script": "${file}:${lineNumber}",
             "askParameters": true
         },
         {

@@ -46,7 +46,7 @@ RSpec.describe Player, type: :model do
       @player1.annex["draw_extra"] = 2
       @player1.save
       drawed_cards = @player1.draw(2)
-      dishand = @player1.discard(2, drawed_cards[0])
+      @player1.discard(2, drawed_cards[0])
       @player1.reload
       expect(@player1.cards.count).to eq(4)
       expect(@player1.annex["draw_extra"]).to be_nil
@@ -64,7 +64,7 @@ RSpec.describe Player, type: :model do
       @player1.annex["draw"] = "none"
       @player1.save
       drawed_cards = @player1.draw(2)
-      discard = @player1.discard(2, drawed_cards[0])
+      @player1.discard(2, drawed_cards[0])
       expect(@player1.annex["draw"]).to be_nil
     end
   end
@@ -124,7 +124,7 @@ RSpec.describe Player, type: :model do
 
   context "put some of hands on top of deck" do
     before(:each) do
-      @player1.attached({"remove": 2, "showhand": true})
+      @player1.attached({"remove": {"amount": 2, "to": "deck"}, "showhand": true})
     end
 
     context "target has more than 2 cards" do
@@ -136,7 +136,7 @@ RSpec.describe Player, type: :model do
 
       context "when be removed 2 cards" do
         before(:each) do
-          @player1.removed(@player1_hands[1..2])
+          @player1.removed(@player1_hands[1..2], @player1)
         end
 
         it "should lose 2 cards" do
@@ -176,23 +176,14 @@ RSpec.describe Player, type: :model do
         end
       end
 
-      context "when be removed 2 cards" do
-        before(:each) do
-          @player1.removed(@player1_hands + get_cards([[:tree, 2]]))
-        end
-
-        it "should not lose any cards" do
-          expect(@player1.reload.cards).to contain_exactly(@player1_hands[0])
-        end
-
-        it "should not put removed cards on the top of the deck" do
-          expect(@game.deck.reload.cards[0,1]).not_to contain_exactly(@player1_hands[0])
-        end
-
-        it "should keep remove and showhand annex" do
-          expect(@player1.annex["remove"]).to eq(2)
-          expect(@player1.annex["showhand"]).to be_truthy
-        end
+      it "should raise exception when be removed 2 cards" do
+        expect {
+          @player1.removed(@player1_hands + get_cards([[:tree, 2]]), @player1)
+        }.to raise_exception("the cards of target 1 is not removable.")
+        expect(@player1.reload.cards).to contain_exactly(@player1_hands[0])
+        expect(@game.deck.reload.cards[0,1]).not_to contain_exactly(@player1_hands[0])
+        expect(@player1.annex["remove"]["amount"]).to eq(2)
+        expect(@player1.annex["showhand"]).to be_truthy
       end
     end
   end
@@ -206,6 +197,20 @@ RSpec.describe Player, type: :model do
 
     it "should delete the showhand effect" do
       expect(@player2.reload.annex["showhand"]).to be_falsy
+    end
+  end
+
+  context "player take more than 1 cards" do
+    before(:each) do
+      @player1.annex["take"] = {"amount" => 1, "of" => @player1.look(1, 3)}
+      @player1.cards = get_cards([[:fire, 1]])
+      @look_cards = @player1.look(1, 3)
+    end
+
+    it "should raise exception" do
+      expect {
+        @player1.take(@look_cards, @look_cards[1..2])
+      }.to raise_exception("the amount of taking cards is wrong")
     end
   end
 end
