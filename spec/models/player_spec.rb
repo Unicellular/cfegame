@@ -67,6 +67,13 @@ RSpec.describe Player, type: :model do
       @player1.discard(2, drawed_cards[0])
       expect(@player1.annex["draw"]).to be_nil
     end
+
+    it "should not keep take effect after discard" do
+      drawed_cards = @player1.draw(2)
+      # discard should add take effect
+      @player1.discard(2, drawed_cards[0])
+      expect(@player1.annex["take"]).to be_nil
+    end
   end
 
   it "should change the field after summon tree field" do
