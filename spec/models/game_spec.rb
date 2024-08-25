@@ -102,7 +102,7 @@ RSpec.describe Game, type: :model do
       it "the first item on the list should contain latest action" do
         event_list = @game.event_list(@player1)
         expect(event_list[0][:events][0]).to include(cards_used: [{"element" => "fire", "level" => 4}], rule: "fire attack", effect: {"point" => 8, "attack" => 8, "modified_point" => 8})
-        expect(event_list[0][:events][1]).to include(effect: {"draw" => 2, "discard" => @dishand[1].to_hash})
+        expect(event_list[0][:events][1]).to include(effect: {"take" => 2, "discard" => [@dishand[1].to_hash]})
       end
 
       context "when secret event happend" do
