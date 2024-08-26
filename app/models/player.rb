@@ -36,8 +36,7 @@ class Player < ApplicationRecord
     drawed_cards = draw(amount, discard)
     # 檢查捨棄的牌是否在抽起來的牌中
     return nil unless drawed_cards.include?(dishand) || (dishand.nil? && drawed_cards.empty?)
-    draw_extra = annex["draw_extra"] ? annex["draw_extra"] : 0
-    annex["take"] = {"amount" => amount + draw_extra, "of" => amount + draw_extra + discard}
+    annex["take"] = {"amount" => drawed_cards.count - discard, "of" => drawed_cards}
     take(drawed_cards, [dishand])
     annex.delete("draw_extra")
     annex.delete("draw")
@@ -48,15 +47,15 @@ class Player < ApplicationRecord
 
   def take(looked_cards, dishand_list)
     return nil unless dishand_list.all?{ |card| looked_cards.include?(card)} || (dishand_list.empty? && looked_cards.empty?)
+    if looked_cards.empty? || looked_cards.count - dishand_list.count != annex["take"]["amount"]
+      raise "the amount of taking cards is wrong"
+    end
     unless dishand_list.empty?
       dishand_list.each do |card|
         looked_cards.delete(card)
         game.discarded(card)
         game.current_turn.add_event(self, nil, nil, [], {discard: dishand_list.map{|c| c.to_hash}, take: looked_cards.count})
       end
-    end
-    if looked_cards.empty? || looked_cards.count != annex["take"]["amount"]
-      raise "the amount of taking cards is wrong"
     end
     looked_cards.each do |card|
       cards << card
