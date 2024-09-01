@@ -31,7 +31,8 @@ gem 'mini_racer'
 gem 'turbo-rails'
 gem 'jbuilder', '~> 2.6'
 gem 'slim-rails'
-#gem 'react-rails'
+gem 'jsbundling-rails'
+gem "vite_rails", "~> 3.0"
 gem 'thin'
 gem 'bootsnap', require: false
 

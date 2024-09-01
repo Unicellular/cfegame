@@ -20,7 +20,6 @@
 
 # node & yarn
 /node_modules/
-yarn.lock
 
 # Ignore production assets in public.
 /public/assets/
@@ -29,3 +28,11 @@ yarn.lock
 .env.local
 
 /config/master.key
+
+# Vite Ruby
+/public/vite*
+node_modules
+# Vite uses dotenv and suggests to ignore local-only env files. See
+# https://vitejs.dev/guide/env-and-mode.html#env-files
+*.local
+

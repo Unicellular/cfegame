@@ -88,6 +88,7 @@ GEM
       irb (>= 1.5.0)
       reline (>= 0.3.1)
     diff-lcs (1.5.0)
+    dry-cli (1.1.0)
     erubi (1.13.0)
     eventmachine (1.2.7)
     execjs (2.8.1)
@@ -110,6 +111,8 @@ GEM
     jbuilder (2.11.5)
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
+    jsbundling-rails (1.3.1)
+      railties (>= 6.0.0)
     jwt (2.7.0)
     libv8-node (16.10.0.0)
     libv8-node (16.10.0.0-arm64-darwin)
@@ -188,6 +191,8 @@ GEM
     racc (1.8.1)
     rack (2.2.9)
     rack-protection (3.0.6)
+      rack
+    rack-proxy (0.7.7)
       rack
     rack-test (2.1.0)
       rack (>= 1.3)
@@ -301,6 +306,13 @@ GEM
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
     version_gem (1.1.2)
+    vite_rails (3.0.17)
+      railties (>= 5.1, < 8)
+      vite_ruby (~> 3.0, >= 3.2.2)
+    vite_ruby (3.8.0)
+      dry-cli (>= 0.7, < 2)
+      rack-proxy (~> 0.6, >= 0.6.1)
+      zeitwerk (~> 2.2)
     web-console (4.2.0)
       actionview (>= 6.0.0)
       activemodel (>= 6.0.0)
@@ -324,6 +336,7 @@ DEPENDENCIES
   debug (~> 1.7)
   importmap-rails
   jbuilder (~> 2.6)
+  jsbundling-rails
   listen (~> 3.0)
   mini_racer
   omniauth
@@ -344,6 +357,7 @@ DEPENDENCIES
   terser
   thin
   turbo-rails
+  vite_rails (~> 3.0)
   web-console
 
 RUBY VERSION
