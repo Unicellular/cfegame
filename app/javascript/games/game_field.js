@@ -1,28 +1,4 @@
-import { app } from "application"
 export class GameField {
-  constructor(){
-    $("#player .action").on( "click", ".card", (e) => {
-      app.card_selected( $(e.target), false );
-    });
-    $("#player .hand").on( "click", ".card", (e) => {
-      app.card_selected( $(e.target), true );
-    });
-    $("#moves").on( "click", ".rule", (e) => {
-      app.perform_rule( $(e.target) );
-    });
-    $("#choose").on( "click", "button", (e) => {
-      app.confirm_choice();
-    });
-    $("#choose").on( "click", ".card", (e) => {
-      console.log("in click choose");
-      $(e.target).toggleClass("selected");
-      app.toggle_choice( $(e.target) );
-    });
-    $(".secondary .discard").on( "click", ".card", (e) => {
-      app.recycle( $(e.target) );
-    });
-  }
-
   update_view( game_data ){
     var cards_data;
     var show;
