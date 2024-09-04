@@ -1,4 +1,4 @@
-import { GameField } from "games/game_field"
+import { GameField } from "./game_field"
 
 export class Game {
   constructor() {
@@ -7,7 +7,26 @@ export class Game {
     //console.log( info );
     this.view = new GameField();
     this.update_status = this.update_status.bind(this);
-    this.request_status();
+    $("#player .action").on( "click", ".card", (e) => {
+      this.card_selected( $(e.target), false );
+    });
+    $("#player .hand").on( "click", ".card", (e) => {
+      this.card_selected( $(e.target), true );
+    });
+    $("#moves").on( "click", ".rule", (e) => {
+      this.perform_rule( $(e.target) );
+    });
+    $("#choose").on( "click", "button", (e) => {
+      this.confirm_choice();
+    });
+    $("#choose").on( "click", ".card", (e) => {
+      console.log("in click choose");
+      $(e.target).toggleClass("selected");
+      this.toggle_choice( $(e.target) );
+    });
+    $(".secondary .discard").on( "click", ".card", (e) => {
+      this.recycle( $(e.target) );
+    });
   }
 
   update_status( json ) {
