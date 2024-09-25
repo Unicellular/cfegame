@@ -26,6 +26,7 @@ table {
 #maincontainer {
   background-color: #eeeeee;
   position: relative;
+  max-height: 660px;
 }
 
 .primary {
@@ -37,6 +38,11 @@ table {
   .card {
     margin: 10px auto;
     float: none;
+  }
+  
+  #event_list {
+    overflow: scroll;
+    max-height: 540px;
   }
 }
 

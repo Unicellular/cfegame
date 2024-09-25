@@ -7,25 +7,28 @@ export class Game {
     //console.log( info );
     this.view = new GameField();
     this.update_status = this.update_status.bind(this);
-    $("#player .action").on( "click", ".card", (e) => {
-      this.card_selected( $(e.target), false );
+  }
+
+  set_event_handler() {
+    $("#player .action").on("click", ".card", (e) => {
+      this.card_selected($(e.target), false);
     });
-    $("#player .hand").on( "click", ".card", (e) => {
-      this.card_selected( $(e.target), true );
+    $("#player .hand").on("click", ".card", (e) => {
+      this.card_selected($(e.target), true);
     });
-    $("#moves").on( "click", ".rule", (e) => {
-      this.perform_rule( $(e.target) );
+    $("#moves").on("click", ".rule", (e) => {
+      this.perform_rule($(e.target));
     });
-    $("#choose").on( "click", "button", (e) => {
+    $("#choose").on("click", "button", (e) => {
       this.confirm_choice();
     });
-    $("#choose").on( "click", ".card", (e) => {
+    $("#choose").on("click", ".card", (e) => {
       console.log("in click choose");
       $(e.target).toggleClass("selected");
-      this.toggle_choice( $(e.target) );
+      this.toggle_choice($(e.target));
     });
-    $(".secondary .discard").on( "click", ".card", (e) => {
-      this.recycle( $(e.target) );
+    $(".secondary .discard").on("click", ".card", (e) => {
+      this.recycle($(e.target));
     });
   }
 
