@@ -1,5 +1,8 @@
 <template>
-  <Turn v-for="turn in turns" :class="turn_owner" :turn="turn"></Turn>
+  <button @click="get_event_list">點擊以更新</button>
+  <div>
+    <Turn v-for="turn in turns" :class="turn_owner" :turn="turn"></Turn>
+  </div>
 </template>
 <script>
 import { Game } from './games/game'

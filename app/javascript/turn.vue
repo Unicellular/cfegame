@@ -1,6 +1,6 @@
 <template>
   <div :class="turn_owner">
-    <span>第{{ turn.number }}回合</span>
+    <span>第{{ turn_number }}回合</span>
     <div v-for="event in turn.events">
       <Event :event="event"></Event>
     </div>
@@ -18,6 +18,9 @@ export default {
         return "player"
       }
       return "opponent"
+    },
+    turn_number() {
+      return this.turn.number + 1
     }
   },
   props: ['turn']
