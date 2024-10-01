@@ -31,7 +31,7 @@ RSpec.describe GamesController, type: :controller do
       get :event_list, params: { game_id: @game.id, id: @player1.id }
       expect(response).to have_http_status(:ok)
       ev_list = JSON.parse(response.body)
-      expect(ev_list).to eq([{"turn" => {"player" => @player1.id, "number" => 0}, "events" => []}])
+      expect(ev_list).to eq([{"player" => @player1.id, "number" => 0, "events" => []}])
     end
   end
 end

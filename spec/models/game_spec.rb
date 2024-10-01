@@ -76,7 +76,7 @@ RSpec.describe Game, type: :model do
     end
 
     it "should return a list that contained an empty turn" do
-      expect(@game.event_list(@game.players[0])[0]).to eq({turn: {player: @game.players[0].id, number: @game.turn}, events: []})
+      expect(@game.event_list(@game.players[0])[0]).to eq({player: @game.players[0].id, number: @game.turn, events: []})
     end
 
     context "when there are serveral events happened" do
@@ -96,12 +96,13 @@ RSpec.describe Game, type: :model do
 
       it "the first item on the list should be the newest turn" do
         event_list = @game.event_list(@player1)
-        expect(event_list[0][:turn]).to eq({player: @player2.id, number: @game.turn})
+        expect(event_list[0][:player]).to eq(@player2.id)
+        expect(event_list[0][:number]).to eq(@game.turn)
       end
 
       it "the first item on the list should contain latest action" do
         event_list = @game.event_list(@player1)
-        expect(event_list[0][:events][0]).to include(cards_used: [{"element" => "fire", "level" => 4}], rule: "fire attack", effect: {"point" => 8, "attack" => 8, "modified_point" => 8})
+        expect(event_list[0][:events][0]).to include(cards_used: [{"element" => "fire", "level" => 4}], rule: "火擊術", effect: {"point" => 8, "attack" => 8, "modified_point" => 8})
         expect(event_list[0][:events][1]).to include(effect: {"take" => 2, "discard" => [@dishand[1].to_hash]})
       end
 
@@ -124,7 +125,7 @@ RSpec.describe Game, type: :model do
 
         it "should the owner of last turn is oppoenet" do
           event_list = @game.event_list(@player2)
-          expect(event_list[1][:turn][:player]).to eq(@player1.id)
+          expect(event_list[1][:player]).to eq(@player1.id)
         end
 
         context "after player 2 performing action" do
@@ -137,7 +138,7 @@ RSpec.describe Game, type: :model do
           end
 
           it "should show the detail of secret event" do
-            expect(@game.event_list(@player2)[1][:events][0]).to include(cards_used: [{"element" => "tree", "level" => 1}, {"element" => "tree", "level" => 2}], rule: "defense")
+            expect(@game.event_list(@player2)[1][:events][0]).to include(cards_used: [{"element" => "tree", "level" => 1}, {"element" => "tree", "level" => 2}], rule: "防禦")
           end
         end
       end
