@@ -4,7 +4,7 @@ ruby "3.2.2"
 gem 'rails', '~> 7.0.0'
 
 group :development, :test do
-  gem 'sqlite3', '>= 1.3.0'
+  gem 'sqlite3', '~> 1.4'
   gem 'rspec-rails'
   gem 'pry-rails'
   gem 'debug', '~> 1.7'
