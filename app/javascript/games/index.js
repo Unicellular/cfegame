@@ -1,5 +1,5 @@
-import { Game } from "./game"
-import { hidden_alert } from "./sessions"
+import { Game } from "games/game"
+import { hidden_alert } from "games/sessions"
 
 export { hidden_alert }
 

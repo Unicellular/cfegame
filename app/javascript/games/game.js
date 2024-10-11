@@ -1,4 +1,4 @@
-import { GameField } from "./game_field"
+import { GameField } from "games/game_field"
 
 export class Game {
   constructor() {
