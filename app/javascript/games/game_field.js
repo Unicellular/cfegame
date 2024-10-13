@@ -1,4 +1,8 @@
 export class GameField {
+  constructor() {
+    this.update_event_list = this.update_event_list.bind(this);
+  }
+
   update_view( game_data ){
     var cards_data;
     var show;
@@ -12,6 +16,50 @@ export class GameField {
     $("#field").text(game_data.field);
     $("#choose .modal-body").empty().append( this.generate_card_list( game_data.choices, true, false ) );
     $("#moves .row").empty().append( this.generate_rule_list( game_data.possible_moves ) );
+  }
+
+  update_event_list(event_list) {
+    console.log(event_list);
+    var event_list_container = $("<div>");
+    $("#event_list").empty().append(event_list_container);
+    for (let turn of event_list) {
+      var turn_player = turn.player == $("#player").data("id") ? "player" : "opponent";
+      var turn_element = $("<div>").toggleClass(turn_player);
+      var turn_number = turn.number + 1;
+      turn_element.append($("<span>").text(`第${turn_number}回合`));
+      var events_element = $("<div>");
+      for (let event of turn.events) {
+        var event_element = $("<div>");
+        event_element.append($("<span>").text(event.cards_used.map(card => {
+          return this.generate_card_text(card);
+        }).join("")));
+        event_element.append($("<span>").text(event.rule));
+        if (event?.effect?.discard) {
+          var discard_text = event.effect.discard.map(card => {
+            return this.generate_card_text(card);
+          });
+          event_element.append($("<span>").text(`棄${discard_text}`));
+        }
+        events_element.append(event_element);
+      }
+      turn_element.append(events_element);
+      event_list_container.append(turn_element);
+    }
+  }
+
+  generate_card_text(card) {
+    return this.transform_element(card.element) + card.level;
+  }
+
+  transform_element(element) {
+    switch (element) {
+      case "metal": return "金";
+      case "tree": return "木";
+      case "water": return "水";
+      case "fire": return "火";
+      case "earth": return "土";
+      default: return element;
+    }
   }
 
   display_player( is_current, data ){

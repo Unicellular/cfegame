@@ -71,10 +71,14 @@ export class Game {
   }
 
   request_status() {
-    console.log( "requesting status" );
-    fetch(this.generate_url("info", $("#maincontainer").data("game_id"), $("#player").data("id")) )
-      .then( (response) => response.json() )
-      .then( this.update_status );
+    console.log("requesting status");
+    fetch(this.generate_url("info", $("#maincontainer").data("game_id"), $("#player").data("id")))
+      .then((response) => response.json())
+      .then(this.update_status);
+    console.log("get event list");
+    fetch(this.generate_url("event_list", $("#maincontainer").data("game_id"), $("#player").data("id")))
+      .then((response) => response.json())
+      .then(this.view.update_event_list);
   }
 
   card_selected( card, in_hand ) {

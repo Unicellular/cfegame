@@ -188,3 +188,14 @@ table {
     float: left;
   }
 }
+
+#event_list {
+  overflow: scroll;
+  max-height: 540px;
+  .player {
+    border: solid red;
+  }
+  .opponent {
+    border: solid blue;
+  }
+}
