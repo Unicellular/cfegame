@@ -19,3 +19,22 @@ rails db:seed RAILS_ENV=test
 # do the spec
 rails spec
 ----
+
+## Docker
+
+[source,shell,numbered]
+----
+# 單純build app
+docker build .
+# 一起build db，先啟動docker desktop
+docker compose build
+docker compose up
+# 或是
+docker compose up --build
+----
+
+本機起docker前需先將.dockerignore中的 `/.env*` 及 `/config/master.key` 註解掉。
+
+### install node & yarn in Dockerfile（參考）
+
+https://stackoverflow.com/questions/36399848/install-node-in-dockerfile
