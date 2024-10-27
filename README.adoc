@@ -6,8 +6,8 @@
 
 ## 開發環境
 
-* rails 7.0.4
-* ruby 3.2.0
+* rails 7.0.8.4
+* ruby 3.2.2
 
 ## 執行rspec
 
@@ -38,3 +38,14 @@ docker compose up --build
 ### install node & yarn in Dockerfile（參考）
 
 https://stackoverflow.com/questions/36399848/install-node-in-dockerfile
+
+## google cloud
+
+[source,shell,numbered]
+----
+gcloud builds submit --config cloudbuild.yaml
+gcloud run deploy cfegame --platform managed --region asia-east1 --image gcr.io/cfegame/cfegame --add-cloudsql-instances cfegame:asia-east1:cfegame --allow-unauthenticated
+----
+
+## rails credentials
+https://blog.saeloun.com/2019/10/10/rails-6-adds-support-for-multi-environment-credentials/[rails credentials 用法]
