@@ -316,6 +316,20 @@ RSpec.describe Rule, type: :model do
     end
   end
 
+  # 英雄學派
+  # 戰士學派
+  context "when the warrior school is uesd" do
+    before(:each) do
+      @player1.annex["hero"] = ["brave", "mars", "warrior"]
+    end
+
+    it "should freeze the opponent for one turn after playing burst" do
+      player_perform_rule(@player1, "burst", [[:fire, 3], [:fire, 4], [:water, 2], [:metal, 1]])
+      expect(@player2.reload.annex["freeze"]).to eq(1)
+    end
+  end
+
+  # 尋道者學派
   context "when the seeker school is used" do
     before(:each) do
       @player1.annex["hero"] = "kind"

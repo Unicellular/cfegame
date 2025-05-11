@@ -419,7 +419,13 @@ class Rule < ApplicationRecord
       effect["immune"] = rule.effect["immune"] unless rule.effect["immune"].nil?
     end
     # 處理與目標的互動
-    modify_with_target(target)
+    if target.respond_to?(:each)
+      target.each do |t|
+        modify_with_target(t)
+      end
+    else
+      modify_with_target(target)
+    end
     # 處理反制效果
     modify_with_counter(player, last_player)
     effect
