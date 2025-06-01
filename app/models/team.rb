@@ -2,8 +2,8 @@ class Team < ApplicationRecord
   belongs_to :game, autosave: true
   has_many :players, dependent: :destroy
   has_many :users, through: :players
-  enum star: { nothing: 0, venus: 1, jupiter: 2, mercury: 3, mars: 4, saturn: 5 }
-  serialize :annex, JSON
+  enum :star, { nothing: 0, venus: 1, jupiter: 2, mercury: 3, mars: 4, saturn: 5 }
+  serialize :annex, coder: JSON
 
   def position_available?
     members_amount < maximum

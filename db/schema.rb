@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
+ActiveRecord::Schema[7.2].define(version: 2025_05_31_144928) do
   create_table "authorizations", force: :cascade do |t|
     t.string "provider"
     t.string "uid"
@@ -127,5 +127,4 @@ ActiveRecord::Schema[7.0].define(version: 2016_07_26_140350) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
-
 end

@@ -3,8 +3,8 @@ class Player < ApplicationRecord
   belongs_to :team, autosave: true
   has_many :cards, as: :cardholder, dependent: :destroy
   has_many :event
-  serialize :star_history, Array
-  serialize :annex, JSON
+  serialize :star_history, coder: JSON, type: Array
+  serialize :annex, coder: JSON
 
   after_initialize :initialize_defaults, :if => :new_record?
 

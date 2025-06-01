@@ -5,8 +5,8 @@ class Game < ApplicationRecord
   has_many :turns, -> { order(:number) }, dependent: :destroy
   has_one :deck, dependent: :destroy
 
-  enum status: [ :prepare, :start, :over ]
-  enum field: { nothing: 0, metal: 1, tree: 2, water: 3, fire: 4, earth: 5 }
+  enum :status, [ :prepare, :start, :over ]
+  enum :field, { nothing: 0, metal: 1, tree: 2, water: 3, fire: 4, earth: 5 }
 
   def self.open( user, game_options: {}, team_options: {} )
     game = self.create!( game_options )

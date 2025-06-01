@@ -1,12 +1,12 @@
 class Rule < ApplicationRecord
-  enum form: { attack: 0, spell: 1, power: 2, become: 3 }
-  enum subform: { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
+  enum :form, { attack: 0, spell: 1, power: 2, become: 3 }
+  enum :subform, { metal: 0, tree: 1, water: 2, fire: 3, earth: 4, physical: 5, special: 6,
                   active: 7, passive: 8, static: 9, mastery: 10, continuous: 11, inherit: 12 }
-  enum series: { basic: 0, star: 1, field: 2, hero: 3 }
-  serialize :condition, JSON
-  serialize :material, JSON
-  serialize :formula, JSON
-  serialize :effect, JSON
+  enum :series, { basic: 0, star: 1, field: 2, hero: 3 }
+  serialize :condition, coder: JSON
+  serialize :material, coder: JSON
+  serialize :formula, coder: JSON
+  serialize :effect, coder: JSON
   has_one :rule
   has_many :event
   scope :action, -> { where(form: [:attack, :spell, :become]) }
